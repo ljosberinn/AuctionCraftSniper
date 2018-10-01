@@ -1,0 +1,10 @@
+{
+  "stylelintIntegration": true,
+  "eslintIntegration": true,
+  "tabWidth": 2,
+  "useTabs": false,
+  "trailingComma": "none",
+  "semi": true,
+  "arrowParens": "avoid",
+  "printWidth": 200
+}

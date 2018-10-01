@@ -1,1 +1,5 @@
-.idea/
+.idea
+node_modules
+assets/js
+
+db.php

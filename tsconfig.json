@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "allowJs": true,
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "sourceMap": true
+  }
+}
