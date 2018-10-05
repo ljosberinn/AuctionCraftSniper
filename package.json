@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc assets/ts/app.ts --sourceMap --outDir assets/js && npx webpack"
+    "build": "tsc assets/ts/app.ts --sourceMap --outDir assets/js --lib es6,dom && npx webpack"
   },
   "repository": {
     "type": "git",
