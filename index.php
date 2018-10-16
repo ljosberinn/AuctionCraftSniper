@@ -23,17 +23,7 @@ if ($data->num_rows > 0) {
     }
 }
 
-#$regionQuery = "SELECT DISTINCT(region) FROM `realms` ORDER BY `region` ASC";
 $regions = ['EU', 'US'];
-
-/*
-$data = $connection->query($regionQuery);
-
-if ($data->num_rows > 0) {
-while ($stream = $data->fetch_assoc()) {
-$regions[] = $stream['region'];
-}
-} */
 
 $realms = [];
 
