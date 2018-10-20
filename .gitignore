@@ -1,5 +1,8 @@
 .idea
 node_modules
-assets/js
 
+.DS_Store
+
+assets/js
 db.php
+

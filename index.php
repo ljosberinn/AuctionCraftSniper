@@ -1,59 +1,34 @@
 <?php
 
-function paScript(...$vars)
+function logJSON(...$vars)
 {
     ?>
   <script>console.log(<?=json_encode($vars)?>);</script>
     <?php
 }
 
-$db = require_once 'api/db.php';
-$connection = new mysqli($db['host'], $db['user'], $db['pw'], $db['db']);
-$connection->set_charset('utf8');
+require_once 'dependencies/class.AuctionCraftSniper.php';
 
-$professionQuery = "SELECT * FROM `professions` ORDER BY `name` ASC";
-$professions = [];
-
-$data = $connection->query($professionQuery);
-
-if ($data->num_rows > 0) {
-
-    while ($stream = $data->fetch_assoc()) {
-        $professions[$stream['id']] = $stream['name'];
-    }
-}
-
-$regions = ['EU', 'US'];
-
-$realms = [];
-
-foreach ($regions as $region) {
-    $realmQuery = "SELECT `house`, `name` FROM `realms` WHERE `region` = '" . $region . "' ORDER BY `name` ASC";
-    $data = $connection->query($realmQuery);
-
-    if ($data->num_rows > 0) {
-        while ($stream = $data->fetch_assoc()) {
-            $realms[$stream['house']] = $region . '-' . $stream['name'];
-        }
-    }
-}
+$AuctionCraftSniper = new AuctionCraftSniper();
 
 ?>
 
 <!DOCTYPE html>
 <head>
   <link href="assets/css/normalize.css" rel="stylesheet"/>
+  <link href="assets/css/custom.css" rel="stylesheet"/>
+  <title>AuctionCraftSniper - WIP</title>
 </head>
 <body>
 
 <header>
-
+<h1>` AuctionCraftSniper</h1>
 </header>
 <main>
 
   <div>
-        <?php foreach ($professions as $id => $name) {?>
-      <label><?=$name?>
+        <?php foreach ($AuctionCraftSniper->getProfessions() as $id => $name) {?>
+      <label><i class="sprite icon-<?=$id?>" data-tippy="<?=$name?>"></i>
         <input type="checkbox" value="<?=$id?>">
       </label>
         <?php }?>
@@ -62,7 +37,7 @@ foreach ($regions as $region) {
   <div>
     <input id="realm" type="text" list="realms">
     <datalist id="realms">
-      <?php foreach ($realms as $id => $realm) {?>
+      <?php foreach ($AuctionCraftSniper->getRealms() as $realm) {?>
         <option value="<?=$realm?>"></option>
       <?php }?>
     </datalist>

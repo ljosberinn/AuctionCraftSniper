@@ -1,1 +1,68 @@
 /* custom css */
+
+@font-face {
+  font-family: "LifeCraft";
+  src: url(../fonts/LifeCraft_Font.ttf) format("truetype");
+}
+
+h1 {
+  font-family: "LifeCraft";
+}
+
+/** ICONS **/
+
+.sprite {
+  background-image: url(../img/sprite-professions-min.png);
+  background-repeat: no-repeat;
+  display: inline-block;
+}
+
+[class*="icon-"] {
+  width: 32px;
+  height: 32px;
+}
+
+/* ALCHEMY */
+.icon-1 {
+  background-position: 0 0;
+}
+
+/* Blacksmithing */
+.icon-2 {
+  background-position: -32px 0;
+}
+
+/* COOKING */
+.icon-3 {
+  background-position: -64px 0;
+}
+
+/* ENCHANTING */
+.icon-4 {
+  background-position: 0 -32px;
+}
+
+/* ENGINEERING */
+.icon-5 {
+  background-position: -32px -32px;
+}
+
+/* INSCRIPTION */
+.icon-6 {
+  background-position: -64px -32px;
+}
+
+/* JEWELCRAFTING */
+.icon-7 {
+  background-position: 0 -64px;
+}
+
+/* LEATHERWORKING */
+.icon-8 {
+  background-position: -32px -64px;
+}
+
+/* TAILORING */
+.icon-9 {
+  background-position: -64px -64px;
+}
