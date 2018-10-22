@@ -11,8 +11,7 @@ class AuctionCraftSniper
 
     private $professions = [];
 
-    public function __construct()
-    {
+    public function __construct() {
         $db = require_once './api/db.php';
 
         $this->connection = new mysqli($db['host'], $db['user'], $db['pw'], $db['db']);
@@ -22,11 +21,10 @@ class AuctionCraftSniper
         $this->setProfessions();
     }
 
-    final private function setRealms()
-    {
+    final private function setRealms() {
         foreach ($this->regions as $region) {
             $realmQuery = "SELECT `house`, `name` FROM `realms` WHERE `region` = '" . $region . "' ORDER BY `name` ASC";
-            $data = $this->connection->query($realmQuery);
+            $data       = $this->connection->query($realmQuery);
 
             if ($data->num_rows > 0) {
                 while ($stream = $data->fetch_assoc()) {
@@ -36,8 +34,7 @@ class AuctionCraftSniper
         }
     }
 
-    final private function setProfessions()
-    {
+    final private function setProfessions() {
         $professionQuery = "SELECT * FROM `professions` ORDER BY `name` ASC";
 
         $data = $this->connection->query($professionQuery);
@@ -49,14 +46,11 @@ class AuctionCraftSniper
         }
     }
 
-    final public function getProfessions()
-    {
+    final public function getProfessions() {
         return $this->professions;
     }
 
-    final public function getRealms()
-    {
+    final public function getRealms() {
         return $this->realms;
     }
-
 }

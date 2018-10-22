@@ -11,11 +11,11 @@ foreach ($headers as $header) {
     header($header);
 }
 
-$db = require_once 'db.php';
+$db         = require_once 'db.php';
 $connection = new mysqli($db['host'], $db['user'], $db['pw'], $db['db']);
 $connection->set_charset('utf8');
 
-$houseID = (int) $_GET['house'];
+$houseID = (int)$_GET['house'];
 
 if ($houseID !== 0) {
 
@@ -29,7 +29,7 @@ if ($houseID !== 0) {
     if ($data->num_rows > 0) {
 
         while ($stream = $data->fetch_assoc()) {
-            $lastUpdateTimestamp = (int) $stream['timestamp'];
+            $lastUpdateTimestamp = (int)$stream['timestamp'];
         }
 
         // AH data supposedly updates once every 20 minutes
