@@ -15,6 +15,19 @@ const setACSLocalStorage = (data: ACSLocalStorageObj) => {
   if (data.professions) {
     ACS.professions = data.professions;
   }
+
+  if (typeof ACS.house !== 'undefined' && ACS.professions.length > 0) {
+    localStorage.ACS = JSON.stringify(ACS);
+  }
+};
+
+const getACSLocalStorage = () => {
+  if (localStorage.ACS) {
+    const tempACS: ACSLocalStorageObj = JSON.parse(localStorage.ACS);
+
+    ACS.house = tempACS.house;
+    ACS.professions = tempACS.professions;
+  }
 };
 
 const checkboxEventListener = function (e) {
@@ -89,6 +102,7 @@ Raven.context(() => {
     if (document.readyState === 'complete') {
       console.warn("Stop! This is a browser functionality for developers. If anyone tells you top copy and paste anything in here, it's very likely to be a scam.");
       addEventListeners();
+      getACSLocalStorage();
     }
   };
 });

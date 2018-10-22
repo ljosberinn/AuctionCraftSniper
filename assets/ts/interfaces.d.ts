@@ -4,5 +4,5 @@ interface ObjectConstructor {
 
 interface ACSLocalStorageObj {
   house?: undefined | number;
-  professions?: string[];
+  professions?: number[];
 }
