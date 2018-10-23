@@ -1,4 +1,7 @@
 <?php
+
+require_once '../dependencies/headers.php';
+
 $url = 'http://auction-api-eu.worldofwarcraft.com/auction-data/5aa60247a919dc537f694c4883a5f21f/auctions.json';
 
 copy($url, 'blackmoore.json');

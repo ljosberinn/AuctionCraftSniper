@@ -1,15 +1,6 @@
 <?php
 
-$headers = [
-    "X-Content-Type-Options: nosniff",
-    "X-Frame-Options: SAMEORIGIN",
-    "X-XSS-Protection: 0",
-    "Content-Type: application/json",
-];
-
-foreach ($headers as $header) {
-    header($header);
-}
+require_once '../dependencies/headers.php';
 
 $db         = require_once 'db.php';
 $connection = new mysqli($db['host'], $db['user'], $db['pw'], $db['db']);
