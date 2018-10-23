@@ -44,5 +44,4 @@ if ($houseID !== 0) {
     }
 
     echo json_encode(['callback' => $houseRequiresUpdate ? 'houseRequiresUpdate' : 'getProfessionTables']);
-
 }
