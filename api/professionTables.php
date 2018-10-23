@@ -26,6 +26,7 @@ if ($houseID !== 0) {
 
     $data = $connection->query($getLastUpdateTimestampQuery);
 
+    // house has been previously fetched, check whether it needs an update
     if ($data->num_rows > 0) {
 
         while ($stream = $data->fetch_assoc()) {
@@ -38,12 +39,10 @@ if ($houseID !== 0) {
         }
 
     } else {
+        // house has never been fetched before
         $houseRequiresUpdate = true;
     }
 
-    if ($houseRequiresUpdate) {
-        echo json_encode(['callback' => 'houseRequiresUpdate']);
-        die;
-    }
+    echo json_encode(['callback' => $houseRequiresUpdate ? 'houseRequiresUpdate' : 'getProfessionTables']);
 
 }
