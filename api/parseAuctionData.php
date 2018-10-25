@@ -9,126 +9,51 @@ $AuctionCraftSniper = new AuctionCraftSniper(false, [1, 2, 3, 4, 5, 6, 7, 8, 9])
 
 $itemIDs = $AuctionCraftSniper->getItemIDs();
 
-$auctionValues = [];
-
-$fileSize = filesize('blackmoore.json');
-
-$byteLimit = 512;
-
-function strpos_all($haystack, $needle) {
-    $offset = 0;
-    $allpos = [];
-
-    while (($pos = strpos($haystack, $needle, $offset)) !== false) {
-        $offset   = $pos + 1;
-        $allpos[] = $pos;
-    }
-
-    return $allpos;
-}
 
 function jsLog(...$vars) {
     echo '<script>console.log(' . json_encode($vars) . ');</script>';
 }
 
-function assignToGlobals(int $occurence, string $key) {
-    global $itemArray;
-    global $previousIndex;
 
-    $itemArray[$key]['value'] = $occurence;
-    $previousIndex            = $key;
-}
+$auctionValues    = [];
+$fileSize         = filesize('blackmoore.json');
+$byteLimit        = 365;
 
+$auctionEndString = ',{"auc"';
+$leftovers        = '';
 
 if ($stream = fopen('blackmoore.json', 'r')) {
 
-    ?>
-	<table style="width: 100%;">
-		<thead>
-		<tr>
-			<th>itemID</th>
-			<th>ownerPosition</th>
-			<th>ownerRealmPosition</th>
-			<th>bidPosition</th>
-			<th>buyoutPosition</th>
-			<th>quantityPosition</th>
-			<th>timeLeftPosition</th>
-		</tr>
-		</thead>
-		<tbody>
-        <?php
+    $first200Bytes = stream_get_contents($stream, 200, 0);
+    $auctionsStart = strpos($first200Bytes, '"auctions": [') + 16;
 
-        for ($bytes = 0; $bytes <= $fileSize; $bytes += $byteLimit) {
-            $data = stream_get_contents($stream, $byteLimit, $bytes);
+    for ($bytes = $auctionsStart; $bytes <= 4000000; $bytes += $byteLimit) {
 
-            foreach ($itemIDs as $itemID) {
-                // check if :$itemID,"owner" exists
-                if (substr_count($data, ':' . $itemID . ',') > 0) {
+        // get trailing auction data from previous iteration to have a full new dataset
+        $data = $leftovers;
 
-                    $itemArray = [
-                        'ownerPosition'      => ['position' => 0, 'value' => 0, 'searchString' => $itemID . ',"owner":',],
-                        'ownerRealmPosition' => ['position' => 0, 'value' => 0, 'searchString' => ',"ownerRealm":',],
-                        'bidPosition'        => ['position' => 0, 'value' => 0, 'searchString' => ',"bid":',],
-                        'buyoutPosition'     => ['position' => 0, 'value' => 0, 'searchString' => ',"buyout":',],
-                        'quantityPosition'   => ['position' => 0, 'value' => 0, 'searchString' => ',"quantity":',],
-                        'timeLeftPosition'   => ['position' => 0, 'value' => 0, 'searchString' => ',"timeLeft":',],
-                    ];
+        // remove whitespace & linebreaks
+        $data .= str_replace("	", '', str_replace("\r\n", '', stream_get_contents($stream, $byteLimit, $bytes)));
 
-                    $previousIndex   = '';
-                    $allowedOverflow = 32;
+        // find end of this auction
+        $auctionEnd = strpos($data, $auctionEndString);
 
-                    foreach ($itemArray as $key => $info) {
-                        $occurences = strpos_all($data, $info['searchString']);
+        // define new leftovers for next iteration, +1 because of leading , at start of new auction obj
+        $leftovers = substr($data, $auctionEnd + 1);
 
-                        foreach ($occurences as $occurence) {
-                            if ($occurence > $itemArray[$previousIndex]['position']) {
-                                $itemArray[$key]['position'] = $occurence;
-                                $previousIndex               = $key;
-                                break;
-                            }
-                        }
+        $data = json_decode(substr($data, 0, $auctionEnd), true);
 
-                        // no valid occurence could be found, append more data
-                        if ($itemArray[$key]['position'] === 0) {
-                            $data            .= stream_get_contents($stream, $allowedOverflow, $bytes + $byteLimit);
-                            $allowedOverflow += $allowedOverflow;
-                            $occurences      = strpos_all($data, $info['searchString']);
+        if (in_array($data['item'], $itemIDs)) {
+            $thisPPU     = round($data['buyout'] / $data['quantity']);
+            $previousPPU = (int)$auctionValues[$data['item']];
 
-                            foreach ($occurences as $occurence) {
-                                if ($occurence > $itemArray[$previousIndex]['position']) {
-                                    $itemArray[$key]['position'] = $occurence;
-                                    $previousIndex               = $key;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    if ($itemArray['ownerPosition']['position'] < $itemArray['ownerRealmPosition']['position'] && $itemArray['ownerRealmPosition']['position'] < $itemArray['bidPosition']['position'] && $itemArray['bidPosition']['position'] < $itemArray['buyoutPosition']['position'] && $itemArray['buyoutPosition']['position'] < $itemArray['quantityPosition']['position'] && $itemArray['quantityPosition']['position'] < $itemArray['timeLeftPosition']['position']) {
-
-                    } else {
-                        jsLog($itemArray, $data);
-                        die;
-                    }
-
-                    ?>
-					<tr>
-						<td><?= $itemID ?></td>
-                        <?php foreach ($itemArray as $key => $info) { ?>
-							<td><?= $info['position'] ?> => <?= $info['value'] ?></td>
-                        <?php } ?>
-					</tr>
-                    <?php
-
-                    $auctionValues[] = $itemArray;
-                }
+            if ($previousPPU === 0 || $thisPPU < $previousPPU) {
+                $auctionValues[$data['item']] = $thisPPU;
             }
         }
-        ?>
-		</tbody>
-	</table>
-    <?php
+    }
+
     fclose($stream);
 
-    echo '<script>console.log(' . json_encode($auctionValues) . ');</script>';
+    echo json_encode($auctionValues);
 }
