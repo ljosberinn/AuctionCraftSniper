@@ -1,41 +1,34 @@
 <?php
 
-function jsLog(...$vars) {
-    echo '<script>console.log(' . json_encode($vars) . ');</script>';
-}
-
 require_once '../dependencies/headers.php';
+require_once '../dependencies/class.AuctionCraftSniper.php';
 
-const CHUNK_SIZE         = 2700000;
-const AUCTION_END_STRING = ',{"auc"';
-const BYTE_LIMIT         = 365;
+$decodedPOST = json_decode(trim(file_get_contents("php://input")), true);
 
-if (!isset($_POST['step']) && !isset($_POST['auctionValues']) && !isset($_POST['itemIDs'])) {
+const BYTE_LIMIT = 365;
+const CHUNK_SIZE = 2568505;
 
-    require_once '../dependencies/class.AuctionCraftSniper.php';
+if (!isset($decodedPOST['step']) && empty($decodedPOST['auctionValues']) && empty($decodedPOST['itemIDs'])) {
 
-    $AuctionCraftSniper = new AuctionCraftSniper(false, [1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    $AuctionCraftSniper = new AuctionCraftSniper();
 
-    $itemIDs = $auctionValues = [];
+    $itemIDs       = $AuctionCraftSniper->getItemIDs();
+    $auctionValues = [];
+    $step = 0;
 
-    foreach ($AuctionCraftSniper->getItemIDs() as $itemID) {
-        $itemIDs[$itemID] = true;
-    }
-
-    $step = 1;
 } else {
-    $auctionValues = (array)json_decode($_POST['auctionValues']);
-    $itemIDs       = (array)json_decode($_POST['itemIDs']);
-    $step          = (int)$_POST['step'];
 
-    if ($step <= 1) {
+    $auctionValues = (array)$decodedPOST['auctionValues'];
+    $itemIDs       = (array)$decodedPOST['itemIDs'];
+    $step          = (int)$decodedPOST['step'];
+
+    if ($step < 1) {
         echo json_encode(['err' => 'invalid step specified']);
         die;
     }
 }
 
-$fileName = (int)$_POST['houseID'];
-#$fileName = 'blackmoore.json';
+$fileName = (int)$decodedPOST['house'] . '.json';
 
 if ($fileName === 0) {
     echo json_encode(['err' => 'invalid house specified']);
@@ -44,24 +37,28 @@ if ($fileName === 0) {
 
 if ($stream = fopen($fileName, 'r')) {
 
-    if (!isset($_POST['step'])) {
+    if (!isset($decodedPOST['step'])) {
         $first200Bytes = stream_get_contents($stream, 200, 0);
         $auctionsStart = strpos($first200Bytes, '"auctions": [') + 16;
 
-        $nextChunkEnd = CHUNK_SIZE;
+        $thisChunksEnd = CHUNK_SIZE;
     } else {
-        $nextChunkEnd  = CHUNK_SIZE * $step;
-        $auctionsStart = $nextChunkEnd - CHUNK_SIZE;
+        $thisChunksEnd = CHUNK_SIZE * ($step + 1);
+        $auctionsStart = $thisChunksEnd - CHUNK_SIZE;
     }
 
-    $fileSize  = filesize($fileName);
+    $fileSize = filesize($fileName);
+
+    $auctionEndString = ',{"auc"';
+
+    if ($thisChunksEnd > $fileSize) {
+        $thisChunksEnd    = $fileSize;
+        $auctionEndString = ']}';
+    }
+
     $leftovers = '';
 
-    if ($nextChunkEnd > $fileSize) {
-        $nextChunkEnd = $fileSize;
-    }
-
-    for ($bytes = $auctionsStart; $bytes <= $nextChunkEnd; $bytes += BYTE_LIMIT) {
+    for ($bytes = $auctionsStart; $bytes <= $thisChunksEnd; $bytes += BYTE_LIMIT) {
 
         // get trailing auction data from previous iteration to have a full new dataset
         $data = $leftovers;
@@ -70,18 +67,19 @@ if ($stream = fopen($fileName, 'r')) {
         $data .= str_replace("	", '', str_replace("\r\n", '', stream_get_contents($stream, BYTE_LIMIT, $bytes)));
 
         // find end of this auction
-        $auctionEnd = strpos($data, AUCTION_END_STRING);
+        $auctionEnd = strpos($data, $auctionEndString);
 
         // define new leftovers for next iteration, +1 because of leading , at start of new auction obj
         $leftovers = substr($data, $auctionEnd + 1);
 
         $data = json_decode(substr($data, 0, $auctionEnd), true);
 
-        if (isset($itemIDs[$data['item']])) {
-            $thisPPU     = round($data['buyout'] / $data['quantity']);
+        if (in_array($data['item'], $itemIDs)) {
+            $thisPPU = round($data['buyout'] / $data['quantity']);
+
             $previousPPU = (int)$auctionValues[$data['item']];
 
-            if ($previousPPU === 0 || $thisPPU < $previousPPU) {
+            if ($previousPPU === 0 || $thisPPU < $previousPPU && $thisPPU !== 0) {
                 $auctionValues[$data['item']] = $thisPPU;
             }
         }
@@ -89,11 +87,21 @@ if ($stream = fopen($fileName, 'r')) {
 
     fclose($stream);
 
+    $updaterQuery = '';
+
     $response = [
         'auctionValues' => $auctionValues,
         'itemIDs'       => $itemIDs,
-        'step'          => $nextChunkEnd === $fileSize ? -1 : $step + 1,
+        'step'          => $step + 1,
+        'reqSteps'      => ceil($fileSize / CHUNK_SIZE),
+        'percentDone'   => round(($thisChunksEnd / $fileSize) * 100, 2),
     ];
+
+    if ((int)$response['step'] === (int)$response['reqSteps']) {
+        $AuctionCraftSniper   = new AuctionCraftSniper();
+        $updaterQuery         = $AuctionCraftSniper->updateHouse($decodedPOST['house'], $auctionValues);
+        $response['callback'] = 'getProfessionTables';
+    }
 
     echo json_encode($response);
 }

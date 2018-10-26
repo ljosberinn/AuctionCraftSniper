@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection ALL */
 
 class AuctionCraftSniper
 {
@@ -37,20 +37,11 @@ class AuctionCraftSniper
      * @method __construct
      * @param boolean $indexInit [controls automatic filling of $realms and $professions; default false]
      */
-    public function __construct($indexInit = false, $professionsToQuery = []) {
+    public function __construct() {
         $db = require_once 'db.php';
 
         $this->connection = new mysqli($db['host'], $db['user'], $db['pw'], $db['db']);
         $this->connection->set_charset('utf8');
-
-        $this->setProfessions();
-
-        if ($indexInit) {
-            $this->setRealms();
-        } else {
-            #$this->setRecipes($professionsToQuery);
-            $this->setItemIDs();
-        }
     }
 
     final private function setItemIDs() {
@@ -66,6 +57,10 @@ class AuctionCraftSniper
     }
 
     final public function getItemIDs() {
+        if (empty($this->itemIDs)) {
+            $this->setItemIDs();
+        }
+
         return $this->itemIDs;
     }
 
@@ -73,6 +68,10 @@ class AuctionCraftSniper
      * @return array
      */
     final public function getRecipes() {
+        if (empty($this->recipes)) {
+            $this->setRecipes();
+        }
+
         return $this->recipes;
     }
 
@@ -148,6 +147,10 @@ class AuctionCraftSniper
      * @method getProfessions [returns private profession array]
      */
     final public function getProfessions() {
+        if (empty($this->professions)) {
+            $this->setProfessions();
+        }
+
         return $this->professions;
     }
 
@@ -155,6 +158,123 @@ class AuctionCraftSniper
      * @method getRealms [returns private realm array]
      */
     final public function getRealms() {
+        if (empty($this->realms)) {
+            $this->setRealms();
+        }
+
         return $this->realms;
+    }
+
+    /**
+     * @method realEscapeString [shorthand for mysqli->real_escape_string]
+     *
+     * @param string $string
+     *
+     * @return string
+     */
+    final private function realEscapeString(string $string = '') {
+        return $this->connection->real_escape_string($string);
+    }
+
+    /**
+     * @method validateRegionRealm [validates Region + Realm combination and returns corresponding house]
+     *
+     * @param string $region
+     * @param string $realm
+     *
+     * @return int
+     */
+    final public function validateRegionRealm(string $region = '', string $realm = '') {
+
+        $validationQuery = 'SELECT `house` FROM `realms` WHERE `region` = "' . $this->realEscapeString($region) . '" AND `name` = "' . $this->realEscapeString($realm) . '"';
+
+        $data = $this->connection->query($validationQuery);
+
+        if ($data->num_rows === 1) {
+            while ($stream = $data->fetch_assoc()) {
+                return $stream['house'];
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * @method isHouseOutdated [checks whether a house has been fetched during the last 20 minutes]
+     *
+     * @param int $houseID
+     *
+     * @return bool
+     */
+    final public function isHouseOutdated(int $houseID = 0) {
+        $getLastUpdateTimestampQuery = "SELECT `timestamp` FROM `auctionData` WHERE `houseID` = " . $houseID . " LIMIT 1";
+
+        $lastUpdateTimestamp = 0;
+        $houseRequiresUpdate = false;
+
+        $data = $this->connection->query($getLastUpdateTimestampQuery);
+
+        // house has been previously fetched, check whether it needs an update
+        if ($data->num_rows > 0) {
+
+            while ($stream = $data->fetch_assoc()) {
+                $lastUpdateTimestamp = (int)$stream['timestamp'];
+            }
+
+            // AH data supposedly updates once every 20 minutes
+            $houseRequiresUpdate = $lastUpdateTimestamp < time() - 20 * 60;
+
+        } else {
+            // house has never been fetched before
+            $houseRequiresUpdate = true;
+        }
+
+        return $houseRequiresUpdate;
+    }
+
+    /**
+     * @method getAuctionsURL [retrieves auctionURL depending on current house]
+     *
+     * @param int $house
+     *
+     * @return string
+     */
+    final public function getAuctionsURL(int $house) {
+
+        $getAuctionsURLQuery = 'SELECT `auctionURL` FROM `realms` WHERE `house` = ' . $house . ' LIMIT 1';
+
+        $url = 'http://auction-api-eu.worldofwarcraft.com/auction-data/5aa60247a919dc537f694c4883a5f21f/auctions.json';
+
+        /*$data = $this->connection->query($getAuctionsURLQuery);
+
+        if ($data->num_rows === 1) {
+
+            while ($stream = $data->fetch_assoc()) {
+                $url = $stream['auctionURL'];
+            }
+        }*/
+
+        return $url;
+    }
+
+    final public function updateHouse(int $house = 0, array $auctionValues = []) {
+
+        $removePreviousDataQuery = 'DELETE FROM `auctionData` WHERE `houseID` = ' . $house;
+
+        $this->connection->query($removePreviousDataQuery);
+
+        $now = time();
+
+        $insertHouseDataQuery = 'INSERT INTO `auctionData` (`houseID`, `itemID`, `buyout`, `timestamp`) VALUES ';
+
+        foreach ($auctionValues as $itemID => $buyout) {
+            $insertHouseDataQuery .= '(' . $house . ', ' . $itemID . ', ' . $buyout . ', ' . $now . '), ';
+        }
+
+        $insertHouseDataQuery = substr($insertHouseDataQuery, 0, -2);
+
+        $this->connection->query($insertHouseDataQuery);
+
+        return $insertHouseDataQuery;
     }
 }

@@ -9,7 +9,7 @@ function logJSON(...$vars) {
 require_once 'dependencies/headers.php';
 require_once 'dependencies/class.AuctionCraftSniper.php';
 
-$AuctionCraftSniper = new AuctionCraftSniper(true);
+$AuctionCraftSniper = new AuctionCraftSniper();
 
 ?>
 
@@ -18,6 +18,7 @@ $AuctionCraftSniper = new AuctionCraftSniper(true);
 	<link href="assets/css/normalize.css" rel="stylesheet"/>
 	<link href="assets/css/custom.css" rel="stylesheet"/>
 	<title>AuctionCraftSniper - WIP</title>
+	<script defer src="assets/js/bundle.min.js"></script>
 </head>
 <body>
 
@@ -43,10 +44,17 @@ $AuctionCraftSniper = new AuctionCraftSniper(true);
 		</datalist>
 	</div>
 
+	<hr>
+	<div style="width: 100%; height: 50px;">
+		<div id="progress" style="height: 100%; background-color: purple;"></div>
+	</div>
+
+	<textarea id="result"></textarea>
+
 </main>
 
 <footer>
 
 </footer>
-<script src="assets/js/bundle.min.js"></script>
+
 </body>
