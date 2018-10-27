@@ -1,5 +1,7 @@
 <?php
 
+$response = ['callback' => 'throwHouseUnavailabilityError'];
+
 if (isset($_GET['house']) && is_numeric($_GET['house'])) {
     require_once '../dependencies/headers.php';
     require_once '../dependencies/class.AuctionCraftSniper.php';
@@ -10,6 +12,8 @@ if (isset($_GET['house']) && is_numeric($_GET['house'])) {
 
         $AuctionCraftSniper = new AuctionCraftSniper();
 
-        echo json_encode(['callback' => $AuctionCraftSniper->isHouseOutdated($houseID) ? 'houseRequiresUpdate' : 'getProfessionTables']);
+        $response = ['callback' => $AuctionCraftSniper->isHouseOutdated($houseID) ? 'houseRequiresUpdate' : 'getProfessionTables'];
     }
 }
+
+echo json_encode($response);

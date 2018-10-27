@@ -34,6 +34,12 @@ class AuctionCraftSniper
     private $itemIDs = [];
 
     /**
+     * @var bool|mysqli_result|string
+     */
+    private $OAuthAccessToken = '';
+
+
+    /**
      * @method __construct
      * @param boolean $indexInit [controls automatic filling of $realms and $professions; default false]
      */
@@ -42,8 +48,13 @@ class AuctionCraftSniper
 
         $this->connection = new mysqli($db['host'], $db['user'], $db['pw'], $db['db']);
         $this->connection->set_charset('utf8');
+
+        $this->OAuthAccessToken = $this->refreshOAuthAccessToken();
     }
 
+    /**
+     *
+     */
     final private function setItemIDs() {
         $itemIDQuery = 'SELECT `id` FROM `recipes` ORDER BY `id` ASC';
 
@@ -56,6 +67,9 @@ class AuctionCraftSniper
         }
     }
 
+    /**
+     * @return array
+     */
     final public function getItemIDs() {
         if (empty($this->itemIDs)) {
             $this->setItemIDs();
@@ -210,7 +224,9 @@ class AuctionCraftSniper
         $getLastUpdateTimestampQuery = "SELECT `timestamp` FROM `auctionData` WHERE `houseID` = " . $houseID . " LIMIT 1";
 
         $lastUpdateTimestamp = 0;
-        $houseRequiresUpdate = false;
+
+        // assume house has never been fetched before
+        $houseRequiresUpdate = true;
 
         $data = $this->connection->query($getLastUpdateTimestampQuery);
 
@@ -223,13 +239,75 @@ class AuctionCraftSniper
 
             // AH data supposedly updates once every 20 minutes
             $houseRequiresUpdate = $lastUpdateTimestamp < time() - 20 * 60;
+        }
 
-        } else {
-            // house has never been fetched before
-            $houseRequiresUpdate = true;
+        if ($houseRequiresUpdate) {
+
+            $outerAuctionData = $this->getOuterAuctionData($houseID);
+
+            $this->setDirectHouseURL($houseID, $outerAuctionData['files'][0]['url']);
+
+            // AH technically is older than 20 minutes, but API servers haven't updated yet
+            if ($outerAuctionData['files'][0]['lastModified'] / 1000 <= $lastUpdateTimestamp) {
+                $houseRequiresUpdate = false;
+            }
         }
 
         return $houseRequiresUpdate;
+    }
+
+    /**
+     * @param int $houseID
+     *
+     * @return array
+     */
+    final private function getOuterAuctionData(int $houseID = 0) {
+        $curl = curl_init();
+
+        curl_setopt_array($curl, [
+            CURLOPT_URL            => $this->getAuctionSourceURL($houseID),
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_SSL_VERIFYPEER => true,
+        ]);
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+
+        $outerAuctionData = (array)json_decode($response, true);
+
+        return $outerAuctionData;
+    }
+
+    /**
+     * @param int $houseID
+     *
+     * @return bool
+     */
+    final public function getInnerAuctionURL(int $houseID = 0) {
+        $getInnerAuctionURLQuery = 'SELECT `auctionURL` FROM `realms` WHERE `house` = ' . $houseID . ' LIMIT 1';
+
+        $data = $this->connection->query($getInnerAuctionURLQuery);
+
+        if ($data->num_rows === 1) {
+
+            while ($stream = $data->fetch_assoc()) {
+                return $stream['auctionURL'];
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param int    $houseID
+     * @param string $houseURL
+     */
+    final private function setDirectHouseURL(int $houseID = 0, string $houseURL = '') {
+        $setDirectHouseURLQuery = 'UPDATE `realms` SET `auctionURL` = "' . $houseURL . '" WHERE `house` = ' . $houseID;
+
+        $this->connection->query($setDirectHouseURLQuery);
     }
 
     /**
@@ -239,24 +317,28 @@ class AuctionCraftSniper
      *
      * @return string
      */
-    final public function getAuctionsURL(int $house) {
+    final public function getAuctionSourceURL(int $house = 0) {
 
-        $getAuctionsURLQuery = 'SELECT `auctionURL` FROM `realms` WHERE `house` = ' . $house . ' LIMIT 1';
+        $getAuctionsURLQuery = 'SELECT `region`, `slug` FROM `realms` WHERE `house` = ' . $house . ' LIMIT 1';
 
-        $url = 'http://auction-api-eu.worldofwarcraft.com/auction-data/5aa60247a919dc537f694c4883a5f21f/auctions.json';
-
-        /*$data = $this->connection->query($getAuctionsURLQuery);
+        $data = $this->connection->query($getAuctionsURLQuery);
 
         if ($data->num_rows === 1) {
 
             while ($stream = $data->fetch_assoc()) {
-                $url = $stream['auctionURL'];
+                return 'https://' . strtolower($stream['region']) . '.api.blizzard.com/wow/auction/data/' . $stream['slug'] . '?access_token=' . $this->OAuthAccessToken;
             }
-        }*/
+        }
 
-        return $url;
+        return false;
     }
 
+    /**
+     * @param int   $house
+     * @param array $auctionValues
+     *
+     * @return bool|string
+     */
     final public function updateHouse(int $house = 0, array $auctionValues = []) {
 
         $removePreviousDataQuery = 'DELETE FROM `auctionData` WHERE `houseID` = ' . $house;
@@ -276,5 +358,76 @@ class AuctionCraftSniper
         $this->connection->query($insertHouseDataQuery);
 
         return $insertHouseDataQuery;
+    }
+
+    /**
+     * @return array
+     */
+    final private function getPreviousTokenData() {
+        $getPreviousTokenExpirationTimestampQuery = 'SELECT * FROM `OAuth`';
+
+        $previousTokenData = [
+            'clientID'            => '',
+            'clientSecret'        => '',
+            'expirationTimestamp' => 0,
+            'token'               => '',
+        ];
+
+        $data = $this->connection->query($getPreviousTokenExpirationTimestampQuery);
+
+        if ($data->num_rows === 1) {
+            while ($stream = $data->fetch_assoc()) {
+                $previousTokenData['expirationTimestamp'] = $stream['expires'];
+                $previousTokenData['clientID']            = $stream['client_id'];
+                $previousTokenData['clientSecret']        = $stream['client_secret'];
+                $previousTokenData['token']               = $stream['token'];
+            }
+        }
+
+        return $previousTokenData;
+    }
+
+    /**
+     * @param string $token
+     * @param int    $remainingTime
+     *
+     * @return bool|mysqli_result
+     */
+    final private function updateOAuthAccessToken(string $token = '', int $remainingTime = 0) {
+        $updateOAuthAccessTokenQuery = 'UPDATE `OAuth` SET `token` = "' . $token . '", `expires` = ' . ($remainingTime + time());
+
+        $this->connection->query($updateOAuthAccessTokenQuery);
+    }
+
+    /**
+     * @return bool|mysqli_result
+     */
+    final private function refreshOAuthAccessToken() {
+
+        $previousTokenData = $this->getPreviousTokenData();
+
+        // only update OAuth token if expiration time > 1 min
+        if ($previousTokenData['expirationTimestamp'] - time() < 60) {
+
+            $refreshData = file_get_contents('https://eu.battle.net/oauth/token?client_id=' . $previousTokenData['clientID'] . '&client_secret=' . $previousTokenData['clientSecret'] . '&grant_type=client_credentials');
+            $refreshData = (array)json_decode($refreshData);
+
+            if (array_key_exists('access_token', $refreshData)) {
+                $this->updateOAuthAccessToken($refreshData['access_token'], $refreshData['expires_in']);
+
+                return $refreshData['access_token'];
+            }
+
+            return false;
+        }
+
+        return $previousTokenData['token'];
+    }
+
+    /**
+     * @return bool|mysqli_result|string
+     */
+    final public function getOAuthAccessToken() {
+        return $this->OAuthAccessToken;
     }
 }

@@ -14,7 +14,7 @@ if (!isset($decodedPOST['step']) && empty($decodedPOST['auctionValues']) && empt
 
     $itemIDs       = $AuctionCraftSniper->getItemIDs();
     $auctionValues = [];
-    $step = 0;
+    $step          = 0;
 
 } else {
 
@@ -35,7 +35,7 @@ if ($fileName === 0) {
     die;
 }
 
-if ($stream = fopen($fileName, 'r')) {
+if (file_exists($fileName) && $stream = fopen($fileName, 'r')) {
 
     if (!isset($decodedPOST['step'])) {
         $first200Bytes = stream_get_contents($stream, 200, 0);
@@ -101,7 +101,9 @@ if ($stream = fopen($fileName, 'r')) {
         $AuctionCraftSniper   = new AuctionCraftSniper();
         $updaterQuery         = $AuctionCraftSniper->updateHouse($decodedPOST['house'], $auctionValues);
         $response['callback'] = 'getProfessionTables';
+        unlink($fileName);
     }
 
     echo json_encode($response);
 }
+
