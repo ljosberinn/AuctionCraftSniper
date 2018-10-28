@@ -45,21 +45,24 @@ const checkboxEventListener = function (e) {
   getProfessionTables();
 };
 
-const getProfessionTables = () => {};
+const getProfessionTables = () => {
+  updateState('getProfessionTables');
+  toggleUserInputs(false);
+};
+
+const toggleUserInputs = (state: boolean) => {
+  Array.from(document.querySelectorAll('input')).forEach(input => (input.type === 'checkbox' ? (input.disabled = state) : (input.readOnly = state)));
+  (<HTMLInputElement>document.getElementById('search')).disabled = state;
+};
 
 const realmInputEventListener = () => {
-  let searchTimeout;
-  (<HTMLInputElement>document.getElementById('realm')).addEventListener('input', function () {
-    const value = this.value.split('-');
+  (<HTMLInputElement>document.getElementById('search')).addEventListener('click', () => {
+    const value = (<HTMLInputElement>document.getElementById('realm')).value.split('-');
 
     if (value.length === 2) {
-      if (searchTimeout !== undefined) {
-        clearTimeout(searchTimeout);
-      }
+      toggleUserInputs(true);
 
-      searchTimeout = setTimeout(() => {
-        validateRegionRealm(value);
-      }, 350);
+      validateRegionRealm(value);
     }
   });
 };
@@ -82,6 +85,30 @@ interface parseAuctionDataResponseJSON {
   callback?: string;
 }
 
+const updateState = (state: string) => {
+  let stateDescription: string;
+
+  switch (state) {
+    case 'parseAuctionData':
+      stateDescription = 'parsing data';
+      break;
+    case 'getProfessionTables':
+      stateDescription = 'fetching results';
+      break;
+    case 'getAuctionHouseData':
+      stateDescription = 'retrieving data from Blizzard';
+      break;
+    case 'checkHouseAge':
+      stateDescription = 'validating data age';
+      break;
+    default:
+      stateDescription = 'idling';
+      break;
+  }
+
+  document.getElementById('progress-state').innerText = stateDescription;
+};
+
 const parseAuctionData = async (step = 0, auctionValues = {}, itemIDs = {}) => {
   const payload: parseAuctionDataPayload = {
     house: ACS.house,
@@ -92,6 +119,8 @@ const parseAuctionData = async (step = 0, auctionValues = {}, itemIDs = {}) => {
   if (step > 0) {
     payload.step = step;
   }
+
+  updateState('parseAuctionData');
 
   const data = await fetch('api/parseAuctionData.php', {
     method: 'POST',
@@ -104,20 +133,20 @@ const parseAuctionData = async (step = 0, auctionValues = {}, itemIDs = {}) => {
 
   if (json.err) {
     throw new Error(json.err);
-  } else if (json.step < json.reqSteps) {
+  } else {
+    document.getElementById('progress-bar').style.width = `${json.percentDone}%`;
+  }
+
+  if (json.step < json.reqSteps) {
     parseAuctionData(json.step, json.auctionValues, json.itemIDs);
   } else if (json.reqSteps === json.step && json.callback === 'getProfessionTables') {
     document.getElementById('result').innerText = JSON.stringify(json.auctionValues);
     getProfessionTables();
   }
-
-  if (!json.err) {
-    document.getElementById('progress').style.width = `${json.percentDone}%`;
-    console.log(json.percentDone);
-  }
 };
 
 const getAuctionHouseData = async () => {
+  updateState('getAuctionHouseData');
   const data = await fetch(`api/getAuctionHouseData.php?house=${ACS.house}`);
   const json = await data.json();
 
@@ -135,6 +164,8 @@ const checkHouseAge = async () => {
   const { house } = ACS;
 
   if (house !== undefined) {
+    updateState('checkHouseAge');
+
     const data = await fetch(`api/checkHouseAge.php?house=${house}`);
     const json = await data.json();
 
@@ -156,6 +187,8 @@ const checkHouseAge = async () => {
 const validateRegionRealm = async (value: string[]) => {
   const region: string = value[0];
   const realm: string = value[1];
+
+  updateState('validateRegionRealm');
 
   await fetch(`api/validateRegionRealm.php?region=${region}&realm=${realm}`)
     .then(response => response.json())

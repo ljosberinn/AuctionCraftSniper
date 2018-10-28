@@ -18,7 +18,7 @@ $AuctionCraftSniper = new AuctionCraftSniper();
 	<link href="assets/css/normalize.css" rel="stylesheet"/>
 	<link href="assets/css/custom.css" rel="stylesheet"/>
 	<title>AuctionCraftSniper - WIP</title>
-	<script defer src="assets/js/bundle.min.js"></script>
+	<script defer src="assets/js/bundle.min.js?<?= filemtime('assets/js/bundle.min.js') ?>"></script>
 </head>
 <body>
 
@@ -44,9 +44,14 @@ $AuctionCraftSniper = new AuctionCraftSniper();
 		</datalist>
 	</div>
 
+	<div>
+		<button id="search">Go</button>
+	</div>
+
 	<hr>
 	<div style="width: 100%; height: 50px;">
-		<div id="progress" style="height: 100%; background-color: purple;"></div>
+		<div id="progress-state"></div>
+		<div id="progress-bar" style="height: 100%; background-color: purple;"></div>
 	</div>
 
 	<textarea id="result"></textarea>
