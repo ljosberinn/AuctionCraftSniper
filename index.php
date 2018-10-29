@@ -15,8 +15,8 @@ $AuctionCraftSniper = new AuctionCraftSniper();
 
 <!DOCTYPE html>
 <head>
-	<link href="assets/css/normalize.css" rel="stylesheet"/>
-	<link href="assets/css/custom.css" rel="stylesheet"/>
+	<link href="assets/css/normalize.css?<?= filemtime('assets/css/normalize.css') ?>" rel="stylesheet"/>
+	<link href="assets/css/custom.css?<?= filemtime('assets/css/custom.css') ?>" rel="stylesheet"/>
 	<title>AuctionCraftSniper - WIP</title>
 	<script defer src="assets/js/bundle.min.js?<?= filemtime('assets/js/bundle.min.js') ?>"></script>
 </head>
@@ -72,7 +72,7 @@ $AuctionCraftSniper = new AuctionCraftSniper();
 </main>
 
 <footer>
-
+	<?php require_once 'app/footer.html'; ?>
 </footer>
 
 </body>
