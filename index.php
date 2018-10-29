@@ -36,13 +36,26 @@ $AuctionCraftSniper = new AuctionCraftSniper();
 	</div>
 
 	<div>
-		<input id="realm" type="text" list="realms">
+		<label for="realm">select region & realm
+			<input id="realm" type="text" list="realms">
+		</label>
 		<datalist id="realms">
             <?php foreach ($AuctionCraftSniper->getRealms() as $realm) { ?>
 				<option value="<?= $realm ?>"></option>
             <?php } ?>
 		</datalist>
 	</div>
+
+	<div>
+		<label for="expansion-level">change Expansion
+			<select id="expansion-level">
+                <?php foreach ($AuctionCraftSniper->getExpansionLevels() as $expansionLevel => $expansionName) { ?>
+					<option value="<?= $expansionLevel ?>" <?= $expansionLevel === 8 ? 'selected' : '' ?>><?= $expansionName ?></option>
+                <?php } ?>
+			</select>
+		</label>
+	</div>
+
 
 	<div>
 		<button id="search">Go</button>

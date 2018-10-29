@@ -38,6 +38,11 @@ class AuctionCraftSniper
      */
     private $OAuthAccessToken = '';
 
+    /**
+     * @var array [contains valid expansion levels]
+     */
+    private $expansionLevels = [];
+
 
     /**
      * @method __construct
@@ -53,26 +58,28 @@ class AuctionCraftSniper
     }
 
     /**
-     *
+     * @param int $expansionLevel
      */
-    final private function setItemIDs() {
-        $itemIDQuery = 'SELECT `id` FROM `recipes` ORDER BY `id` ASC';
+    final private function setItemIDs(int $expansionLevel = 8) {
+        $itemIDQuery = 'SELECT `id` FROM `recipes` WHERE `expansionLevel` =  ' .$expansionLevel. ' ORDER BY `id` ASC';
 
         $data = $this->connection->query($itemIDQuery);
 
         if ($data->num_rows > 0) {
             while ($stream = $data->fetch_assoc()) {
-                $this->itemIDs[] = $stream['id'];
+                $this->itemIDs[$stream['id']] = 0;
             }
         }
     }
 
     /**
+     * @param int $expansionLevel
+     *
      * @return array
      */
-    final public function getItemIDs() {
+    final public function getItemIDs(int $expansionLevel = 8) {
         if (empty($this->itemIDs)) {
-            $this->setItemIDs();
+            $this->setItemIDs($expansionLevel);
         }
 
         return $this->itemIDs;
@@ -217,11 +224,12 @@ class AuctionCraftSniper
      * @method isHouseOutdated [checks whether a house has been fetched during the last 20 minutes]
      *
      * @param int $houseID
+     * @param int $expansionLevel [8 = Battle for Azeroth]
      *
      * @return bool
      */
-    final public function isHouseOutdated(int $houseID = 0) {
-        $getLastUpdateTimestampQuery = "SELECT `timestamp` FROM `auctionData` WHERE `houseID` = " . $houseID . " LIMIT 1";
+    final public function isHouseOutdated(int $houseID = 0, int $expansionLevel = 8) {
+        $getLastUpdateTimestampQuery = "SELECT `timestamp` FROM `auctionData` WHERE `houseID` = " . $houseID . " AND `expansionLevel` = " . $expansionLevel . " LIMIT 1";
 
         $lastUpdateTimestamp = 0;
 
@@ -265,7 +273,7 @@ class AuctionCraftSniper
         $curl = curl_init();
 
         curl_setopt_array($curl, [
-            CURLOPT_URL            => $this->getAuctionSourceURL($houseID),
+            CURLOPT_URL            => $this->getOuterAuctionURL($houseID),
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => true,
@@ -317,7 +325,7 @@ class AuctionCraftSniper
      *
      * @return string
      */
-    final public function getAuctionSourceURL(int $house = 0) {
+    final public function getOuterAuctionURL(int $house = 0) {
 
         $getAuctionsURLQuery = 'SELECT `region`, `slug` FROM `realms` WHERE `house` = ' . $house . ' LIMIT 1';
 
@@ -335,29 +343,30 @@ class AuctionCraftSniper
 
     /**
      * @param int   $house
-     * @param array $auctionValues
+     * @param array $itemIDs
+     * @param int   $expansionLevel
      *
      * @return bool|string
      */
-    final public function updateHouse(int $house = 0, array $auctionValues = []) {
+    final public function updateHouse(int $house = 0, array $itemIDs = [], int $expansionLevel = 8) {
 
-        $removePreviousDataQuery = 'DELETE FROM `auctionData` WHERE `houseID` = ' . $house;
+        $removePreviousDataQuery = 'DELETE FROM `auctionData` WHERE `houseID` = ' . $house. ' AND `expansionLevel` = ' .$expansionLevel;
 
         $this->connection->query($removePreviousDataQuery);
 
         $now = time();
 
-        $insertHouseDataQuery = 'INSERT INTO `auctionData` (`houseID`, `itemID`, `buyout`, `timestamp`) VALUES ';
+        $insertHouseDataQuery = 'INSERT INTO `auctionData` (`houseID`, `itemID`, `buyout`, `timestamp`, `expansionLevel`) VALUES ';
 
-        foreach ($auctionValues as $itemID => $buyout) {
-            $insertHouseDataQuery .= '(' . $house . ', ' . $itemID . ', ' . $buyout . ', ' . $now . '), ';
+        foreach ($itemIDs as $itemID => $buyout) {
+            if ((int)$buyout !== 0) {
+                $insertHouseDataQuery .= '(' . $house . ', ' . $itemID . ', ' . $buyout . ', ' . $now . ', ' . $expansionLevel . '), ';
+            }
         }
 
         $insertHouseDataQuery = substr($insertHouseDataQuery, 0, -2);
 
         $this->connection->query($insertHouseDataQuery);
-
-        return $insertHouseDataQuery;
     }
 
     /**
@@ -429,5 +438,25 @@ class AuctionCraftSniper
      */
     final public function getOAuthAccessToken() {
         return $this->OAuthAccessToken;
+    }
+
+    final public function getExpansionLevels() {
+        if (empty($this->expansionLevels)) {
+            $this->setExpansionLevels();
+        }
+
+        return $this->expansionLevels;
+    }
+
+    final private function setExpansionLevels() {
+        $setExpansionLevelQuery = 'SELECT * FROM `expansionLevels` ORDER BY `level` ASC';
+
+        $data = $this->connection->query($setExpansionLevelQuery);
+
+        if ($data->num_rows > 0) {
+            while ($stream = $data->fetch_assoc()) {
+                $this->expansionLevels[$stream['level']] = $stream['name'];
+            }
+        }
     }
 }
