@@ -24,3 +24,10 @@
 ## build
 
 `npm run build`
+
+### todo
+
+- migrate fetch GETS to METHOD: GET & payload -> credentials
+- decide on color scheme
+- implement SCSS compiler
+- build custom bootstrap theme or choose something similarily customizable
