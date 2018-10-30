@@ -58,9 +58,7 @@ if (file_exists($fileName) && $stream = fopen($fileName, 'r')) {
 
     // prevent fetching more bytes than available
     if ($thisChunksEnd > $fileSize) {
-        $thisChunksEnd    = $fileSize;
-        // TODO: bugfix
-        $auctionEndString = ']}';
+        $thisChunksEnd = $fileSize;
     }
 
     $leftovers = '';
@@ -72,6 +70,11 @@ if (file_exists($fileName) && $stream = fopen($fileName, 'r')) {
 
         // remove whitespace & linebreaks
         $data .= str_replace("	", '', str_replace("\r\n", '', stream_get_contents($stream, BYTE_LIMIT, $bytes)));
+
+        // switch $auctionEndString since the very last auction obviously has no object following
+        if ($bytes + BYTE_LIMIT >= $fileSize) {
+            $auctionEndString = ']}';
+        }
 
         // find end of this auction
         $auctionEnd = strpos($data, $auctionEndString);
