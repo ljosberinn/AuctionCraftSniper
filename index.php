@@ -26,7 +26,7 @@ $AuctionCraftSniper = new AuctionCraftSniper();
         iconizeLinks: true,
         renameLinks: true
       };</script>
-	<script defer src="http://wow.zamimg.com/widgets/power.js"></script>
+	<script defer src="https://wow.zamimg.com/widgets/power.js"></script>
 </head>
 <body style="font-family: 'Open Sans', sans-serif; margin-top: -20px;">
 

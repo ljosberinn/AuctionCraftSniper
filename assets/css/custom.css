@@ -32,6 +32,10 @@ i.professions-sprite + input {
     cursor: pointer;
 }
 
+i:focus {
+    outline: none;
+}
+
 .professions-sprite.icon-disabled {
     filter: grayscale(100%);
     opacity: 0.5;
