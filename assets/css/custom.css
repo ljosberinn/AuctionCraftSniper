@@ -18,11 +18,23 @@ h1 {
     background-image: url(../img/sprite-professions-min.png);
     background-repeat: no-repeat;
     display: inline-block;
+
+    transition: 0.33s ease-in-out;
+}
+
+i.professions-sprite + input {
+    display: none;
 }
 
 [class*="icon-"] {
     width: 32px;
     height: 32px;
+    cursor: pointer;
+}
+
+.professions-sprite.icon-disabled {
+    filter: grayscale(100%);
+    opacity: 0.5;
 }
 
 /* ALCHEMY */

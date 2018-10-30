@@ -15,19 +15,27 @@ $AuctionCraftSniper = new AuctionCraftSniper();
 
 <!DOCTYPE html>
 <head>
-	<link href="assets/css/normalize.css?<?= filemtime('assets/css/normalize.css') ?>" rel="stylesheet"/>
-	<link href="assets/css/custom.css?<?= filemtime('assets/css/custom.css') ?>" rel="stylesheet"/>
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+	<link href="assets/css/normalize.css?<?= filemtime('assets/css/normalize.css') ?>" rel="stylesheet">
+	<link href="assets/css/custom.css?<?= filemtime('assets/css/custom.css') ?>" rel="stylesheet">
 	<title>AuctionCraftSniper - WIP</title>
 	<script defer src="assets/js/bundle.min.js?<?= filemtime('assets/js/bundle.min.js') ?>"></script>
+	<script defer src="https://unpkg.com/tippy.js@3/dist/tippy.all.min.js"></script>
+	<script>const whTooltips = {
+        colorLinks: true,
+        iconizeLinks: true,
+        renameLinks: true
+      };</script>
+	<script defer src="http://wow.zamimg.com/widgets/power.js"></script>
 </head>
-<body style="margin-top: -20px;">
+<body style="font-family: 'Open Sans', sans-serif; margin-top: -20px;">
 
 <header>
 	<h1>` AuctionCraftSniper
 
 		<div style="display: inline-block;">
             <?php foreach ($AuctionCraftSniper->getProfessions() as $id => $name) { ?>
-				<label><i class="professions-sprite icon-<?= $id ?>" data-tippy="<?= $name ?>"></i>
+				<label><i class="professions-sprite icon-<?= $id ?> icon-disabled" data-tippy="<?= $name ?>"></i>
 					<input type="checkbox" value="<?= $id ?>">
 				</label>
             <?php } ?>

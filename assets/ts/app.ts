@@ -71,9 +71,9 @@ const setACSLocalStorage = (data: ACSLocalStorageObj) => {
     ACS.expansionLevel = data.expansionLevel;
   }
 
-  if (typeof ACS.house !== 'undefined' && ACS.professions.length > 0 && typeof ACS.expansionLevel === 'number') {
-    localStorage.ACS = JSON.stringify(ACS);
-  }
+  // if (typeof ACS.house !== 'undefined' && ACS.professions.length > 0 && typeof ACS.expansionLevel === 'number') {
+  localStorage.ACS = JSON.stringify(ACS);
+  // }
 };
 
 const getACSLocalStorage = () => {
@@ -83,6 +83,14 @@ const getACSLocalStorage = () => {
     ACS.house = tempACS.house;
     ACS.professions = tempACS.professions;
     ACS.expansionLevel = tempACS.expansionLevel;
+
+    ACS.professions.forEach(professionID => {
+      const checkbox = <HTMLInputElement>document.querySelector(`input[type="checkbox"][value="${professionID}"]`);
+      checkbox.checked = true;
+      checkbox.previousElementSibling.classList.toggle('icon-disabled');
+    });
+
+    (<HTMLSelectElement>document.getElementById('expansion-level')).selectedIndex = ACS.expansionLevel;
   }
 };
 
@@ -148,14 +156,18 @@ const getAuctionHouseData = async () => {
 const checkboxEventListener = function (e) {
   e.stopPropagation();
 
-  const { value, checked } = this;
-  const index = ACS.professions.indexOf(value);
+  const { value, checked } = <HTMLInputElement> this;
+  const index = ACS.professions.indexOf(parseInt(value));
+
+  this.previousElementSibling.classList.toggle('icon-disabled');
 
   if (checked && index === -1) {
     ACS.professions.push(parseInt(value));
   } else {
     ACS.professions.splice(index, 1);
   }
+
+  setACSLocalStorage({ professions: ACS.professions });
 };
 
 const expansionLevelListener = expansionLevel => setACSLocalStorage({ expansionLevel });
