@@ -1,14 +1,14 @@
 import * as Raven from 'raven-js';
 
 interface parseAuctionDataPayload {
-  itemIDs?: object;
+  recipeIDs?: object;
   step?: number;
   house: number;
   expansionLevel: number;
 }
 
 interface parseAuctionDataResponseJSON {
-  itemIDs: number[];
+  recipeIDs: number[];
   percentDone: number;
   reqSteps: number;
   step: number;
@@ -94,10 +94,10 @@ const getProfessionTables = () => {
   updateState('default');
 };
 
-const parseAuctionData = async (step = 0, itemIDs = {}) => {
+const parseAuctionData = async (step = 0, recipeIDs = {}) => {
   const payload: parseAuctionDataPayload = {
     house: ACS.house,
-    itemIDs,
+    recipeIDs,
     expansionLevel: ACS.expansionLevel,
   };
 
@@ -123,9 +123,9 @@ const parseAuctionData = async (step = 0, itemIDs = {}) => {
   }
 
   if (json.step < json.reqSteps) {
-    parseAuctionData(json.step, json.itemIDs);
+    parseAuctionData(json.step, json.recipeIDs);
   } else if (json.reqSteps === json.step && json.callback === 'getProfessionTables') {
-    document.getElementById('result').innerText = JSON.stringify(json.itemIDs);
+    document.getElementById('result').innerText = JSON.stringify(json.recipeIDs);
     getProfessionTables();
   }
 };

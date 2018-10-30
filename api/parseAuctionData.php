@@ -8,7 +8,7 @@ $decodedPOST = json_decode(trim(file_get_contents("php://input")), true);
 const BYTE_LIMIT = 365;
 const CHUNK_SIZE = 2568505;
 
-if (!isset($decodedPOST['step']) && empty($decodedPOST['itemIDs'])) {
+if (!isset($decodedPOST['step']) && empty($decodedPOST['recipeIDs'])) {
 
     $AuctionCraftSniper = new AuctionCraftSniper();
 
@@ -18,12 +18,12 @@ if (!isset($decodedPOST['step']) && empty($decodedPOST['itemIDs'])) {
         $expansionLevel = 8;
     }
 
-    $itemIDs = $AuctionCraftSniper->getItemIDs($expansionLevel);
-    $step    = 0;
+    $recipeIDs = $AuctionCraftSniper->getRecipeIDs($expansionLevel);
+    $step      = 0;
 
 } else {
 
-    $itemIDs        = (array)$decodedPOST['itemIDs'];
+    $recipeIDs      = (array)$decodedPOST['recipeIDs'];
     $step           = (int)$decodedPOST['step'];
     $expansionLevel = (int)$decodedPOST['expansionLevel'];
 
@@ -35,7 +35,7 @@ if (!isset($decodedPOST['step']) && empty($decodedPOST['itemIDs'])) {
 
 $fileName = (int)$decodedPOST['house'] . '.json';
 
-if ($fileName === 0) {
+if ($fileName === '0.json') {
     echo json_encode(['err' => 'invalid house specified']);
     die;
 }
@@ -59,6 +59,7 @@ if (file_exists($fileName) && $stream = fopen($fileName, 'r')) {
     // prevent fetching more bytes than available
     if ($thisChunksEnd > $fileSize) {
         $thisChunksEnd    = $fileSize;
+        // TODO: bugfix
         $auctionEndString = ']}';
     }
 
@@ -80,13 +81,13 @@ if (file_exists($fileName) && $stream = fopen($fileName, 'r')) {
 
         $data = json_decode(substr($data, 0, $auctionEnd), true);
 
-        if (in_array($data['item'], array_keys($itemIDs))) {
+        if (in_array($data['item'], array_keys($recipeIDs))) {
             $thisPPU = round($data['buyout'] / $data['quantity']);
 
-            $previousPPU = (int)$itemIDs[$data['item']];
+            $previousPPU = (int)$recipeIDs[$data['item']];
 
             if ($previousPPU === 0 || $thisPPU < $previousPPU && $thisPPU !== 0) {
-                $itemIDs[$data['item']] = $thisPPU;
+                $recipeIDs[$data['item']] = $thisPPU;
             }
         }
     }
@@ -94,7 +95,7 @@ if (file_exists($fileName) && $stream = fopen($fileName, 'r')) {
     fclose($stream);
 
     $response = [
-        'itemIDs'        => $itemIDs,
+        'recipeIDs'      => $recipeIDs,
         'expansionLevel' => $expansionLevel,
         'step'           => $step + 1,
         'reqSteps'       => ceil($fileSize / CHUNK_SIZE),
@@ -103,7 +104,7 @@ if (file_exists($fileName) && $stream = fopen($fileName, 'r')) {
 
     if ((int)$response['step'] === (int)$response['reqSteps']) {
         $AuctionCraftSniper = new AuctionCraftSniper();
-        $AuctionCraftSniper->updateHouse($decodedPOST['house'], $itemIDs, $expansionLevel);
+        $AuctionCraftSniper->updateHouse($decodedPOST['house'], $recipeIDs, $expansionLevel);
 
         $response['callback'] = 'getProfessionTables';
         unlink($fileName);
