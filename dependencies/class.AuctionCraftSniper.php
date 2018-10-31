@@ -318,15 +318,15 @@ class AuctionCraftSniper {
     /**
      * @method getWoWDBJson [returns decoded & trimmed WoWDBJson as array]
      *
-     * @param string $url
+     * @param string $$affix
      *
      * @return mixed
      */
-    final public function getWoWDBJSON (string $url = '') {
+    final public function getWoWDBJSON (string $affix = '') {
         $curl = curl_init ();
 
         curl_setopt_array ($curl, [
-            CURLOPT_URL            => $url,
+            CURLOPT_URL            => 'https://www.wowdb.com/api' . $affix,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => true,
