@@ -1,7 +1,6 @@
 <?php /** @noinspection ALL */
 
-class AuctionCraftSniper
-{
+class AuctionCraftSniper {
 
     /**
      * @var object $connection [database connection]
@@ -47,14 +46,13 @@ class AuctionCraftSniper
      * @method __construct
      * @param boolean $indexInit [controls automatic filling of $realms and $professions; default false]
      */
-    public function __construct()
-    {
+    public function __construct () {
         $db = require_once 'db.php';
 
         $this->connection = new mysqli($db['host'], $db['user'], $db['pw'], $db['db']);
-        $this->connection->set_charset('utf8');
+        $this->connection->set_charset ('utf8');
 
-        $this->OAuthAccessToken = $this->refreshOAuthAccessToken();
+        $this->OAuthAccessToken = $this->refreshOAuthAccessToken ();
     }
 
     /* ---------------------------------------------------------------------------------------------------- */
@@ -67,10 +65,9 @@ class AuctionCraftSniper
      *
      * @return array
      */
-    final public function getRecipeIDs(int $expansionLevel = 8)
-    {
+    final public function getRecipeIDs (int $expansionLevel = 8) {
         if (empty($this->recipeIDs)) {
-            $this->setRecipeIDs($expansionLevel);
+            $this->setRecipeIDs ($expansionLevel);
         }
 
         return $this->recipeIDs;
@@ -79,10 +76,9 @@ class AuctionCraftSniper
     /**
      * @method getProfessions [returns private profession array]
      */
-    final public function getProfessions()
-    {
+    final public function getProfessions () {
         if (empty($this->professions)) {
-            $this->setProfessions();
+            $this->setProfessions ();
         }
 
         return $this->professions;
@@ -91,10 +87,9 @@ class AuctionCraftSniper
     /**
      * @method getRealms [returns private realm array]
      */
-    final public function getRealms()
-    {
+    final public function getRealms () {
         if (empty($this->realms)) {
-            $this->setRealms();
+            $this->setRealms ();
         }
 
         return $this->realms;
@@ -105,22 +100,21 @@ class AuctionCraftSniper
      *
      * @return array
      */
-    final private function getOuterAuctionData(int $houseID = 0)
-    {
-        $curl = curl_init();
+    final private function getOuterAuctionData (int $houseID = 0) {
+        $curl = curl_init ();
 
-        curl_setopt_array($curl, [
-            CURLOPT_URL => $this->getOuterAuctionURL($houseID),
+        curl_setopt_array ($curl, [
+            CURLOPT_URL            => $this->getOuterAuctionURL ($houseID),
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => true,
         ]);
 
-        $response = curl_exec($curl);
+        $response = curl_exec ($curl);
 
-        curl_close($curl);
+        curl_close ($curl);
 
-        $outerAuctionData = (array) json_decode($response, true);
+        $outerAuctionData = (array) json_decode ($response, true);
 
         return $outerAuctionData;
     }
@@ -130,15 +124,14 @@ class AuctionCraftSniper
      *
      * @return bool
      */
-    final public function getInnerAuctionURL(int $houseID = 0)
-    {
+    final public function getInnerAuctionURL (int $houseID = 0) {
         $getInnerAuctionURLQuery = 'SELECT `auctionURL` FROM `realms` WHERE `house` = ' . $houseID . ' LIMIT 1';
 
-        $data = $this->connection->query($getInnerAuctionURLQuery);
+        $data = $this->connection->query ($getInnerAuctionURLQuery);
 
         if ($data->num_rows === 1) {
 
-            while ($stream = $data->fetch_assoc()) {
+            while ($stream = $data->fetch_assoc ()) {
                 return $stream['auctionURL'];
             }
         }
@@ -153,17 +146,16 @@ class AuctionCraftSniper
      *
      * @return string
      */
-    final public function getOuterAuctionURL(int $house = 0)
-    {
+    final public function getOuterAuctionURL (int $house = 0) {
 
         $getAuctionsURLQuery = 'SELECT `region`, `slug` FROM `realms` WHERE `house` = ' . $house . ' LIMIT 1';
 
-        $data = $this->connection->query($getAuctionsURLQuery);
+        $data = $this->connection->query ($getAuctionsURLQuery);
 
         if ($data->num_rows === 1) {
 
-            while ($stream = $data->fetch_assoc()) {
-                return 'https://' . strtolower($stream['region']) . '.api.blizzard.com/wow/auction/data/' . $stream['slug'] . '?access_token=' . $this->OAuthAccessToken;
+            while ($stream = $data->fetch_assoc ()) {
+                return 'https://' . strtolower ($stream['region']) . '.api.blizzard.com/wow/auction/data/' . $stream['slug'] . '?access_token=' . $this->OAuthAccessToken;
             }
         }
 
@@ -173,25 +165,24 @@ class AuctionCraftSniper
     /**
      * @return array
      */
-    final private function getPreviousTokenData()
-    {
+    final private function getPreviousTokenData () {
         $getPreviousTokenExpirationTimestampQuery = 'SELECT * FROM `OAuth`';
 
         $previousTokenData = [
-            'clientID' => '',
-            'clientSecret' => '',
+            'clientID'            => '',
+            'clientSecret'        => '',
             'expirationTimestamp' => 0,
-            'token' => '',
+            'token'               => '',
         ];
 
-        $data = $this->connection->query($getPreviousTokenExpirationTimestampQuery);
+        $data = $this->connection->query ($getPreviousTokenExpirationTimestampQuery);
 
         if ($data->num_rows === 1) {
-            while ($stream = $data->fetch_assoc()) {
+            while ($stream = $data->fetch_assoc ()) {
                 $previousTokenData['expirationTimestamp'] = $stream['expires'];
-                $previousTokenData['clientID'] = $stream['client_id'];
-                $previousTokenData['clientSecret'] = $stream['client_secret'];
-                $previousTokenData['token'] = $stream['token'];
+                $previousTokenData['clientID']            = $stream['client_id'];
+                $previousTokenData['clientSecret']        = $stream['client_secret'];
+                $previousTokenData['token']               = $stream['token'];
             }
         }
 
@@ -201,21 +192,23 @@ class AuctionCraftSniper
     /**
      * @return bool|mysqli_result|string
      */
-    final public function getOAuthAccessToken()
-    {
+    final public function getOAuthAccessToken () {
         return $this->OAuthAccessToken;
     }
 
     /**
      * @return array
      */
-    final public function getExpansionLevels()
-    {
+    final public function getExpansionLevels () {
         if (empty($this->expansionLevels)) {
-            $this->setExpansionLevels();
+            $this->setExpansionLevels ();
         }
 
         return $this->expansionLevels;
+    }
+
+    final public function getProfessionData (int $houseID = 0, array $professions, int $expansionLevel) {
+        return [];
     }
 
     /* ---------------------------------------------------------------------------------------------------- */
@@ -224,14 +217,13 @@ class AuctionCraftSniper
     /**
      * @param int $expansionLevel
      */
-    final private function setRecipeIDs(int $expansionLevel = 8)
-    {
+    final private function setRecipeIDs (int $expansionLevel = 8) {
         $recipeIDsQuery = 'SELECT `id` FROM `recipes` WHERE `expansionLevel` =  ' . $expansionLevel . ' ORDER BY `id` ASC';
 
-        $data = $this->connection->query($recipeIDsQuery);
+        $data = $this->connection->query ($recipeIDsQuery);
 
         if ($data->num_rows > 0) {
-            while ($stream = $data->fetch_assoc()) {
+            while ($stream = $data->fetch_assoc ()) {
                 $this->recipeIDs[$stream['id']] = 0;
             }
         }
@@ -240,14 +232,13 @@ class AuctionCraftSniper
     /**
      * @method setRealms [initializes private realm array]
      */
-    final private function setRealms()
-    {
+    final private function setRealms () {
         foreach ($this->regions as $region) {
             $realmQuery = "SELECT `house`, `name` FROM `realms` WHERE `region` = '" . $region . "' ORDER BY `name` ASC";
-            $data = $this->connection->query($realmQuery);
+            $data       = $this->connection->query ($realmQuery);
 
             if ($data->num_rows > 0) {
-                while ($stream = $data->fetch_assoc()) {
+                while ($stream = $data->fetch_assoc ()) {
                     $this->realms[] = $region . '-' . $stream['name'];
                 }
             }
@@ -257,14 +248,13 @@ class AuctionCraftSniper
     /**
      * @method setProfessions [initializes private profession array]
      */
-    final private function setProfessions()
-    {
+    final private function setProfessions () {
         $professionQuery = "SELECT * FROM `professions` ORDER BY `name` ASC";
 
-        $data = $this->connection->query($professionQuery);
+        $data = $this->connection->query ($professionQuery);
 
         if ($data->num_rows > 0) {
-            while ($stream = $data->fetch_assoc()) {
+            while ($stream = $data->fetch_assoc ()) {
                 $this->professions[$stream['id']] = $stream['name'];
             }
         }
@@ -276,31 +266,77 @@ class AuctionCraftSniper
      * @param int    $houseID
      * @param string $houseURL
      */
-    final private function setInnerHouseURL(int $houseID = 0, string $houseURL = '')
-    {
+    final private function setInnerHouseURL (int $houseID = 0, string $houseURL = '') {
         $setInnerHouseURLQuery = 'UPDATE `realms` SET `auctionURL` = "' . $houseURL . '" WHERE `house` = ' . $houseID;
 
-        $this->connection->query($setInnerHouseURLQuery);
+        $this->connection->query ($setInnerHouseURLQuery);
     }
 
     /**
      * @method setExpansionLevels []
      */
-    final private function setExpansionLevels()
-    {
+    final private function setExpansionLevels () {
         $setExpansionLevelQuery = 'SELECT * FROM `expansionLevels` ORDER BY `level` ASC';
 
-        $data = $this->connection->query($setExpansionLevelQuery);
+        $data = $this->connection->query ($setExpansionLevelQuery);
 
         if ($data->num_rows > 0) {
-            while ($stream = $data->fetch_assoc()) {
+            while ($stream = $data->fetch_assoc ()) {
                 $this->expansionLevels[$stream['level']] = $stream['name'];
             }
         }
     }
 
+    /**
+     * @method setRecipeRequirements [(re)builds all recipeRequirements for an expansion based upon existing recipes via the WoWDB API]
+     *
+     * @param array $recipeRequirements
+     * @param int   $expansionLevel
+     */
+    final public function setRecipeRequirements (array $recipeRequirements = [], int $expansionLevel = 8) {
+        $removalQuery = 'DELETE * FROM `recipeRequirements` WHERE `expansionLevel` = ' . $expansionLevel;
+        $removal      = $this->connection->query ($removalQuery);
+
+        $insertQuery = 'INSERT INTO `recipeRequirements` (`recipe`, `requiredItemID`, `requiredAmount`, `itemName`, `rank`, `baseSellPrice`, `baseBuyPrice`, `expansionLevel`) VALUES ';
+
+        foreach ($recipeRequirements as $recipeRequirement) {
+            $requiredItemIDAmount = count ($recipeRequirement['requiredItemIDs']);
+
+            for ($i = 0; $i < $requiredItemIDAmount; $i += 1) {
+                $insertQuery .= '(' . $recipeRequirement['recipeID'] . ', ' . $recipeRequirement['requiredItemIDs'][$i] . ', ' . $recipeRequirement['requiredAmounts'][$i] . ', "' . $this->realEscapeString ($recipeRequirement['itemNames'][$i]) . '", ' . $recipeRequirement['rank'] . ', ' . $recipeRequirement['baseSellPrices'][$i] . ', ' . $recipeRequirement['baseBuyPrices'][$i] . ', ' . $expansionLevel . '), ';
+            }
+        }
+
+        $insertQuery = substr ($insertQuery, 0, -2);
+
+        $this->connection->query ($insertQuery);
+    }
+
     /* ---------------------------------------------------------------------------------------------------- */
     // HELPER //
+
+    /**
+     * @method getWoWDBJson [returns decoded & trimmed WoWDBJson as array]
+     *
+     * @param string $url
+     *
+     * @return mixed
+     */
+    final public function getWoWDBJSON (string $url = '') {
+        $curl = curl_init ();
+
+        curl_setopt_array ($curl, [
+            CURLOPT_URL            => $url,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_SSL_VERIFYPEER => true,
+        ]);
+
+        $response = substr (curl_exec ($curl), 1, -1);
+        curl_close ($curl);
+
+        return json_decode ($response, true);
+    }
 
     /**
      * @method realEscapeString [shorthand for mysqli->real_escape_string]
@@ -309,9 +345,8 @@ class AuctionCraftSniper
      *
      * @return string
      */
-    final private function realEscapeString(string $string = '')
-    {
-        return $this->connection->real_escape_string($string);
+    final private function realEscapeString (string $string = '') {
+        return $this->connection->real_escape_string ($string);
     }
 
     /**
@@ -322,15 +357,14 @@ class AuctionCraftSniper
      *
      * @return int
      */
-    final public function validateRegionRealm(string $region = '', string $realm = '')
-    {
+    final public function validateRegionRealm (string $region = '', string $realm = '') {
 
-        $validationQuery = 'SELECT `house` FROM `realms` WHERE `region` = "' . $this->realEscapeString($region) . '" AND `name` = "' . $this->realEscapeString($realm) . '"';
+        $validationQuery = 'SELECT `house` FROM `realms` WHERE `region` = "' . $this->realEscapeString ($region) . '" AND `name` = "' . $this->realEscapeString ($realm) . '"';
 
-        $data = $this->connection->query($validationQuery);
+        $data = $this->connection->query ($validationQuery);
 
         if ($data->num_rows === 1) {
-            while ($stream = $data->fetch_assoc()) {
+            while ($stream = $data->fetch_assoc ()) {
                 return $stream['house'];
             }
         }
@@ -346,8 +380,7 @@ class AuctionCraftSniper
      *
      * @return bool
      */
-    final public function isHouseOutdated(int $houseID = 0, int $expansionLevel = 8)
-    {
+    final public function isHouseOutdated (int $houseID = 0, int $expansionLevel = 8) {
         $getLastUpdateTimestampQuery = "SELECT `timestamp` FROM `auctionData` WHERE `houseID` = " . $houseID . " AND `expansionLevel` = " . $expansionLevel . " LIMIT 1";
 
         $lastUpdateTimestamp = 0;
@@ -355,24 +388,24 @@ class AuctionCraftSniper
         // assume house has never been fetched before
         $houseRequiresUpdate = true;
 
-        $data = $this->connection->query($getLastUpdateTimestampQuery);
+        $data = $this->connection->query ($getLastUpdateTimestampQuery);
 
         // house has been previously fetched, check whether it needs an update
         if ($data->num_rows > 0) {
 
-            while ($stream = $data->fetch_assoc()) {
+            while ($stream = $data->fetch_assoc ()) {
                 $lastUpdateTimestamp = (int) $stream['timestamp'];
             }
 
             // AH data supposedly updates once every 20 minutes
-            $houseRequiresUpdate = $lastUpdateTimestamp < time() - 20 * 60;
+            $houseRequiresUpdate = $lastUpdateTimestamp < time () - 20 * 60;
         }
 
         if ($houseRequiresUpdate) {
 
-            $outerAuctionData = $this->getOuterAuctionData($houseID);
+            $outerAuctionData = $this->getOuterAuctionData ($houseID);
 
-            $this->setInnerHouseURL($houseID, $outerAuctionData['files'][0]['url']);
+            $this->setInnerHouseURL ($houseID, $outerAuctionData['files'][0]['url']);
 
             // AH technically is older than 20 minutes, but API servers haven't updated yet
             if ($outerAuctionData['files'][0]['lastModified'] / 1000 <= $lastUpdateTimestamp) {
@@ -390,14 +423,13 @@ class AuctionCraftSniper
      *
      * @return bool|string
      */
-    final public function updateHouse(int $house = 0, array $recipeIDs = [], int $expansionLevel = 8)
-    {
+    final public function updateHouse (int $house = 0, array $recipeIDs = [], int $expansionLevel = 8) {
 
         $removePreviousDataQuery = 'DELETE FROM `auctionData` WHERE `houseID` = ' . $house . ' AND `expansionLevel` = ' . $expansionLevel;
 
-        $this->connection->query($removePreviousDataQuery);
+        $this->connection->query ($removePreviousDataQuery);
 
-        $now = time();
+        $now = time ();
 
         $insertHouseDataQuery = 'INSERT INTO `auctionData` (`houseID`, `itemID`, `buyout`, `timestamp`, `expansionLevel`) VALUES ';
 
@@ -407,9 +439,9 @@ class AuctionCraftSniper
             }
         }
 
-        $insertHouseDataQuery = substr($insertHouseDataQuery, 0, -2);
+        $insertHouseDataQuery = substr ($insertHouseDataQuery, 0, -2);
 
-        $this->connection->query($insertHouseDataQuery);
+        $this->connection->query ($insertHouseDataQuery);
     }
 
     /**
@@ -418,29 +450,27 @@ class AuctionCraftSniper
      *
      * @return bool|mysqli_result
      */
-    final private function updateOAuthAccessToken(string $token = '', int $remainingTime = 0)
-    {
-        $updateOAuthAccessTokenQuery = 'UPDATE `OAuth` SET `token` = "' . $token . '", `expires` = ' . ($remainingTime + time());
+    final private function updateOAuthAccessToken (string $token = '', int $remainingTime = 0) {
+        $updateOAuthAccessTokenQuery = 'UPDATE `OAuth` SET `token` = "' . $token . '", `expires` = ' . ($remainingTime + time ());
 
-        $this->connection->query($updateOAuthAccessTokenQuery);
+        $this->connection->query ($updateOAuthAccessTokenQuery);
     }
 
     /**
      * @return bool|mysqli_result
      */
-    final private function refreshOAuthAccessToken()
-    {
+    final private function refreshOAuthAccessToken () {
 
-        $previousTokenData = $this->getPreviousTokenData();
+        $previousTokenData = $this->getPreviousTokenData ();
 
         // only update OAuth token if expiration time > 1 min
-        if ($previousTokenData['expirationTimestamp'] - time() < 60) {
+        if ($previousTokenData['expirationTimestamp'] - time () < 60) {
 
-            $refreshData = file_get_contents('https://eu.battle.net/oauth/token?client_id=' . $previousTokenData['clientID'] . '&client_secret=' . $previousTokenData['clientSecret'] . '&grant_type=client_credentials');
-            $refreshData = (array) json_decode($refreshData);
+            $refreshData = file_get_contents ('https://eu.battle.net/oauth/token?client_id=' . $previousTokenData['clientID'] . '&client_secret=' . $previousTokenData['clientSecret'] . '&grant_type=client_credentials');
+            $refreshData = (array) json_decode ($refreshData);
 
-            if (array_key_exists('access_token', $refreshData)) {
-                $this->updateOAuthAccessToken($refreshData['access_token'], $refreshData['expires_in']);
+            if (array_key_exists ('access_token', $refreshData)) {
+                $this->updateOAuthAccessToken ($refreshData['access_token'], $refreshData['expires_in']);
 
                 return $refreshData['access_token'];
             }
@@ -449,5 +479,66 @@ class AuctionCraftSniper
         }
 
         return $previousTokenData['token'];
+    }
+
+    /**
+     * @method AreValidProfessions [validates professions against database]
+     *
+     * @param array $professionIDs
+     *
+     * @return array|bool
+     */
+    final public function AreValidProfessions (array $professionIDs = []) {
+        if (empty($this->professions)) {
+            $this->getProfessions ();
+        }
+
+        $validProfessions = array_keys ($this->professions);
+
+        foreach ($professionIDs as $professionID) {
+            if (!in_array ($professionID, $validProfessions)) {
+                return false;
+            }
+        }
+
+        return $professionIDs;
+    }
+
+    /**
+     * @method public isValidHouse [validates houseID against database]
+     *
+     * @param int $houseID
+     *
+     * @return bool|int
+     */
+    final public function isValidHouse (int $houseID = 0) {
+        $validationQuery = 'SELECT `id` FROM `realms` WHERE `house` = ' . $houseID;
+
+        $data = $this->connection->query ($validationQuery);
+
+        if ($data->num_rows === 1) {
+            return $houseID;
+        }
+
+        return false;
+    }
+
+    /**
+     * @method isValidExpansionLevel [validates expansionLevel against database]
+     *
+     * @param int $expansionLevel
+     *
+     * @return bool|int
+     */
+    final public function isValidExpansionLevel (int $expansionLevel = 8) {
+        if (empty($this->expansionLevels)) {
+            $this->getExpansionLevels ();
+        }
+
+        if (!in_array ($expansionLevel, array_keys ($this->expansionLevels))) {
+            return false;
+        }
+
+        return $expansionLevel;
     }
 }
