@@ -1,17 +1,18 @@
 <?php
 
-if (isset($_GET['house']) && is_numeric ($_GET['house']) && isset($_GET['professions']) && isset($_GET['expansionLevel']) && is_numeric ($_GET['expansionLevel'])) {
+if (isset($_GET['houseID']) && is_numeric($_GET['houseID']) && isset($_GET['professions']) && isset($_GET['expansionLevel']) && is_numeric($_GET['expansionLevel'])) {
 
     require_once '../dependencies/headers.php';
     require_once '../dependencies/class.AuctionCraftSniper.php';
 
     $AuctionCraftSniper = new AuctionCraftSniper();
 
-    $house          = $AuctionCraftSniper->isValidHouse ((int) $_GET['house']);
-    $professions    = $AuctionCraftSniper->AreValidProfessions (explode (',', $_GET['professions']));
-    $expansionLevel = $AuctionCraftSniper->isValidExpansionLevel ((int) $_GET['expansionLevel']);
+    $AuctionCraftSniper->setExpansionLevel($_GET['expansionLevel']);
+    $AuctionCraftSniper->setHouseID($_GET['houseID']);
 
-    if ($house && $professions && $expansionLevel) {
-        echo json_encode ($AuctionCraftSniper->getProfessionData ($house, $professions, $expansionLevel));
+    $professions = $AuctionCraftSniper->AreValidProfessions(explode(',', $_GET['professions']));
+
+    if ($professions) {
+        echo json_encode($AuctionCraftSniper->getProfessionData($professions));
     }
 }

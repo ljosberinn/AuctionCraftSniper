@@ -3,7 +3,7 @@ import * as Raven from 'raven-js';
 interface parseAuctionDataPayload {
   recipeIDs?: object;
   step?: number;
-  house: number;
+    houseID: number;
   expansionLevel: number;
 }
 
@@ -18,7 +18,7 @@ interface parseAuctionDataResponseJSON {
 }
 
 interface ACSLocalStorageObj {
-  house?: undefined | number;
+    houseID?: undefined | number;
   professions?: number[];
   expansionLevel?: number;
 }
@@ -53,14 +53,14 @@ const toggleUserInputs = (state: boolean) => {
 };
 
 const ACS: ACSLocalStorageObj = {
-  house: undefined,
+    houseID: undefined,
   professions: [],
   expansionLevel: 8,
 };
 
 const setACSLocalStorage = (data: ACSLocalStorageObj) => {
-  if (data.house) {
-    ACS.house = data.house;
+    if (data.houseID) {
+        ACS.houseID = data.houseID;
   }
 
   if (data.professions) {
@@ -71,16 +71,14 @@ const setACSLocalStorage = (data: ACSLocalStorageObj) => {
     ACS.expansionLevel = data.expansionLevel;
   }
 
-  // if (typeof ACS.house !== 'undefined' && ACS.professions.length > 0 && typeof ACS.expansionLevel === 'number') {
   localStorage.ACS = JSON.stringify(ACS);
-  // }
 };
 
 const getACSLocalStorage = () => {
   if (localStorage.ACS) {
     const tempACS: ACSLocalStorageObj = JSON.parse(localStorage.ACS);
 
-    ACS.house = tempACS.house;
+      ACS.houseID = tempACS.houseID;
     ACS.professions = tempACS.professions;
     ACS.expansionLevel = tempACS.expansionLevel;
 
@@ -104,7 +102,7 @@ const getProfessionTables = () => {
 
 const parseAuctionData = async (step = 0, recipeIDs = {}) => {
   const payload: parseAuctionDataPayload = {
-    house: ACS.house,
+      houseID: ACS.houseID,
     recipeIDs,
     expansionLevel: ACS.expansionLevel,
   };
@@ -141,7 +139,12 @@ const parseAuctionData = async (step = 0, recipeIDs = {}) => {
 const getAuctionHouseData = async () => {
   updateState('getAuctionHouseData');
 
-  const data = await fetch(`api/getAuctionHouseData.php?house=${ACS.house}`);
+    const data = await fetch(`api/getAuctionHouseData.php?houseID=${ACS.houseID}`, {
+        method: 'GET',
+        credentials: 'same-origin',
+        mode: 'same-origin',
+    });
+
   const json = await data.json();
 
   switch (json.callback) {
@@ -190,12 +193,17 @@ const searchListener = () => {
 };
 
 const checkHouseAge = async () => {
-  const { house, expansionLevel } = ACS;
+    const {houseID, expansionLevel} = ACS;
 
-  if (house !== undefined) {
+    if (houseID !== undefined) {
     updateState('checkHouseAge');
 
-    const data = await fetch(`api/checkHouseAge.php?house=${house}&expansionLevel=${expansionLevel}`);
+        const data = await fetch(`api/checkHouseAge.php?houseID=${houseID}&expansionLevel=${expansionLevel}`, {
+            method: 'GET',
+            credentials: 'same-origin',
+            mode: 'same-origin',
+        });
+
     const json = await data.json();
 
     switch (json.callback) {
@@ -209,7 +217,7 @@ const checkHouseAge = async () => {
         throw new Error('invalid callback');
     }
   } else {
-    console.warn(`Insufficient params - professions: house: ${house}`);
+        console.warn(`Insufficient params - professions: house: ${houseID}`);
   }
 };
 
@@ -219,12 +227,16 @@ const validateRegionRealm = async (value: string[]) => {
 
   updateState('validateRegionRealm');
 
-  await fetch(`api/validateRegionRealm.php?region=${region}&realm=${realm}`)
+    await fetch(`api/validateRegionRealm.php?region=${region}&realm=${realm}`, {
+        method: 'GET',
+        credentials: 'same-origin',
+        mode: 'same-origin',
+    })
     .then(response => response.json())
     .then(json => {
       // only proceed when input is valid REGION-REALM pair and server responded with house ID
-      if (json.house) {
-        setACSLocalStorage({ house: json.house });
+        if (json.houseID) {
+            setACSLocalStorage({houseID: json.houseID});
         checkHouseAge();
       }
     })
