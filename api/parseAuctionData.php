@@ -65,6 +65,8 @@ if (file_exists($fileName) && $stream = fopen($fileName, 'r')) {
 
     $leftovers = '';
 
+    $recipeKeys = array_keys($recipeIDs);
+
     for ($bytes = $auctionsStart; $bytes <= $thisChunksEnd; $bytes += BYTE_LIMIT) {
 
         // get trailing auction data from previous iteration to have a full new dataset
@@ -86,7 +88,7 @@ if (file_exists($fileName) && $stream = fopen($fileName, 'r')) {
 
         $data = json_decode(substr($data, 0, $auctionEnd), true);
 
-        if (in_array($data['item'], array_keys($recipeIDs))) {
+        if (in_array($data['item'], $recipeKeys)) {
             $thisPPU = round($data['buyout'] / $data['quantity']);
 
             $previousPPU = (int)$recipeIDs[$data['item']];

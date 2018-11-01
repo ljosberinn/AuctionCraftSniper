@@ -3,7 +3,7 @@
 $headers = [
     "X-Content-Type-Options: nosniff",
     "X-Frame-Options: SAMEORIGIN",
-    "X-XSS-Protection: 0",
+    "X-XSS-Protection: 1; mode=block",
 ];
 
 if(basename($_SERVER['PHP_SELF']) !== 'index.php') {
