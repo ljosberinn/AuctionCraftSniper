@@ -1,2 +1,0 @@
-- complete recipes in DB
-- OAuth BNet for continued API access
