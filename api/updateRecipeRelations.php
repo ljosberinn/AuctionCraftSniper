@@ -13,8 +13,7 @@ if (isset($_GET['expansionLevel']) && is_numeric($_GET['expansionLevel']) && (in
 
     $recipeRequirements = [];
 
-    foreach (array_keys($AuctionCraftSniper->getRecipeIDs()) as $recipeID) {
-
+    foreach ($AuctionCraftSniper->getRecipeIDs() as $recipeID) {
         foreach ($AuctionCraftSniper->getWoWDBJSON('/item/' . $recipeID)['CreatedBySpellIDs'] as $spellID) {
             $spellData = $AuctionCraftSniper->getWoWDBJSON('/spell/' . $spellID);
 

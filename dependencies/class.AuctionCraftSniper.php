@@ -48,6 +48,10 @@ class AuctionCraftSniper
      */
     private $houseID = 0;
 
+    private $materialIDs = [];
+
+    private $calculationExemptionItemIDs = [];
+
     /**
      * @method __construct
      * @param boolean $indexInit [controls automatic filling of $realms and $professions; default false]
@@ -100,6 +104,15 @@ class AuctionCraftSniper
 
         return $this->recipeIDs;
     }
+
+    public function getMaterialIDs() {
+        if (empty($this->materialIDs)) {
+            $this->setMaterialIDs();
+        }
+
+        return $this->materialIDs;
+    }
+
 
     /**
      * @method getProfessions [returns private profession array]
@@ -234,12 +247,110 @@ class AuctionCraftSniper
         return $this->expansionLevels;
     }
 
-    public function getProfessionData(array $professions) {
-        return [];
+    public function getProfessionData(array $professions = []) {
+
+        $this->setCalculationExemptionsIDs();
+
+        $professionTableData = [];
+
+        $getCurrentlyAvailableRecipesQuery = 'SELECT
+            `auctionData`.`itemID`,
+            `auctionData`.`buyout`,
+            `auctionData`.`timestamp`,
+            `recipes`.`name`,
+            `recipes`.`profession`
+            FROM `auctionData`
+            LEFT JOIN `recipes` ON `auctionData`.`itemID` = `recipes`.`id`
+            WHERE `auctionData`.`houseID` = ' . $this->houseID . ' AND
+            `auctionData`.`expansionLevel` = ' . $this->expansionLevel . ' AND';
+
+        foreach ($professions as $professionID) {
+            $getCurrentlyAvailableRecipesQuery .= ' `recipes`.`profession` = ' . $professionID . ' OR';
+        }
+
+        $getCurrentlyAvailableRecipesQuery = substr($getCurrentlyAvailableRecipesQuery, 0, -3);
+
+        $data = $this->connection->query($getCurrentlyAvailableRecipesQuery);
+
+        if ($data->num_rows > 0) {
+            while ($stream = $data->fetch_assoc()) {
+                $recipeData = [
+                    'product'   => [
+                        'item'     => $stream['itemID'],
+                        'itemName' => $stream['name'],
+                        'buyout'   => $stream['buyout'],
+                    ],
+                    'materials' => [],
+                    'profit'    => $stream['buyout'],
+                ];
+
+                $getConnectedRecipeRequirementsQuery = 'SELECT `requiredItemID`, `requiredAmount`, `itemName`, `rank`, `baseBuyPrice` FROM `recipeRequirements` WHERE `recipe` = ' . $stream['itemID'] . ' AND (`rank` = 3 OR `rank` = 0)';
+
+                $recipeRequirementData = $this->connection->query($getConnectedRecipeRequirementsQuery);
+
+                while ($recipeStream = $recipeRequirementData->fetch_assoc()) {
+                    $recipeData['materials'][] = $recipeStream;
+                }
+
+                foreach ($recipeData['materials'] as &$recipeMaterial) {
+                    $recipeMaterial['buyout'] = 0;
+
+                    // filter items that can be bought via vendors
+                    if (!in_array($recipeMaterial['requiredItemID'], $this->calculationExemptionItemIDs)) {
+
+                        // special case for recipes without rank
+                        if ((int)$recipeMaterial['rank'] === 0) {
+                            $recipeMaterial['buyout'] = $recipeMaterial['baseBuyPrice'];
+                        } else {
+
+                            $getMaterialBuyoutQuery = 'SELECT `buyout` FROM `auctionData` WHERE `itemID` = ' . $recipeMaterial['requiredItemID'] . ' AND `expansionLevel` = ' . $this->expansionLevel;
+
+                            $materialBuyoutData = $this->connection->query($getMaterialBuyoutQuery);
+
+                            if ($materialBuyoutData->num_rows === 1) {
+                                while ($materialBuyoutDataStream = $materialBuyoutData->fetch_assoc()) {
+                                    $recipeMaterial['buyout'] = $materialBuyoutDataStream['buyout'];
+                                }
+                            }
+                        }
+
+                        $recipeData['profit'] -= $recipeMaterial['buyout'] * $recipeMaterial['requiredAmount'];
+                    }
+                }
+
+                $professionTableData[$stream['profession']][] = $recipeData;
+            }
+        }
+
+        return $professionTableData;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCalculationExemptionItemIDs() {
+        if (empty($this->calculationExemptionItemIDs)) {
+            $this->setCalculationExemptionsIDs();
+        }
+
+        return $this->calculationExemptionItemIDs;
     }
 
     /* ---------------------------------------------------------------------------------------------------- */
     // SETTER //
+
+
+    private function setMaterialIDs() {
+        $materialIDsQuery = 'SELECT DISTINCT(`requiredItemID`) FROM `recipeRequirements` WHERE `expansionLevel` =  ' . $this->expansionLevel . ' ORDER BY `requiredItemID` ASC';
+
+        $data = $this->connection->query($materialIDsQuery);
+
+        if ($data->num_rows > 0) {
+            while ($stream = $data->fetch_assoc()) {
+                $this->materialIDs[] = $stream['requiredItemID'];
+            }
+        }
+    }
 
     /**
      * @method setHouseID [sets current $houseID after validating]
@@ -289,7 +400,7 @@ class AuctionCraftSniper
 
         if ($data->num_rows > 0) {
             while ($stream = $data->fetch_assoc()) {
-                $this->recipeIDs[$stream['id']] = 0;
+                $this->recipeIDs[] = $stream['id'];
             }
         }
     }
@@ -352,11 +463,27 @@ class AuctionCraftSniper
     }
 
     /**
+     * @method setCalculationExemptionIDs [extracts IDs of items that can be ignored when parsing data from database]
+     */
+    private function setCalculationExemptionsIDs() {
+        $getVendorItemsQuery = 'SELECT `itemID` FROM `itemCalculationExemptions`';
+
+        $data = $this->connection->query($getVendorItemsQuery);
+
+        if ($data->num_rows > 0) {
+            while ($stream = $data->fetch_assoc()) {
+                $this->calculationExemptionItemIDs[] = $stream['itemID'];
+            }
+        }
+    }
+
+
+    /**
      * @method setRecipeRequirements [(re)builds all recipeRequirements for an expansion based upon existing recipes via the WoWDB API]
      *
      * @param array $recipeRequirements
      */
-    public function setRecipeRequirements(array $recipeRequirements = []) {
+    public function setRecipeRequirements(array $recipeRequirements) {
         $removalQuery = 'DELETE * FROM `recipeRequirements` WHERE `expansionLevel` = ' . $this->expansionLevel;
         $this->connection->query($removalQuery);
 
@@ -371,7 +498,8 @@ class AuctionCraftSniper
                 ' . $recipeRequirement['requiredItemIDs'][$i] . ',
                 ' . $recipeRequirement['requiredAmounts'][$i] . ',
                 "' . $this->realEscapeString($recipeRequirement['itemNames'][$i]) . '",
-                ' . $recipeRequirement['rank'] . ', ' . $recipeRequirement['baseSellPrices'][$i] . ',
+                ' . $recipeRequirement['rank'] . ',
+                ' . $recipeRequirement['baseSellPrices'][$i] . ',
                 ' . $recipeRequirement['baseBuyPrices'][$i] . ',
                 ' . $this->expansionLevel . '
                 ), ';
@@ -627,7 +755,7 @@ class AuctionCraftSniper
         }
 
         if (!in_array($expansionLevel, array_keys($this->expansionLevels))) {
-            return false;
+            return 8;
         }
 
         return $expansionLevel;

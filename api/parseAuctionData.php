@@ -8,24 +8,28 @@ $decodedPOST = json_decode(trim(file_get_contents("php://input")), true);
 const BYTE_LIMIT = 365;
 const CHUNK_SIZE = 2568505;
 
-if (!isset($decodedPOST['step']) && empty($decodedPOST['recipeIDs'])) {
+if (!isset($decodedPOST['step']) && empty($decodedPOST['itemIDs'])) {
 
     $AuctionCraftSniper = new AuctionCraftSniper();
 
     $AuctionCraftSniper->setExpansionLevel($decodedPOST['expansionLevel']);
 
-    $expansionLevel = $AuctionCraftSniper->isValidExpansionLevel((int)$decodedPOST['expansionLevel']);
+    $expansionLevel = $AuctionCraftSniper->isValidExpansionLevel($decodedPOST['expansionLevel']);
 
-    if ($expansionLevel && $expansionLevel === 0) {
-        $expansionLevel = 8;
+    $itemIDs              = [];
+    $calculationExemption = $AuctionCraftSniper->getCalculationExemptionItemIDs();
+
+    foreach (array_merge($AuctionCraftSniper->getRecipeIDs(), $AuctionCraftSniper->getMaterialIDs()) as $id) {
+        if (!in_array($id, $calculationExemption)) {
+            $itemIDs[$id] = 0;
+        }
     }
 
-    $recipeIDs = $AuctionCraftSniper->getRecipeIDs();
-    $step      = 0;
+    $step = 0;
 
 } else {
 
-    $recipeIDs      = (array)$decodedPOST['recipeIDs'];
+    $itemIDs        = (array)$decodedPOST['itemIDs'];
     $step           = (int)$decodedPOST['step'];
     $expansionLevel = (int)$decodedPOST['expansionLevel'];
 
@@ -65,7 +69,7 @@ if (file_exists($fileName) && $stream = fopen($fileName, 'r')) {
 
     $leftovers = '';
 
-    $recipeKeys = array_keys($recipeIDs);
+    $itemKeys = array_keys($itemIDs);
 
     for ($bytes = $auctionsStart; $bytes <= $thisChunksEnd; $bytes += BYTE_LIMIT) {
 
@@ -88,13 +92,13 @@ if (file_exists($fileName) && $stream = fopen($fileName, 'r')) {
 
         $data = json_decode(substr($data, 0, $auctionEnd), true);
 
-        if (in_array($data['item'], $recipeKeys)) {
+        if (in_array($data['item'], $itemKeys)) {
             $thisPPU = round($data['buyout'] / $data['quantity']);
 
-            $previousPPU = (int)$recipeIDs[$data['item']];
+            $previousPPU = (int)$itemIDs[$data['item']];
 
             if ($previousPPU === 0 || $thisPPU < $previousPPU && $thisPPU !== 0) {
-                $recipeIDs[$data['item']] = $thisPPU;
+                $itemIDs[$data['item']] = $thisPPU;
             }
         }
     }
@@ -102,7 +106,7 @@ if (file_exists($fileName) && $stream = fopen($fileName, 'r')) {
     fclose($stream);
 
     $response = [
-        'recipeIDs'      => $recipeIDs,
+        'itemIDs'        => $itemIDs,
         'expansionLevel' => $expansionLevel,
         'step'           => $step + 1,
         'reqSteps'       => ceil($fileSize / CHUNK_SIZE),
@@ -114,7 +118,7 @@ if (file_exists($fileName) && $stream = fopen($fileName, 'r')) {
         $AuctionCraftSniper->setHouseID($decodedPOST['houseID']);
         $AuctionCraftSniper->setExpansionLevel($expansionLevel);
 
-        $AuctionCraftSniper->updateHouse($recipeIDs);
+        $AuctionCraftSniper->updateHouse($itemIDs);
 
         $response['callback'] = 'getProfessionTables';
         unlink($fileName);

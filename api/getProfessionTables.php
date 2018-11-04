@@ -13,6 +13,6 @@ if (isset($_GET['houseID']) && is_numeric($_GET['houseID']) && isset($_GET['prof
     $professions = $AuctionCraftSniper->AreValidProfessions(explode(',', $_GET['professions']));
 
     if ($professions) {
-        echo json_encode($AuctionCraftSniper->getProfessionData($professions));
+        echo json_encode($AuctionCraftSniper->getProfessionData($professions), JSON_NUMERIC_CHECK);
     }
 }
