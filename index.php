@@ -59,7 +59,7 @@ $AuctionCraftSniper = new AuctionCraftSniper();
 			<select id="expansion-level">
 				<option disabled>Search expansion-specific recipes...</option>
                 <?php foreach ($AuctionCraftSniper->getExpansionLevels() as $expansionLevel => $expansionName) { ?>
-					<option value="<?= $expansionLevel ?>" <?= $expansionLevel === 8 ? 'selected' : '' ?>><?= $expansionName ?></option>
+	                <option value="<?= $expansionLevel ?>"<?= $expansionLevel === 8 ? 'selected' : '' ?>><?= $expansionName ?></option>
                 <?php } ?>
 			</select>
 		</label>
