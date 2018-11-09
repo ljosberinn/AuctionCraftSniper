@@ -1,7 +1,6 @@
 <?php
 
-class AuctionCraftSniper
-{
+class AuctionCraftSniper {
 
     /**
      * @var object $connection [database connection]
@@ -59,8 +58,7 @@ class AuctionCraftSniper
     public function __construct() {
         $db = require_once 'db.php';
 
-        $this->connection = new mysqli($db['host'], $db['user'], $db['pw'], $db['db']);
-        $this->connection->set_charset('utf8');
+        $this->connection = new PDO('mysql:host=' . $db['host'] . ';dbname:' . $db['db'] . ';charset=UTF-8', $db['user'], $db['pw']);
 
         $this->OAuthAccessToken = $this->refreshOAuthAccessToken();
     }
@@ -157,7 +155,7 @@ class AuctionCraftSniper
 
         curl_close($curl);
 
-        $outerAuctionData = (array)json_decode($response, true);
+        $outerAuctionData = (array) json_decode($response, true);
 
         return $outerAuctionData;
     }
@@ -170,9 +168,9 @@ class AuctionCraftSniper
      * @return bool
      */
     private function getInnerAuctionURL() {
-        $getInnerAuctionURLQuery = 'SELECT `auctionURL` FROM `realms` WHERE `houseID` = ' . $this->houseID . ' LIMIT 1';
+        $getInnerAuctionURLQuery = $this->connection->prepare('SELECT `auctionURL` FROM `realms` WHERE `houseID` = :houseID LIMIT 1');
 
-        $data = $this->connection->query($getInnerAuctionURLQuery);
+        $data = $getInnerAuctionURLQuery->execute(['houseID' => $this->houseID]);
 
         if ($data->num_rows === 1) {
 
@@ -190,10 +188,9 @@ class AuctionCraftSniper
      * @return bool|string
      */
     private function getOuterAuctionURL() {
+        $getAuctionsURLQuery = $this->connection->prepare('SELECT `region`, `slug` FROM `realms` WHERE `houseID` = :houseID LIMIT 1');
 
-        $getAuctionsURLQuery = 'SELECT `region`, `slug` FROM `realms` WHERE `houseID` = ' . $this->houseID . ' LIMIT 1';
-
-        $data = $this->connection->query($getAuctionsURLQuery);
+        $data = $getAuctionsURLQuery->execute(['houseID' => $this->houseID]);
 
         if ($data->num_rows === 1) {
 
@@ -211,7 +208,8 @@ class AuctionCraftSniper
      * @return array
      */
     private function getPreviousOAuthTokenData() {
-        $getPreviousTokenExpirationTimestampQuery = 'SELECT * FROM `OAuth`';
+        $getPreviousTokenExpirationTimestampQuery = $this->connection->prepare('SELECT * FROM `OAuth`');
+        $getPreviousTokenExpirationTimestampQuery->execute();
 
         $previousTokenData = [
             'clientID'            => '',
@@ -219,8 +217,6 @@ class AuctionCraftSniper
             'expirationTimestamp' => 0,
             'token'               => '',
         ];
-
-        $data = $this->connection->query($getPreviousTokenExpirationTimestampQuery);
 
         if ($data->num_rows === 1) {
             while ($stream = $data->fetch_assoc()) {
@@ -270,7 +266,7 @@ class AuctionCraftSniper
 
         $getCurrentlyAvailableRecipesQuery = substr($getCurrentlyAvailableRecipesQuery, 0, -3);
 
-        $data = $this->connection->query($getCurrentlyAvailableRecipesQuery);
+        $data = $this->connection->prepare($getCurrentlyAvailableRecipesQuery)->execute();
 
         if ($data->num_rows > 0) {
             while ($stream = $data->fetch_assoc()) {
@@ -284,9 +280,11 @@ class AuctionCraftSniper
                     'profit'    => $stream['buyout'],
                 ];
 
-                $getConnectedRecipeRequirementsQuery = 'SELECT `requiredItemID`, `requiredAmount`, `itemName`, `rank`, `baseBuyPrice` FROM `recipeRequirements` WHERE `recipe` = ' . $stream['itemID'] . ' AND (`rank` = 3 OR `rank` = 0)';
+                $getConnectedRecipeRequirementsQuery = $this->connection->prepare('SELECT `requiredItemID`, `requiredAmount`, `itemName`, `rank`, `baseBuyPrice` FROM `recipeRequirements` WHERE `recipe` = :recipeID AND (`rank` = 3 OR `rank` = 0)');
 
-                $recipeRequirementData = $this->connection->query($getConnectedRecipeRequirementsQuery);
+                $recipeRequirementData = $getConnectedRecipeRequirementsQuery->execute([
+                    'recipeID' => $stream['itemID'],
+                ]);
 
                 while ($recipeStream = $recipeRequirementData->fetch_assoc()) {
                     $recipeData['materials'][] = $recipeStream;
@@ -299,13 +297,16 @@ class AuctionCraftSniper
                     if (!in_array($recipeMaterial['requiredItemID'], $this->calculationExemptionItemIDs)) {
 
                         // special case for recipes without rank
-                        if ((int)$recipeMaterial['rank'] === 0) {
+                        if ((int) $recipeMaterial['rank'] === 0) {
                             $recipeMaterial['buyout'] = $recipeMaterial['baseBuyPrice'];
                         } else {
 
-                            $getMaterialBuyoutQuery = 'SELECT `buyout` FROM `auctionData` WHERE `itemID` = ' . $recipeMaterial['requiredItemID'] . ' AND `expansionLevel` = ' . $this->expansionLevel;
+                            $getMaterialBuyoutQuery = $this->connection->prepare('SELECT `buyout` FROM `auctionData` WHERE `itemID` = :itemID AND `expansionLevel` = :expansionLevel');
 
-                            $materialBuyoutData = $this->connection->query($getMaterialBuyoutQuery);
+                            $materialBuyoutData = $getMaterialBuyoutQuery->execute([
+                                'itemID'         => $recipeMaterial['requiredItemID'],
+                                'expansionLevel' => $this->expansionLevel,
+                            ]);
 
                             if ($materialBuyoutData->num_rows === 1) {
                                 while ($materialBuyoutDataStream = $materialBuyoutData->fetch_assoc()) {
@@ -341,9 +342,9 @@ class AuctionCraftSniper
 
 
     private function setMaterialIDs() {
-        $materialIDsQuery = 'SELECT DISTINCT(`requiredItemID`) FROM `recipeRequirements` WHERE `expansionLevel` =  ' . $this->expansionLevel . ' ORDER BY `requiredItemID` ASC';
+        $materialIDsQuery = $this->connection->prepare('SELECT DISTINCT(`requiredItemID`) FROM `recipeRequirements` WHERE `expansionLevel` = :expansionLevel ORDER BY `requiredItemID` ASC');
 
-        $data = $this->connection->query($materialIDsQuery);
+        $data = $materialIDsQuery->execute(['expansionLevel' => $this->expansionLevel]);
 
         if ($data->num_rows > 0) {
             while ($stream = $data->fetch_assoc()) {
@@ -394,9 +395,9 @@ class AuctionCraftSniper
      * @method setRecipeIDs [fetches recipes depending on current expansionLevel]
      */
     private function setRecipeIDs() {
-        $recipeIDsQuery = 'SELECT `id` FROM `recipes` WHERE `expansionLevel` =  ' . $this->expansionLevel . ' ORDER BY `id` ASC';
+        $recipeIDsQuery = $this->connection->prepare('SELECT `id` FROM `recipes` WHERE `expansionLevel` =  :expansionLevel ORDER BY `id` ASC');
 
-        $data = $this->connection->query($recipeIDsQuery);
+        $data = $recipeIDsQuery->execute(['expansionLevel' => $this->expansionLevel]);
 
         if ($data->num_rows > 0) {
             while ($stream = $data->fetch_assoc()) {
@@ -410,8 +411,9 @@ class AuctionCraftSniper
      */
     private function setRealms() {
         foreach ($this->regions as $region) {
-            $realmQuery = "SELECT `houseID`, `name` FROM `realms` WHERE `region` = '" . $region . "' ORDER BY `name` ASC";
-            $data       = $this->connection->query($realmQuery);
+            $realmQuery = $this->connection->prepare('SELECT `houseID`, `name` FROM `realms` WHERE `region` = :region ORDER BY `name` ASC');
+
+            $data = $realmQuery->execute(['region' => $region]);
 
             if ($data->num_rows > 0) {
                 while ($stream = $data->fetch_assoc()) {
@@ -425,9 +427,9 @@ class AuctionCraftSniper
      * @method setProfessions [initializes private profession array]
      */
     private function setProfessions() {
-        $professionQuery = "SELECT * FROM `professions` ORDER BY `name` ASC";
+        $professionQuery = $this->connection->prepare('SELECT * FROM `professions` ORDER BY `name` ASC');
 
-        $data = $this->connection->query($professionQuery);
+        $data = $professionQuery->execute();
 
         if ($data->num_rows > 0) {
             while ($stream = $data->fetch_assoc()) {
@@ -442,21 +444,30 @@ class AuctionCraftSniper
      * @param string $houseURL
      */
     private function setInnerHouseURL(string $houseURL = '') {
-        $setInnerHouseURLQuery = 'UPDATE `realms` SET `auctionURL` = "' . $houseURL . '" WHERE `houseID` = ' . $this->houseID;
-
-        $this->connection->query($setInnerHouseURLQuery);
+        $this->connection->prepare('UPDATE `realms` SET `auctionURL` = :houseURL WHERE `houseID` = :houseID')->execute([
+            'houseURL' => $houseURL,
+            'houseID'  => $this->houseID,
+        ]);
     }
 
     /**
      * @method setExpansionLevels [fetches expansionLevels from database]
      */
     private function setExpansionLevels() {
-        $setExpansionLevelQuery = 'SELECT * FROM `expansionLevels` ORDER BY `level` ASC';
+        $setExpansionLevelQuery = $this->connection->prepare('SELECT * FROM `expansionLevels` ORDER BY `level` ASC');
 
-        $data = $this->connection->query($setExpansionLevelQuery);
+
+        $data = $setExpansionLevelQuery->execute();
+        print_r($setExpansionLevelQuery->fetchAll());
+
+        foreach ($setExpansionLevelQuery->fetchAll() as $level => $name) {
+            print_r([$level, $name]);
+            $this->expansionLevels[$level] = $name;
+        }
+
 
         if ($data->num_rows > 0) {
-            while ($stream = $data->fetch_assoc()) {
+            while ($stream = $data->fetchAll()) {
                 $this->expansionLevels[$stream['level']] = $stream['name'];
             }
         }
@@ -466,9 +477,9 @@ class AuctionCraftSniper
      * @method setCalculationExemptionIDs [extracts IDs of items that can be ignored when parsing data from database]
      */
     private function setCalculationExemptionsIDs() {
-        $getVendorItemsQuery = 'SELECT `itemID` FROM `itemCalculationExemptions`';
+        $getVendorItemsQuery = $this->connection->prepare('SELECT `itemID` FROM `itemCalculationExemptions`');
 
-        $data = $this->connection->query($getVendorItemsQuery);
+        $data = $getVendorItemsQuery->execute();
 
         if ($data->num_rows > 0) {
             while ($stream = $data->fetch_assoc()) {
@@ -484,8 +495,9 @@ class AuctionCraftSniper
      * @param array $recipeRequirements
      */
     public function setRecipeRequirements(array $recipeRequirements) {
-        $removalQuery = 'DELETE * FROM `recipeRequirements` WHERE `expansionLevel` = ' . $this->expansionLevel;
-        $this->connection->query($removalQuery);
+        $this->connection->prepare('DELETE * FROM `recipeRequirements` WHERE `expansionLevel` = :expansionLevel')->execute([
+            'expansionLevel' => $this->expansionLevel,
+        ]);
 
         $insertQuery = 'INSERT INTO `recipeRequirements` (`recipe`, `requiredItemID`, `requiredAmount`, `itemName`, `rank`, `baseSellPrice`, `baseBuyPrice`, `expansionLevel`) VALUES ';
 
@@ -508,7 +520,7 @@ class AuctionCraftSniper
 
         $insertQuery = substr($insertQuery, 0, -2);
 
-        $this->connection->query($insertQuery);
+        $this->connection->prepare($insertQuery)->execute();
     }
 
     /* ---------------------------------------------------------------------------------------------------- */
@@ -562,9 +574,12 @@ class AuctionCraftSniper
 
         if (in_array(strtoupper($region), $this->regions)) {
 
-            $validationQuery = 'SELECT `houseID` FROM `realms` WHERE `region` = "' . $this->realEscapeString($region) . '" AND `name` = "' . $this->realEscapeString($realm) . '"';
+            $validationQuery = $this->connection->prepare('SELECT `houseID` FROM `realms` WHERE `region` = :region AND `name` = :name');
 
-            $data = $this->connection->query($validationQuery);
+            $data = $validationQuery->execute([
+                'region' => $this->realEscapeString($region),
+                'name'   => $this->realEscapeString($realm),
+            ]);
 
             if ($data->num_rows === 1) {
                 while ($stream = $data->fetch_assoc()) {
@@ -582,20 +597,22 @@ class AuctionCraftSniper
      * @return bool
      */
     public function isHouseOutdated() {
-        $getLastUpdateTimestampQuery = "SELECT `timestamp` FROM `auctionData` WHERE `houseID` = " . $this->houseID . " AND `expansionLevel` = " . $this->expansionLevel . " LIMIT 1";
 
-        $lastUpdateTimestamp = 0;
+        $getLastUpdateTimestampQuery = $this->connection->prepare("SELECT `timestamp` FROM `auctionData` WHERE `houseID` = :houseID AND `expansionLevel` = :expansionLevel LIMIT 1");
+
+        $data = $getLastUpdateTimestampQuery->execute(['houseID' => $this->houseID, 'expansionLevel' => $this->expansionLevel]);
 
         // assume house has never been fetched before
         $houseRequiresUpdate = true;
+        $lastUpdateTimestamp = 0;
 
-        $data = $this->connection->query($getLastUpdateTimestampQuery);
+        #$data = $this->connection->query($getLastUpdateTimestampQuery);
 
         // house has been previously fetched, check whether it needs an update
         if ($data->num_rows > 0) {
 
             while ($stream = $data->fetch_assoc()) {
-                $lastUpdateTimestamp = (int)$stream['timestamp'];
+                $lastUpdateTimestamp = (int) $stream['timestamp'];
             }
 
             // AH data supposedly updates once every 20 minutes
@@ -624,16 +641,18 @@ class AuctionCraftSniper
      */
     public function updateHouse(array $recipeIDs = []) {
 
-        $removePreviousDataQuery = 'DELETE FROM `auctionData` WHERE `houseID` = ' . $this->houseID . ' AND `expansionLevel` = ' . $this->expansionLevel;
-
-        $this->connection->query($removePreviousDataQuery);
+        $removePreviousDataQuery = $this->connection->prepare('DELETE FROM `auctionData` WHERE `houseID` = :houseID AND `expansionLevel` = :expansionLevel');
+        $removePreviousDataQuery->execute([
+            'houseID'        => $this->houseID,
+            'expansionLevel' => $this->expansionLevel,
+        ]);
 
         $now = time();
 
         $insertHouseDataQuery = 'INSERT INTO `auctionData` (`houseID`, `itemID`, `buyout`, `timestamp`, `expansionLevel`) VALUES ';
 
         foreach ($recipeIDs as $itemID => $buyout) {
-            if ((int)$buyout !== 0) {
+            if ((int) $buyout !== 0) {
                 $insertHouseDataQuery .= '(
                 ' . $this->houseID . ',
                 ' . $itemID . ',
@@ -645,7 +664,7 @@ class AuctionCraftSniper
 
         $insertHouseDataQuery = substr($insertHouseDataQuery, 0, -2);
 
-        $this->connection->query($insertHouseDataQuery);
+        $this->connection->prepare($insertHouseDataQuery)->execute();
     }
 
     /**
@@ -654,9 +673,7 @@ class AuctionCraftSniper
      * @param int    $remainingTime
      */
     private function updateOAuthAccessToken(string $token = '', int $remainingTime = 0) {
-        $updateOAuthAccessTokenQuery = 'UPDATE `OAuth` SET `token` = "' . $token . '", `expires` = ' . ($remainingTime + time());
-
-        $this->connection->query($updateOAuthAccessTokenQuery);
+        $this->connection->prepare('UPDATE `OAuth` SET `token` = :token, `expires` = ' . ($remainingTime + time()))->execute(['token' => $token]);
     }
 
     /**
@@ -686,7 +703,7 @@ class AuctionCraftSniper
             $response = curl_exec($curl);
             curl_close($curl);
 
-            $refreshData = (array)json_decode($response);
+            $refreshData = (array) json_decode($response);
 
             if (array_key_exists('access_token', $refreshData)) {
                 $this->updateOAuthAccessToken($refreshData['access_token'], $refreshData['expires_in']);
@@ -731,9 +748,9 @@ class AuctionCraftSniper
      * @return bool|int
      */
     private function isValidHouse(int $houseID = 0) {
-        $validationQuery = 'SELECT `id` FROM `realms` WHERE `houseID` = ' . $houseID;
+        $validationQuery = $this->connection->prepare('SELECT `id` FROM `realms` WHERE `houseID` = :houseID');
 
-        $data = $this->connection->query($validationQuery);
+        $data = $validationQuery->execute(['houseID' => $houseID]);
 
         if ($data->num_rows >= 1) {
             return $houseID;
