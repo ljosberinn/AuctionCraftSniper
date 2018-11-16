@@ -27,6 +27,7 @@
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-typescript": "^0.12.0",
+    "node-sass": "^4.10.0",
     "prettier": "^1.14.3",
     "stylelint": "^9.6.0",
     "stylelint-config-recommended": "^2.1.0",

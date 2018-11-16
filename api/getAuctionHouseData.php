@@ -9,7 +9,6 @@ if (isset($_GET['houseID']) && is_numeric($_GET['houseID'])) {
     require_once '../dependencies/class.AuctionCraftSniper.php';
 
     $AuctionCraftSniper = new AuctionCraftSniper();
-
     $AuctionCraftSniper->setHouseID($_GET['houseID']);
 
     $response = ['callback' => $AuctionCraftSniper->getInnerAuctionData() ? 'parseAuctionData' : 'throwHouseUnavailabilityError'];
