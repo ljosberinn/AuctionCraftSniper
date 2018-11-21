@@ -265,7 +265,7 @@ class AuctionCraftSniper
             LEFT JOIN `recipes` ON `auctionData`.`itemID` = `recipes`.`id`
             LEFT JOIN `houseUpdateTracker` on `houseUpdateTracker`.`houseID` = :houseID1 AND `houseUpdateTracker`.`expansionLevel` = :expansionLevel1
             WHERE `auctionData`.`houseID` = :houseID2 AND
-            `auctionData`.`expansionLevel` = :expansionLevel2 AND
+            `auctionData`.`expansionLevel` = :expansionLevel2 AND (
            ';
 
         $queryParams = [
@@ -281,7 +281,7 @@ class AuctionCraftSniper
             $getCurrentlyAvailableRecipesQuery  .= ' `recipes`.`profession` = :profession' . $index;
             $queryParams['profession' . $index] = $professionID;
 
-            $getCurrentlyAvailableRecipesQuery .= array_search($professionID, $professions) < $professionCount - 1 ? ' OR' : '';
+            $getCurrentlyAvailableRecipesQuery .= array_search($professionID, $professions) < $professionCount - 1 ? ' OR' : ')';
         }
 
         $getCurrentlyAvailableRecipes = $this->connection->prepare($getCurrentlyAvailableRecipesQuery);

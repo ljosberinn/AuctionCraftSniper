@@ -76,7 +76,9 @@ $AuctionCraftSniper = new AuctionCraftSniper();
 		<div id="progress-bar" style="height: 100%; background-color: purple;">progress-bar</div>
 	</div>
 
-	<textarea placeholder="result json" id="result"></textarea>
+	<div id="auction-craft-sniper">
+
+	</div>
 
 </main>
 

@@ -5,6 +5,10 @@
     "allowJs": true,
     "moduleResolution": "node",
     "outDir": "dist",
-    "sourceMap": true
+    "sourceMap": true,
+    "lib": [
+      "dom",
+      "es2017"
+    ]
   }
 }

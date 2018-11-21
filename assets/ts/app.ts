@@ -23,6 +23,39 @@ interface ACSLocalStorageObj {
   expansionLevel?: number;
 }
 
+interface materialJSON {
+    baseBuyPrice: number;
+    buyout: number;
+    itemName: string;
+    rank: number;
+    requiredAmount: number;
+    requiredItemID: number;
+}
+
+interface productJSON {
+    buyout: number;
+    item: number;
+    itemName: string;
+}
+
+interface innerProfessionDataJSON {
+    materials: materialJSON[];
+    product: productJSON;
+    profit: number;
+}
+
+interface outerProfessionDataJSON {
+    Alchemy?: innerProfessionDataJSON[];
+    Blacksmithing?: innerProfessionDataJSON[];
+    Cooking?: innerProfessionDataJSON[];
+    Enchanting?: innerProfessionDataJSON[];
+    Engineering?: innerProfessionDataJSON[];
+    Inscription?: innerProfessionDataJSON[];
+    Jewelcrafting?: innerProfessionDataJSON[];
+    Leatherworking?: innerProfessionDataJSON[];
+    Tailoring?: innerProfessionDataJSON[];
+}
+
 const updateState = (state: string) => {
   let stateDescription: string;
 
@@ -93,11 +126,65 @@ const getACSLocalStorage = () => {
 };
 
 // Raven.config('https://ca22106a81d147b586d31169dddfbfe4@sentry.io/1232788').install();
+const formatCurrency = value => {
+    const minus = value < 0 ? '-' : '';
 
-const getProfessionTables = () => {
-  updateState('getProfessionTables');
+    if (minus === '-') {
+        value *= -1;
+    }
+
+    if (value < 100) {
+        return `${minus}${value}`;
+    }
+    if (value < 10000) {
+        const silver = Math.floor(value / 100);
+        const copper = value - silver * 100;
+        return `${minus}${silver}.${copper}`;
+    }
+    const gold = Math.floor(value / 100 / 100);
+    const silver = Math.floor((value - gold * 100 * 100) / 100);
+    const copper = Math.floor(value - gold * 100 * 100 - silver * 100);
+
+    return `${minus}${gold}.${silver}.${copper}`;
+};
+const sortByProfit = array => array.sort((a, b) => b.profit - a.profit);
+
+const createProfessionTables = (json: outerProfessionDataJSON = {}) => {
+    const wrap = <HTMLDivElement>document.getElementById('auction-craft-sniper');
+
+    while (wrap.lastChild) {
+        wrap.removeChild(wrap.lastChild);
+    }
+
+    Object.entries(json).forEach(entry => {
+        const [professionName, recipes] = entry;
+
+        sortByProfit(recipes).forEach(recipe => {
+            const str = `${professionName}: ${recipe.product.itemName} => ${formatCurrency(recipe.profit)}g`;
+            console.log(str);
+            wrap.innerHTML = `${wrap.innerHTML}<br />${str}`;
+        });
+        wrap.innerHTML = `${wrap.innerHTML}<hr>`;
+    });
+
   toggleUserInputs(false);
   updateState('default');
+};
+
+const getProfessionTables = async () => {
+    updateState('getProfessionTables');
+
+    const {houseID, expansionLevel, professions} = ACS;
+
+    const data = await fetch(`api/getProfessionTables.php?houseID=${houseID}&expansionLevel=${expansionLevel}&professions=${professions.toString()}`, {
+        method: 'GET',
+        credentials: 'same-origin',
+        mode: 'same-origin',
+    });
+
+    const json: outerProfessionDataJSON = await data.json();
+
+    createProfessionTables(json);
 };
 
 const parseAuctionData = async (step = 0, itemIDs = {}) => {
@@ -131,7 +218,6 @@ const parseAuctionData = async (step = 0, itemIDs = {}) => {
   if (json.step < json.reqSteps) {
       parseAuctionData(json.step, json.itemIDs);
   } else if (json.reqSteps === json.step && json.callback === 'getProfessionTables') {
-      document.getElementById('result').innerText = JSON.stringify(json.itemIDs);
     getProfessionTables();
   }
 };
