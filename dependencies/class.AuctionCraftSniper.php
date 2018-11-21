@@ -299,13 +299,15 @@ class AuctionCraftSniper
     public function getProfessionData(array $professions = []) {
 
         $this->setCalculationExemptionsIDs();
-        $this->calculationExemptionItemIDs = array_flip($this->calculationExemptionItemIDs);
 
         $professionTableData = [];
 
         $getCurrentlyAvailableRecipes = $this->getCurrentlyAvailableRecipes($professions);
 
         if ($getCurrentlyAvailableRecipes->rowCount() > 0) {
+
+            $getConnectedRecipeRequirements = $this->connection->prepare('SELECT `requiredItemID`, `requiredAmount`, `itemName`, `rank`, `baseBuyPrice` FROM `recipeRequirements` WHERE `recipe` = :recipeID AND (`rank` = 3 OR `rank` = 0)');
+            $getMaterialBuyout              = $this->connection->prepare('SELECT `buyout` FROM `auctionData` WHERE `itemID` = :itemID AND `expansionLevel` = :expansionLevel AND `houseID` = :houseID');
 
             foreach ($getCurrentlyAvailableRecipes->fetchAll() as $recipe) {
 
@@ -319,8 +321,6 @@ class AuctionCraftSniper
                     'profit'    => $recipe['buyout'],
                 ];
 
-                $getConnectedRecipeRequirements = $this->connection->prepare('SELECT `requiredItemID`, `requiredAmount`, `itemName`, `rank`, `baseBuyPrice` FROM `recipeRequirements` WHERE `recipe` = :recipeID AND (`rank` = 3 OR `rank` = 0)');
-
                 $getConnectedRecipeRequirements->execute([
                     'recipeID' => $recipe['itemID'],
                 ]);
@@ -333,32 +333,25 @@ class AuctionCraftSniper
 
                 foreach ($recipeData['materials'] as &$recipeMaterial) {
                     // filter items that can be bought via vendors or are soulbound
-                    if (!array_key_exists($recipeMaterial['requiredItemId'], $this->calculationExemptionItemIDs)) {
+                    if (!in_array($recipeMaterial['requiredItemID'], $this->calculationExemptionItemIDs)) {
 
-                        // special case for recipes without rank
-                        if ((int)$recipeMaterial['rank'] === 0) {
-                            $recipeMaterial['buyout'] = $recipeMaterial['baseBuyPrice'];
+                        $getMaterialBuyout->execute([
+                            'itemID'         => $recipeMaterial['requiredItemID'],
+                            'expansionLevel' => $this->expansionLevel,
+                            'houseID'        => $this->houseID,
+                        ]);
+
+                        if ($getMaterialBuyout->rowCount() === 1) {
+                            $recipeMaterial['buyout'] = $getMaterialBuyout->fetch()['buyout'];
+
+                            $recipeData['profit'] -= $recipeMaterial['buyout'] * $recipeMaterial['requiredAmount'];
                         } else {
-                            $getMaterialBuyout = $this->connection->prepare('SELECT `buyout` FROM `auctionData` WHERE `itemID` = :itemID AND `expansionLevel` = :expansionLevel AND `houseID` = :houseID');
-
-                            $getMaterialBuyout->execute([
-                                'itemID'         => $recipeMaterial['requiredItemID'],
-                                'expansionLevel' => $this->expansionLevel,
-                                'houseID'        => $this->houseID,
-                            ]);
-
-                            if ($getMaterialBuyout->rowCount() === 1) {
-                                $recipeMaterial['buyout'] = $getMaterialBuyout->fetch()['buyout'];
-                            }
+                            $recipeData['profit'] -= $recipeMaterial['baseBuyPrice'] * $recipeMaterial['requiredAmount'];
                         }
-
-                        $recipeData['profit'] -= $recipeMaterial['buyout'] * $recipeMaterial['requiredAmount'];
                     }
                 }
-
-                $professionTableData[$recipe['profession']][] = $recipeData;
+                $professionTableData[$this->professions[$recipe['profession']]][] = $recipeData;
             }
-
         }
 
         return $professionTableData;

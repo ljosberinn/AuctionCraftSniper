@@ -11,9 +11,7 @@ const CHUNK_SIZE = 2568505;
 if (!isset($decodedPOST['step']) && empty($decodedPOST['itemIDs'])) {
 
     $AuctionCraftSniper = new AuctionCraftSniper();
-
     $AuctionCraftSniper->setExpansionLevel($decodedPOST['expansionLevel']);
-
     $expansionLevel = $AuctionCraftSniper->isValidExpansionLevel($decodedPOST['expansionLevel']);
 
     $itemIDs              = [];
