@@ -1,6 +1,6 @@
 <?php
 
-if (isset($_GET['houseID']) && is_numeric($_GET['houseID']) && isset($_GET['professions']) && isset($_GET['expansionLevel']) && is_numeric($_GET['expansionLevel'])) {
+if (isset($_GET['houseID'], $_GET['professions'], $_GET['expansionLevel']) && is_numeric($_GET['houseID']) && is_numeric($_GET['expansionLevel'])) {
 
     require_once '../dependencies/headers.php';
     require_once '../dependencies/class.AuctionCraftSniper.php';

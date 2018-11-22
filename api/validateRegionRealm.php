@@ -4,7 +4,7 @@ require_once '../dependencies/headers.php';
 
 $response = ['houseID' => 0];
 
-if (isset($_GET['region']) && isset($_GET['realm']) && !is_numeric($_GET['region']) && !is_numeric($_GET['realm'])) {
+if (isset($_GET['region'], $_GET['realm']) && !is_numeric($_GET['region']) && !is_numeric($_GET['realm'])) {
 
     $region = (string)$_GET['region'];
     $realm  = (string)$_GET['realm'];

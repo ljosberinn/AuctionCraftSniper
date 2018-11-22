@@ -3,7 +3,7 @@
 require_once '../dependencies/headers.php';
 require_once '../dependencies/class.AuctionCraftSniper.php';
 
-$decodedPOST = json_decode(trim(file_get_contents("php://input")), true);
+$decodedPOST = json_decode(trim(file_get_contents('php://input')), true);
 
 const BYTE_LIMIT = 365;
 const CHUNK_SIZE = 2568505;
@@ -44,7 +44,7 @@ if ($fileName === '0.json') {
     die;
 }
 
-if (file_exists($fileName) && $stream = fopen($fileName, 'r')) {
+if (file_exists($fileName) && $stream = fopen($fileName, 'rb')) {
 
     if (!isset($decodedPOST['step'])) {
         $first200Bytes = stream_get_contents($stream, 200, 0);
@@ -75,7 +75,7 @@ if (file_exists($fileName) && $stream = fopen($fileName, 'r')) {
         $data = $leftovers;
 
         // remove whitespace & linebreaks
-        $data .= str_replace("	", '', str_replace("\r\n", '', stream_get_contents($stream, BYTE_LIMIT, $bytes)));
+        $data .= str_replace('	', '', str_replace("\r\n", '', stream_get_contents($stream, BYTE_LIMIT, $bytes)));
 
         // switch $auctionEndString since the very last auction obviously has no object following
         if ($bytes + BYTE_LIMIT >= $fileSize) {

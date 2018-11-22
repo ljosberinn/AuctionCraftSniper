@@ -65,7 +65,6 @@ $AuctionCraftSniper = new AuctionCraftSniper();
 		</label>
 	</div>
 
-
 	<div>
 		<button id="search">Go</button>
 	</div>
