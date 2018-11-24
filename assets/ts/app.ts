@@ -1,14 +1,14 @@
 import * as Raven from 'raven-js';
 
 interface parseAuctionDataPayload {
-    itemIDs?: object;
+  itemIDs?: object;
   step?: number;
-    houseID: number;
+  houseID: number;
   expansionLevel: number;
 }
 
 interface parseAuctionDataResponseJSON {
-    itemIDs: number[];
+  itemIDs: number[];
   percentDone: number;
   reqSteps: number;
   step: number;
@@ -18,42 +18,42 @@ interface parseAuctionDataResponseJSON {
 }
 
 interface ACSLocalStorageObj {
-    houseID?: undefined | number;
+  houseID?: undefined | number;
   professions?: number[];
   expansionLevel?: number;
 }
 
 interface materialJSON {
-    baseBuyPrice: number;
-    buyout: number;
-    itemName: string;
-    rank: number;
-    requiredAmount: number;
-    requiredItemID: number;
+  baseBuyPrice: number;
+  buyout: number;
+  itemName: string;
+  rank: number;
+  requiredAmount: number;
+  requiredItemID: number;
 }
 
 interface productJSON {
-    buyout: number;
-    item: number;
-    itemName: string;
+  buyout: number;
+  item: number;
+  itemName: string;
 }
 
 interface innerProfessionDataJSON {
-    materials: materialJSON[];
-    product: productJSON;
-    profit: number;
+  materials: materialJSON[];
+  product: productJSON;
+  profit: number;
 }
 
 interface outerProfessionDataJSON {
-    Alchemy?: innerProfessionDataJSON[];
-    Blacksmithing?: innerProfessionDataJSON[];
-    Cooking?: innerProfessionDataJSON[];
-    Enchanting?: innerProfessionDataJSON[];
-    Engineering?: innerProfessionDataJSON[];
-    Inscription?: innerProfessionDataJSON[];
-    Jewelcrafting?: innerProfessionDataJSON[];
-    Leatherworking?: innerProfessionDataJSON[];
-    Tailoring?: innerProfessionDataJSON[];
+  Alchemy?: innerProfessionDataJSON[];
+  Blacksmithing?: innerProfessionDataJSON[];
+  Cooking?: innerProfessionDataJSON[];
+  Enchanting?: innerProfessionDataJSON[];
+  Engineering?: innerProfessionDataJSON[];
+  Inscription?: innerProfessionDataJSON[];
+  Jewelcrafting?: innerProfessionDataJSON[];
+  Leatherworking?: innerProfessionDataJSON[];
+  Tailoring?: innerProfessionDataJSON[];
 }
 
 const updateState = (state: string) => {
@@ -86,14 +86,14 @@ const toggleUserInputs = (state: boolean) => {
 };
 
 const ACS: ACSLocalStorageObj = {
-    houseID: undefined,
+  houseID: undefined,
   professions: [],
   expansionLevel: 8,
 };
 
 const setACSLocalStorage = (data: ACSLocalStorageObj) => {
-    if (data.houseID) {
-        ACS.houseID = data.houseID;
+  if (data.houseID) {
+    ACS.houseID = data.houseID;
   }
 
   if (data.professions) {
@@ -111,7 +111,7 @@ const getACSLocalStorage = () => {
   if (localStorage.ACS) {
     const tempACS: ACSLocalStorageObj = JSON.parse(localStorage.ACS);
 
-      ACS.houseID = tempACS.houseID;
+    ACS.houseID = tempACS.houseID;
     ACS.professions = tempACS.professions;
     ACS.expansionLevel = tempACS.expansionLevel;
 
@@ -125,150 +125,148 @@ const getACSLocalStorage = () => {
   }
 };
 
-// Raven.config('https://ca22106a81d147b586d31169dddfbfe4@sentry.io/1232788').install();
-
 const formatCurrency = value => {
-    const minus = value < 0 ? '-' : '';
+  const minus = value < 0 ? '-' : '';
 
-    if (minus === '-') {
-        value *= -1;
-    }
+  if (minus === '-') {
+    value *= -1;
+  }
 
-    if (value < 100) {
-        return `${minus}${value}<i class="currency-copper"></i>`;
-    }
+  if (value < 100) {
+    return `${minus}${value}<i class="currency-copper"></i>`;
+  }
 
-    if (value < 10000) {
-        const silver = Math.floor(value / 100);
-        const copper = value - silver * 100;
-        return `${minus}${silver}<i class="currency-silver"></i> ${copper}<i class="currency-copper"></i>`;
-    }
+  if (value < 10000) {
+    const silver = Math.floor(value / 100);
+    const copper = value - silver * 100;
+    return `${minus}${silver}<i class="currency-silver"></i> ${copper}<i class="currency-copper"></i>`;
+  }
 
-    const gold = Math.floor(value / 100 / 100);
-    const silver = Math.floor((value - gold * 100 * 100) / 100);
-    const copper = Math.floor(value - gold * 100 * 100 - silver * 100);
+  const gold = Math.floor(value / 100 / 100);
+  const silver = Math.floor((value - gold * 100 * 100) / 100);
+  const copper = Math.floor(value - gold * 100 * 100 - silver * 100);
 
-    return `${minus}${gold}<i class="currency-gold"></i> ${silver}<i class="currency-silver"></i> ${copper}<i class="currency-copper"></i>`;
+  return `${minus}${gold}<i class="currency-gold"></i> ${silver}<i class="currency-silver"></i> ${copper}<i class="currency-copper"></i>`;
 };
 
 const sortByProfit = (innerProfessionData: innerProfessionDataJSON[]) => innerProfessionData.sort((objA, objB) => objB.profit - objA.profit);
 
 const getTUJBaseURL = () => {
-    const [region, realm] = (<HTMLInputElement>document.getElementById('realm')).value.split('-');
+  const [region, realm] = (<HTMLInputElement>document.getElementById('realm')).value.split('-');
 
-    return `https://theunderminejournal.com/#${region}/${realm}/item/`;
+  return `https://theunderminejournal.com/#${region}/${realm}/item/`;
 };
 
 const getWoWheadURL = itemID => `https://wowhead.com/?item=${itemID}`;
 
 const createProfessionTables = (json: outerProfessionDataJSON = {}) => {
-    console.time('createProfessionTables');
-    const wrap = <HTMLDivElement>document.getElementById('auction-craft-sniper');
+  console.time('createProfessionTables');
+  const wrap = <HTMLDivElement>document.getElementById('auction-craft-sniper');
 
-    const TUJLink = getTUJBaseURL();
+  const TUJLink = getTUJBaseURL();
 
-    /* while (wrap.lastChild) {
+  /* while (wrap.lastChild) {
       wrap.removeChild(wrap.lastChild);
     } */
 
-    const thTexts = ['itemName', 'materialInfo', 'productBuyout', 'profit'];
+  const thTexts = ['itemName', 'materialInfo', 'productBuyout', 'profit'];
 
-    const fragment = document.createDocumentFragment();
+  const fragment = document.createDocumentFragment();
 
-    Object.entries(json).forEach(entry => {
-        let professionName: string;
-        let recipes: innerProfessionDataJSON[];
-        [professionName, recipes] = entry;
-        console.time(professionName);
+  Object.entries(json).forEach(entry => {
+    let professionName: string;
+    let recipes: innerProfessionDataJSON[];
+    [professionName, recipes] = entry;
+    console.time(professionName);
 
-        const table = document.createElement('table');
-        const thead = document.createElement('thead');
-        const theadRow = document.createElement('tr');
+    const table = document.createElement('table');
+    const thead = document.createElement('thead');
+    const theadRow = document.createElement('tr');
 
-        thTexts.forEach(thText => {
-            const th = document.createElement('th');
-            th.innerText = thText;
-            theadRow.appendChild(th);
-        });
-        thead.appendChild(theadRow);
-        table.appendChild(thead);
+    thTexts.forEach(thText => {
+      const th = document.createElement('th');
+      th.innerText = thText;
+      theadRow.appendChild(th);
+    });
+    thead.appendChild(theadRow);
+    table.appendChild(thead);
 
-        const tbody = document.createElement('tbody');
+    const tbody = document.createElement('tbody');
 
-        sortByProfit(recipes).forEach(recipe => {
-            const tr = document.createElement('tr');
-            tr.dataset.recipe = recipe.product.item.toString();
+    sortByProfit(recipes).forEach(recipe => {
+      const tr = document.createElement('tr');
+      tr.dataset.recipe = recipe.product.item.toString();
 
-            const productNameTD = document.createElement('td');
-            productNameTD.innerHTML = `<a href="${getWoWheadURL(recipe.product.item)}">${recipe.product.itemName}</a>`;
+      const productNameTD = document.createElement('td');
+      productNameTD.innerHTML = `<a href="${getWoWheadURL(recipe.product.item)}">${recipe.product.itemName}</a>`;
 
-            const materialInfoTD = document.createElement('td');
-            let materialSum = 0;
-            materialInfoTD.dataset.dataTippy = '';
+      const materialInfoTD = document.createElement('td');
+      let materialSum = 0;
+      materialInfoTD.dataset.dataTippy = '';
 
-            recipe.materials.forEach(material => {
-                materialInfoTD.dataset.dataTippy += `<a href="${getWoWheadURL(material.requiredItemID)}">${material.itemName}</a>`;
-                materialSum += material.buyout * material.requiredAmount;
-            });
-            materialInfoTD.innerHTML = formatCurrency(materialSum);
+      recipe.materials.forEach(material => {
+        materialInfoTD.dataset.dataTippy += `<a href="${getWoWheadURL(material.requiredItemID)}">${material.itemName}</a>`;
+        materialSum += material.buyout * material.requiredAmount;
+      });
+      materialInfoTD.innerHTML = formatCurrency(materialSum);
 
-            const productBuyoutTD = document.createElement('td');
-            productBuyoutTD.innerHTML = `
+      const productBuyoutTD = document.createElement('td');
+      productBuyoutTD.innerHTML = `
       <a class="tuj" target="_blank" href="${TUJLink}${recipe.product.item}" data-tippy-content="The Undermine Journal - ${recipe.product.itemName}"></a>
       ${formatCurrency(recipe.product.buyout)}`;
 
-            const profitTD = document.createElement('td');
-            profitTD.innerHTML = formatCurrency(recipe.profit);
+      const profitTD = document.createElement('td');
+      profitTD.innerHTML = formatCurrency(recipe.profit);
 
-            const tds = [productNameTD, materialInfoTD, productBuyoutTD, profitTD];
+      const tds = [productNameTD, materialInfoTD, productBuyoutTD, profitTD];
 
-            const previousTR = document.querySelector(`[data-recipe="${recipe.product.item}"]`);
+      const previousTR = document.querySelector(`[data-recipe="${recipe.product.item}"]`);
 
-            if (previousTR !== null) {
-                while (previousTR.lastChild) {
-                    previousTR.removeChild(previousTR.lastChild);
-                }
-                tds.forEach(td => previousTR.appendChild(td));
-            } else {
-                tds.forEach(td => tr.appendChild(td));
-                tbody.appendChild(tr);
-            }
+      if (previousTR !== null) {
+        while (previousTR.lastChild) {
+          previousTR.removeChild(previousTR.lastChild);
+        }
+        tds.forEach(td => previousTR.appendChild(td));
+      } else {
+        tds.forEach(td => tr.appendChild(td));
+        tbody.appendChild(tr);
+      }
     });
 
-        table.appendChild(tbody);
-        fragment.appendChild(table);
-        console.timeEnd(professionName);
-    });
+    table.appendChild(tbody);
+    fragment.appendChild(table);
+    console.timeEnd(professionName);
+  });
 
-    wrap.appendChild(fragment);
+  wrap.appendChild(fragment);
 
   toggleUserInputs(false);
   updateState('default');
-    eval('tippy("a");');
-    console.timeEnd('createProfessionTables');
-    console.timeEnd('search');
+  eval('tippy("a");');
+  console.timeEnd('createProfessionTables');
+  console.timeEnd('search');
 };
 
 const getProfessionTables = async () => {
-    updateState('getProfessionTables');
+  updateState('getProfessionTables');
 
-    const {houseID, expansionLevel, professions} = ACS;
+  const { houseID, expansionLevel, professions } = ACS;
 
-    const data = await fetch(`api/getProfessionTables.php?houseID=${houseID}&expansionLevel=${expansionLevel}&professions=${professions.toString()}`, {
-        method: 'GET',
-        credentials: 'same-origin',
-        mode: 'same-origin',
-    });
+  const data = await fetch(`api/getProfessionTables.php?houseID=${houseID}&expansionLevel=${expansionLevel}&professions=${professions.toString()}`, {
+    method: 'GET',
+    credentials: 'same-origin',
+    mode: 'same-origin',
+  });
 
-    const json: outerProfessionDataJSON = await data.json();
+  const json: outerProfessionDataJSON = await data.json();
 
-    createProfessionTables(json);
+  createProfessionTables(json);
 };
 
 const parseAuctionData = async (step = 0, itemIDs = {}) => {
   const payload: parseAuctionDataPayload = {
-      houseID: ACS.houseID,
-      itemIDs,
+    houseID: ACS.houseID,
+    itemIDs,
     expansionLevel: ACS.expansionLevel,
   };
 
@@ -294,7 +292,7 @@ const parseAuctionData = async (step = 0, itemIDs = {}) => {
   }
 
   if (json.step < json.reqSteps) {
-      parseAuctionData(json.step, json.itemIDs);
+    parseAuctionData(json.step, json.itemIDs);
   } else if (json.reqSteps === json.step && json.callback === 'getProfessionTables') {
     getProfessionTables();
   }
@@ -303,11 +301,11 @@ const parseAuctionData = async (step = 0, itemIDs = {}) => {
 const getAuctionHouseData = async () => {
   updateState('getAuctionHouseData');
 
-    const data = await fetch(`api/getAuctionHouseData.php?houseID=${ACS.houseID}`, {
-        method: 'GET',
-        credentials: 'same-origin',
-        mode: 'same-origin',
-    });
+  const data = await fetch(`api/getAuctionHouseData.php?houseID=${ACS.houseID}`, {
+    method: 'GET',
+    credentials: 'same-origin',
+    mode: 'same-origin',
+  });
 
   const json = await data.json();
 
@@ -351,23 +349,23 @@ const searchListener = () => {
   const value = (<HTMLInputElement>document.getElementById('realm')).value.split('-');
 
   if (value.length === 2) {
-      console.time('search');
+    console.time('search');
     toggleUserInputs(true);
     validateRegionRealm(value);
   }
 };
 
 const checkHouseAge = async () => {
-    const {houseID, expansionLevel} = ACS;
+  const { houseID, expansionLevel } = ACS;
 
-    if (houseID !== undefined) {
+  if (houseID !== undefined) {
     updateState('checkHouseAge');
 
-        const data = await fetch(`api/checkHouseAge.php?houseID=${houseID}&expansionLevel=${expansionLevel}`, {
-            method: 'GET',
-            credentials: 'same-origin',
-            mode: 'same-origin',
-        });
+    const data = await fetch(`api/checkHouseAge.php?houseID=${houseID}&expansionLevel=${expansionLevel}`, {
+      method: 'GET',
+      credentials: 'same-origin',
+      mode: 'same-origin',
+    });
 
     const json = await data.json();
 
@@ -382,7 +380,7 @@ const checkHouseAge = async () => {
         throw new Error('invalid callback');
     }
   } else {
-        console.warn(`Insufficient params - professions: house: ${houseID}`);
+    console.warn(`Insufficient params - professions: house: ${houseID}`);
   }
 };
 
@@ -392,16 +390,16 @@ const validateRegionRealm = async (value: string[]) => {
 
   updateState('validateRegionRealm');
 
-    await fetch(`api/validateRegionRealm.php?region=${region}&realm=${realm}`, {
-        method: 'GET',
-        credentials: 'same-origin',
-        mode: 'same-origin',
-    })
+  await fetch(`api/validateRegionRealm.php?region=${region}&realm=${realm}`, {
+    method: 'GET',
+    credentials: 'same-origin',
+    mode: 'same-origin',
+  })
     .then(response => response.json())
     .then(json => {
       // only proceed when input is valid REGION-REALM pair and server responded with house ID
-        if (json.houseID) {
-            setACSLocalStorage({houseID: json.houseID});
+      if (json.houseID) {
+        setACSLocalStorage({ houseID: json.houseID });
         checkHouseAge();
       }
     })
@@ -409,6 +407,8 @@ const validateRegionRealm = async (value: string[]) => {
       console.error(`Error validating region and/or realm: ${err}`);
     });
 };
+
+// Raven.config('https://a14f918eaf6544eea696ad35340f68a5@sentry.io/1329859').install();
 
 // Raven.context(() => {
 document.onreadystatechange = () => {
