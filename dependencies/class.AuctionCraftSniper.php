@@ -208,6 +208,10 @@ class AuctionCraftSniper
 
         $getAuctionsURL->execute(['houseID' => $this->houseID]);
         if ($getAuctionsURL->rowCount() > 0) {
+            /**
+             * @var $region string
+             * @var $slug   string
+             */
             extract($getAuctionsURL->fetch(), EXTR_OVERWRITE);
 
             return 'https://' . strtolower($region) . '.api.blizzard.com/wow/auction/data/' . $slug . '?access_token=' . $this->OAuthAccessToken;

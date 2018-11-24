@@ -126,6 +126,7 @@ const getACSLocalStorage = () => {
 };
 
 // Raven.config('https://ca22106a81d147b586d31169dddfbfe4@sentry.io/1232788').install();
+
 const formatCurrency = value => {
     const minus = value < 0 ? '-' : '';
 
@@ -134,41 +135,118 @@ const formatCurrency = value => {
     }
 
     if (value < 100) {
-        return `${minus}${value}`;
+        return `${minus}${value}<i class="currency-copper"></i>`;
     }
+
     if (value < 10000) {
         const silver = Math.floor(value / 100);
         const copper = value - silver * 100;
-        return `${minus}${silver}.${copper}`;
+        return `${minus}${silver}<i class="currency-silver"></i> ${copper}<i class="currency-copper"></i>`;
     }
+
     const gold = Math.floor(value / 100 / 100);
     const silver = Math.floor((value - gold * 100 * 100) / 100);
     const copper = Math.floor(value - gold * 100 * 100 - silver * 100);
 
-    return `${minus}${gold}.${silver}.${copper}`;
+    return `${minus}${gold}<i class="currency-gold"></i> ${silver}<i class="currency-silver"></i> ${copper}<i class="currency-copper"></i>`;
 };
-const sortByProfit = array => array.sort((a, b) => b.profit - a.profit);
+
+const sortByProfit = (innerProfessionData: innerProfessionDataJSON[]) => innerProfessionData.sort((objA, objB) => objB.profit - objA.profit);
+
+const getTUJBaseURL = () => {
+    const [region, realm] = (<HTMLInputElement>document.getElementById('realm')).value.split('-');
+
+    return `https://theunderminejournal.com/#${region}/${realm}/item/`;
+};
+
+const getWoWheadURL = itemID => `https://wowhead.com/?item=${itemID}`;
 
 const createProfessionTables = (json: outerProfessionDataJSON = {}) => {
+    console.time('createProfessionTables');
     const wrap = <HTMLDivElement>document.getElementById('auction-craft-sniper');
 
-    while (wrap.lastChild) {
-        wrap.removeChild(wrap.lastChild);
-    }
+    const TUJLink = getTUJBaseURL();
+
+    /* while (wrap.lastChild) {
+      wrap.removeChild(wrap.lastChild);
+    } */
+
+    const thTexts = ['itemName', 'materialInfo', 'productBuyout', 'profit'];
+
+    const fragment = document.createDocumentFragment();
 
     Object.entries(json).forEach(entry => {
-        const [professionName, recipes] = entry;
+        let professionName: string;
+        let recipes: innerProfessionDataJSON[];
+        [professionName, recipes] = entry;
+        console.time(professionName);
+
+        const table = document.createElement('table');
+        const thead = document.createElement('thead');
+        const theadRow = document.createElement('tr');
+
+        thTexts.forEach(thText => {
+            const th = document.createElement('th');
+            th.innerText = thText;
+            theadRow.appendChild(th);
+        });
+        thead.appendChild(theadRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
 
         sortByProfit(recipes).forEach(recipe => {
-            const str = `${professionName}: ${recipe.product.itemName} => ${formatCurrency(recipe.profit)}g`;
-            console.log(str);
-            wrap.innerHTML = `${wrap.innerHTML}<br />${str}`;
-        });
-        wrap.innerHTML = `${wrap.innerHTML}<hr>`;
+            const tr = document.createElement('tr');
+            tr.dataset.recipe = recipe.product.item.toString();
+
+            const productNameTD = document.createElement('td');
+            productNameTD.innerHTML = `<a href="${getWoWheadURL(recipe.product.item)}">${recipe.product.itemName}</a>`;
+
+            const materialInfoTD = document.createElement('td');
+            let materialSum = 0;
+            materialInfoTD.dataset.dataTippy = '';
+
+            recipe.materials.forEach(material => {
+                materialInfoTD.dataset.dataTippy += `<a href="${getWoWheadURL(material.requiredItemID)}">${material.itemName}</a>`;
+                materialSum += material.buyout * material.requiredAmount;
+            });
+            materialInfoTD.innerHTML = formatCurrency(materialSum);
+
+            const productBuyoutTD = document.createElement('td');
+            productBuyoutTD.innerHTML = `
+      <a class="tuj" target="_blank" href="${TUJLink}${recipe.product.item}" data-tippy-content="The Undermine Journal - ${recipe.product.itemName}"></a>
+      ${formatCurrency(recipe.product.buyout)}`;
+
+            const profitTD = document.createElement('td');
+            profitTD.innerHTML = formatCurrency(recipe.profit);
+
+            const tds = [productNameTD, materialInfoTD, productBuyoutTD, profitTD];
+
+            const previousTR = document.querySelector(`[data-recipe="${recipe.product.item}"]`);
+
+            if (previousTR !== null) {
+                while (previousTR.lastChild) {
+                    previousTR.removeChild(previousTR.lastChild);
+                }
+                tds.forEach(td => previousTR.appendChild(td));
+            } else {
+                tds.forEach(td => tr.appendChild(td));
+                tbody.appendChild(tr);
+            }
     });
+
+        table.appendChild(tbody);
+        fragment.appendChild(table);
+        console.timeEnd(professionName);
+    });
+
+    wrap.appendChild(fragment);
 
   toggleUserInputs(false);
   updateState('default');
+    eval('tippy("a");');
+    console.timeEnd('createProfessionTables');
+    console.timeEnd('search');
 };
 
 const getProfessionTables = async () => {
@@ -273,6 +351,7 @@ const searchListener = () => {
   const value = (<HTMLInputElement>document.getElementById('realm')).value.split('-');
 
   if (value.length === 2) {
+      console.time('search');
     toggleUserInputs(true);
     validateRegionRealm(value);
   }

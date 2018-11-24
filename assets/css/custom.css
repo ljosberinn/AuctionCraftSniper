@@ -100,3 +100,32 @@ body {
     background-color: rgb(17, 17, 17);
     color: white;
 }
+
+.currency-copper, .currency-gold, .currency-silver {
+    display: inline-block;
+    height: 13px;
+    width: 13px;
+    background-repeat: no-repeat;
+    margin-left: .1rem;
+}
+
+.currency-copper {
+    background-image: url('https://wow.zamimg.com/images/icons/money-copper.gif');
+}
+
+.currency-gold {
+    background-image: url('https://wow.zamimg.com/images/icons/money-gold.gif');
+}
+
+.currency-silver {
+    background-image: url('https://wow.zamimg.com/images/icons/money-silver.gif');
+}
+
+.tuj {
+    background: url(https://theunderminejournal.com/images/favicons/favicon-16x16.png) no-repeat;
+    width: 15px;
+    height: 15px;
+    background-color: white;
+    display: inline-block;
+    padding: .1rem;
+}

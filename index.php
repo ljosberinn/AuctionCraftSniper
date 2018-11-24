@@ -14,19 +14,9 @@ $AuctionCraftSniper = new AuctionCraftSniper();
 ?>
 
 <!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns#" itemscope itemtype="http://schema.org/WebPage">
 <head>
-	<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
-	<link href="assets/css/normalize.css?<?= filemtime('assets/css/normalize.css') ?>" rel="stylesheet">
-	<link href="assets/css/custom.css?<?= filemtime('assets/css/custom.css') ?>" rel="stylesheet">
-	<title>AuctionCraftSniper - WIP</title>
-	<script defer src="assets/js/bundle.min.js?<?= filemtime('assets/js/bundle.min.js') ?>"></script>
-	<script defer src="https://unpkg.com/tippy.js@3/dist/tippy.all.min.js"></script>
-	<script>const whTooltips = {
-        colorLinks: true,
-        iconizeLinks: true,
-        renameLinks: true
-      };</script>
-	<script defer src="https://wow.zamimg.com/widgets/power.js"></script>
+    <?php require_once 'app/head.php' ?>
 </head>
 <body style="font-family: 'Open Sans', sans-serif; margin-top: -20px;">
 
@@ -59,7 +49,7 @@ $AuctionCraftSniper = new AuctionCraftSniper();
 			<select id="expansion-level">
 				<option disabled>Search expansion-specific recipes...</option>
                 <?php foreach ($AuctionCraftSniper->getExpansionLevels() as $expansionLevel => $expansionName) { ?>
-	                <option value="<?= $expansionLevel ?>"<?= $expansionLevel === 8 ? 'selected' : '' ?>><?= $expansionName ?></option>
+					<option value="<?= $expansionLevel ?>"<?= $expansionLevel === 8 ? 'selected' : '' ?>><?= $expansionName ?></option>
                 <?php } ?>
 			</select>
 		</label>
@@ -84,5 +74,14 @@ $AuctionCraftSniper = new AuctionCraftSniper();
 <footer>
     <?php require_once 'app/footer.html'; ?>
 </footer>
+<style data-dev>
+	table {
+		width: 100%;
+	}
 
+	table tr td:not(:first-of-type), table tr th:not(:first-of-type) {
+		text-align: right;
+	}
+</style>
 </body>
+</html>
