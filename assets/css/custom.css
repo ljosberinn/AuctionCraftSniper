@@ -101,24 +101,28 @@ body {
     color: white;
 }
 
-.currency-copper, .currency-gold, .currency-silver {
+.copper:after {
+    background-image: url('https://wow.zamimg.com/images/icons/money-copper.gif');
+}
+
+.gold:after {
+    background-image: url('https://wow.zamimg.com/images/icons/money-gold.gif');
+}
+
+.silver:after {
+    background-image: url('https://wow.zamimg.com/images/icons/money-silver.gif');
+}
+
+.currency:after {
     display: inline-block;
     height: 13px;
     width: 13px;
     background-repeat: no-repeat;
+    content: '';
+    position: relative;
     margin-left: .1rem;
-}
-
-.currency-copper {
-    background-image: url('https://wow.zamimg.com/images/icons/money-copper.gif');
-}
-
-.currency-gold {
-    background-image: url('https://wow.zamimg.com/images/icons/money-gold.gif');
-}
-
-.currency-silver {
-    background-image: url('https://wow.zamimg.com/images/icons/money-silver.gif');
+    margin-right: .2rem;
+    top: .1rem;
 }
 
 .tuj {
@@ -127,4 +131,16 @@ body {
     background: white url(https://theunderminejournal.com/images/favicons/favicon-16x16.png) no-repeat;
     display: inline-block;
     padding: .1rem;
+}
+
+.tippy-content table tbody td {
+    padding: .4rem;
+}
+
+.negative:before {
+    content: '-';
+}
+
+a + .currency {
+    margin-left: .1em;
 }

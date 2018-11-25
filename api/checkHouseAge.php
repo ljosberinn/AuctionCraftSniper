@@ -2,7 +2,10 @@
 
 require_once '../dependencies/headers.php';
 
-$response = ['callback' => 'throwHouseUnavailabilityError'];
+$response = [
+    'callback'   => 'throwHouseUnavailabilityError',
+    'lastUpdate' => 0,
+];
 
 if (isset($_GET['houseID'], $_GET['expansionLevel']) && is_numeric($_GET['houseID']) && is_numeric($_GET['expansionLevel'])) {
 
@@ -13,7 +16,7 @@ if (isset($_GET['houseID'], $_GET['expansionLevel']) && is_numeric($_GET['houseI
     $AuctionCraftSniper->setHouseID($_GET['houseID']);
     $AuctionCraftSniper->setExpansionLevel($_GET['expansionLevel']);
 
-    $response['callback'] = $AuctionCraftSniper->isHouseOutdated() ? 'houseRequiresUpdate' : 'getProfessionTables';
+    $response = $AuctionCraftSniper->isHouseOutdated();
 }
 
 echo json_encode($response);

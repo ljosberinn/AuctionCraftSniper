@@ -38,11 +38,11 @@ $jsMakeTime    = filemtime('assets/js/bundle.min.js');
 <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
 <link href="/assets/css/normalize.css?<?= filemtime('assets/css/normalize.css') ?>" rel="stylesheet">
 <link href="/assets/css/custom.css?<?= filemtime('assets/css/custom.css') ?>" rel="stylesheet">
+<link href="/assets/css/tippy.min.css?<?= filemtime('assets/css/tippy.min.css') ?>" rel="stylesheet">
 
 <title>AuctionCraftSniper - WIP</title>
 
 <script defer src="/assets/js/bundle.min.js?<?= $jsMakeTime ?>"></script>
-<script defer src="https://unpkg.com/tippy.js@3/dist/tippy.all.min.js"></script>
 <script>
   const whTooltips = {
     colorLinks: true,

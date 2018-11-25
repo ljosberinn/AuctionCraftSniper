@@ -36,7 +36,7 @@ $AuctionCraftSniper = new AuctionCraftSniper();
 
 
 	<div>
-		<input id="realm" type="text" list="realms" placeholder="Search region & realm...">
+		<input id="realm" type="text" list="realms" placeholder="Search region & realm..."> | <span id="last-update"></span>
 		<datalist id="realms">
             <?php foreach ($AuctionCraftSniper->getRealms() as $realm) { ?>
 				<option value="<?= $realm ?>"></option>

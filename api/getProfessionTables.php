@@ -1,5 +1,7 @@
 <?php
 
+$response = ['callback' => 'throwHouseUnavailabilityError'];
+
 if (isset($_GET['houseID'], $_GET['professions'], $_GET['expansionLevel']) && is_numeric($_GET['houseID']) && is_numeric($_GET['expansionLevel'])) {
 
     require_once '../dependencies/headers.php';
@@ -13,6 +15,8 @@ if (isset($_GET['houseID'], $_GET['professions'], $_GET['expansionLevel']) && is
     $professions = $AuctionCraftSniper->AreValidProfessions(explode(',', $_GET['professions']));
 
     if ($professions) {
-        echo json_encode($AuctionCraftSniper->getProfessionData($professions), JSON_NUMERIC_CHECK);
+        $response = $AuctionCraftSniper->getProfessionData($professions);
     }
 }
+
+echo json_encode($response, JSON_NUMERIC_CHECK);

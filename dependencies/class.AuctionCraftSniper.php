@@ -614,10 +614,10 @@ class AuctionCraftSniper
     /**
      * @method isHouseOutdated [checks whether a house has new external data available to be fetched]
      *
-     * @return bool
+     * @return array
      */
     public function isHouseOutdated()
-    : bool {
+    : array {
 
         $getLastUpdateTimestamp = $this->connection->prepare('SELECT `timestamp` FROM `houseUpdateTracker` WHERE `houseID` = :houseID AND `expansionLevel` = :expansionLevel');
         $getLastUpdateTimestamp->execute([
@@ -627,22 +627,28 @@ class AuctionCraftSniper
 
         // assume house has never been fetched before
         $houseRequiresUpdate = true;
+        $lastUpdateTimestamp = 0;
 
         // house has been previously fetched, check whether it needs an update
         if ($getLastUpdateTimestamp->rowCount() === 1) {
-            $lastUpdateTimestamp = $getLastUpdateTimestamp->fetch()['timestamp'];
-
-            $outerAuctionData = $this->getOuterAuctionData();
-
-            $this->setInnerHouseURL($outerAuctionData['files'][0]['url']);
-
-            // AH technically is older than 20 minutes, but API servers haven't updated yet
-            if ($outerAuctionData['files'][0]['lastModified'] / 1000 <= $lastUpdateTimestamp) {
-                $houseRequiresUpdate = false;
-            }
+            $lastUpdateTimestamp = $getLastUpdateTimestamp->fetch()['timestamp'] * 1000;
         }
 
-        return $houseRequiresUpdate;
+        $outerAuctionData = $this->getOuterAuctionData();
+
+        $this->setInnerHouseURL($outerAuctionData['files'][0]['url']);
+
+        // AH technically is older than 20 minutes, but API servers haven't updated yet
+        if ($outerAuctionData['files'][0]['lastModified'] <= $lastUpdateTimestamp) {
+            $houseRequiresUpdate = false;
+        }
+
+        $lastUpdateTimestamp = $outerAuctionData['files'][0]['lastModified'];
+
+        return [
+            'callback'   => $houseRequiresUpdate ? 'houseRequiresUpdate' : 'getProfessionTables',
+            'lastUpdate' => $lastUpdateTimestamp,
+        ];
     }
 
     /**
