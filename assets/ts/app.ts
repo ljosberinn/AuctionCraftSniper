@@ -1,4 +1,10 @@
-import * as Raven from 'raven-js';
+import { init } from '@sentry/browser';
+
+init({
+  dsn: 'https://a14f918eaf6544eea696ad35340f68a5@sentry.io/1329859',
+  debug: true,
+  environment: 'development',
+});
 
 interface parseAuctionDataPayload {
   itemIDs?: object;
@@ -24,18 +30,17 @@ interface ACSLocalStorageObj {
 }
 
 interface materialJSON {
-  baseBuyPrice: number;
   buyout: number;
-  itemName: string;
+  name: string;
   rank: number;
-  requiredAmount: number;
-  requiredItemID: number;
+  amount: number;
+  itemID: number;
 }
 
 interface productJSON {
   buyout: number;
   item: number;
-  itemName: string;
+  name: string;
 }
 
 interface innerProfessionDataJSON {
@@ -198,21 +203,21 @@ const createProfessionTables = (json: outerProfessionDataJSON = {}) => {
       tr.dataset.recipe = recipe.product.item.toString();
 
       const productNameTD = document.createElement('td');
-      productNameTD.innerHTML = `<a href="${getWoWheadURL(recipe.product.item)}">${recipe.product.itemName}</a>`;
+      productNameTD.innerHTML = `<a href="${getWoWheadURL(recipe.product.item)}">${recipe.product.name}</a>`;
 
       const materialInfoTD = document.createElement('td');
       let materialSum = 0;
       materialInfoTD.dataset.dataTippy = '';
 
       recipe.materials.forEach(material => {
-        materialInfoTD.dataset.dataTippy += `<a href="${getWoWheadURL(material.requiredItemID)}">${material.itemName}</a>`;
-        materialSum += material.buyout * material.requiredAmount;
+        materialInfoTD.dataset.dataTippy += `<a href="${getWoWheadURL(material.itemID)}">${material.name}</a>`;
+        materialSum += material.buyout * material.amount;
       });
       materialInfoTD.innerHTML = formatCurrency(materialSum);
 
       const productBuyoutTD = document.createElement('td');
       productBuyoutTD.innerHTML = `
-      <a class="tuj" target="_blank" href="${TUJLink}${recipe.product.item}" data-tippy-content="The Undermine Journal - ${recipe.product.itemName}"></a>
+      <a class="tuj" target="_blank" href="${TUJLink}${recipe.product.item}" data-tippy-content="The Undermine Journal - ${recipe.product.name}"></a>
       ${formatCurrency(recipe.product.buyout)}`;
 
       const profitTD = document.createElement('td');
@@ -408,9 +413,6 @@ const validateRegionRealm = async (value: string[]) => {
     });
 };
 
-// Raven.config('https://a14f918eaf6544eea696ad35340f68a5@sentry.io/1329859').install();
-
-// Raven.context(() => {
 document.onreadystatechange = () => {
   if (document.readyState === 'complete') {
     console.warn("Stop! This is a browser functionality for developers. If anyone tells you top copy and paste anything in here, it's very likely to be a scam.");
@@ -418,4 +420,3 @@ document.onreadystatechange = () => {
     getACSLocalStorage();
   }
 };
-// });

@@ -62,7 +62,7 @@ class AuctionCraftSniper
      * @method __construct
      */
     public function __construct() {
-        $db = require_once 'db.php';
+        $db = require 'db.php';
 
         $this->connection = new PDO('mysql:host=' . $db['host'] . ';dbname=' . $db['db'] . ';charset=utf8', $db['user'], $db['pw'], [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -263,7 +263,6 @@ class AuctionCraftSniper
      * @return bool|PDOStatement
      */
     private function getCurrentlyAvailableRecipes(array $professions = []) {
-        /** @noinspection SyntaxError */
         $getCurrentlyAvailableRecipesQuery = 'SELECT
             `auctionData`.`itemID`,
             `auctionData`.`buyout`,
@@ -316,18 +315,16 @@ class AuctionCraftSniper
 
         if ($getCurrentlyAvailableRecipes->rowCount() > 0) {
 
-            $getConnectedRecipeRequirements = $this->connection->prepare('SELECT `requiredItemID`, `requiredAmount`, `itemName`, `rank`, `baseBuyPrice` FROM `recipeRequirements` WHERE `recipe` = :recipeID AND (`rank` = 3 OR `rank` = 0)');
-            $getMaterialBuyout              = $this->connection->prepare('# noinspection SqlResolveForFile
-
-SELECT `buyout` FROM `auctionData` WHERE `itemID` = :itemID AND `expansionLevel` = :expansionLevel AND `houseID` = :houseID');
+            $getConnectedRecipeRequirements = $this->connection->prepare('SELECT `requiredItemID` as `itemID`, `requiredAmount` as `amount`, `itemName` as `name`, `rank`, `baseBuyPrice` FROM `recipeRequirements` WHERE `recipe` = :recipeID AND (`rank` = 3 OR `rank` = 0)');
+            $getMaterialBuyout              = $this->connection->prepare('SELECT `buyout` FROM `auctionData` WHERE `itemID` = :itemID AND `expansionLevel` = :expansionLevel AND `houseID` = :houseID');
 
             foreach ($getCurrentlyAvailableRecipes->fetchAll() as $recipe) {
 
                 $recipeData = [
                     'product'   => [
-                        'item'     => $recipe['itemID'],
-                        'itemName' => $recipe['name'],
-                        'buyout'   => $recipe['buyout'],
+                        'item'   => $recipe['itemID'],
+                        'name'   => $recipe['name'],
+                        'buyout' => $recipe['buyout'],
                     ],
                     'materials' => [],
                     'profit'    => $recipe['buyout'],
@@ -345,10 +342,10 @@ SELECT `buyout` FROM `auctionData` WHERE `itemID` = :itemID AND `expansionLevel`
 
                 foreach ($recipeData['materials'] as &$recipeMaterial) {
                     // filter items that can be bought via vendors or are soulbound
-                    if (!in_array($recipeMaterial['requiredItemID'], $this->calculationExemptionItemIDs, true)) {
+                    if (!in_array($recipeMaterial['itemID'], $this->calculationExemptionItemIDs, true)) {
 
                         $getMaterialBuyout->execute([
-                            'itemID'         => $recipeMaterial['requiredItemID'],
+                            'itemID'         => $recipeMaterial['itemID'],
                             'expansionLevel' => $this->expansionLevel,
                             'houseID'        => $this->houseID,
                         ]);
@@ -356,10 +353,12 @@ SELECT `buyout` FROM `auctionData` WHERE `itemID` = :itemID AND `expansionLevel`
                         if ($getMaterialBuyout->rowCount() === 1) {
                             $recipeMaterial['buyout'] = $getMaterialBuyout->fetch()['buyout'];
 
-                            $recipeData['profit'] -= $recipeMaterial['buyout'] * $recipeMaterial['requiredAmount'];
+                            $recipeData['profit'] -= $recipeMaterial['buyout'] * $recipeMaterial['amount'];
                         } else {
-                            $recipeData['profit'] -= $recipeMaterial['baseBuyPrice'] * $recipeMaterial['requiredAmount'];
+                            $recipeData['profit'] -= $recipeMaterial['baseBuyPrice'] * $recipeMaterial['amount'];
                         }
+
+                        unset($recipeMaterial['baseBuyPrice']);
                     }
                 }
                 unset($recipeMaterial);
@@ -613,7 +612,7 @@ SELECT `buyout` FROM `auctionData` WHERE `itemID` = :itemID AND `expansionLevel`
     }
 
     /**
-     * @method isHouseOutdated [checks whether a house has been fetched during the last 20 minutes]
+     * @method isHouseOutdated [checks whether a house has new external data available to be fetched]
      *
      * @return bool
      */
@@ -628,19 +627,10 @@ SELECT `buyout` FROM `auctionData` WHERE `itemID` = :itemID AND `expansionLevel`
 
         // assume house has never been fetched before
         $houseRequiresUpdate = true;
-        $lastUpdateTimestamp = 0;
-
-        #$data = $this->connection->query($getLastUpdateTimestampQuery);
 
         // house has been previously fetched, check whether it needs an update
         if ($getLastUpdateTimestamp->rowCount() === 1) {
             $lastUpdateTimestamp = $getLastUpdateTimestamp->fetch()['timestamp'];
-
-            // AH data supposedly updates once every 20 minutes
-            $houseRequiresUpdate = $lastUpdateTimestamp < time() - 20 * 60;
-        }
-
-        if ($houseRequiresUpdate) {
 
             $outerAuctionData = $this->getOuterAuctionData();
 

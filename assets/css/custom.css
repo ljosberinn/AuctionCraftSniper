@@ -122,10 +122,9 @@ body {
 }
 
 .tuj {
-    background: url(https://theunderminejournal.com/images/favicons/favicon-16x16.png) no-repeat;
     width: 15px;
     height: 15px;
-    background-color: white;
+    background: white url(https://theunderminejournal.com/images/favicons/favicon-16x16.png) no-repeat;
     display: inline-block;
     padding: .1rem;
 }
