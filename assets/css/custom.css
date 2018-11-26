@@ -144,3 +144,7 @@ body {
 a + .currency {
     margin-left: .1em;
 }
+
+.tippy-tooltip {
+    max-width: none !important;
+}

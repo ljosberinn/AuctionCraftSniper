@@ -6,7 +6,7 @@ $headers = [
 ];
 
 if(basename($_SERVER['PHP_SELF']) !== 'index.php') {
-    $headers[] = "Content-Type: application/json";
+    $headers[] = 'Content-Type: application/json';
 }
 
 foreach ($headers as $header) {

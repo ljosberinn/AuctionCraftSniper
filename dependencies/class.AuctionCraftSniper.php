@@ -111,12 +111,17 @@ class AuctionCraftSniper
     /**
      * @method getRecipeIDs [fetches all recipeIDs dependant on expansionLevel]
      *
+     * @param int $professionID [optionally select only profession-related recipes]
+     *
      * @return array
      */
-    public function getRecipeIDs()
+    public function getRecipeIDs(int $professionID = 0)
     : array {
-        if (empty($this->recipeIDs)) {
+        if ($professionID === 0 && empty($this->recipeIDs)) {
             $this->setRecipeIDs();
+        } else {
+            $this->recipeIDs = [];
+            $this->setRecipeIDs($professionID);
         }
 
         return $this->recipeIDs;
@@ -176,9 +181,7 @@ class AuctionCraftSniper
 
         curl_close($curl);
 
-        $outerAuctionData = (array)json_decode($response, true);
-
-        return $outerAuctionData;
+        return (array)json_decode($response, true);
     }
 
     /**
@@ -443,11 +446,24 @@ class AuctionCraftSniper
 
     /**
      * @method setRecipeIDs [fetches recipes depending on current expansionLevel]
+     *
+     * @param int $professionID
      */
-    private function setRecipeIDs()
+    private function setRecipeIDs(int $professionID = 0)
     : void {
-        $recipeIDs = $this->connection->prepare('SELECT `id` FROM `recipes` WHERE `expansionLevel` =  :expansionLevel ORDER BY `id` ASC');
-        $recipeIDs->execute(['expansionLevel' => $this->expansionLevel]);
+        $params = [
+            'expansionLevel' => $this->expansionLevel,
+        ];
+
+        if ($professionID === 0) {
+            $getRecipeIDsQuery = 'SELECT `id` FROM `recipes` WHERE `expansionLevel` =  :expansionLevel ORDER BY `id` ASC';
+        } else {
+            $getRecipeIDsQuery    = 'SELECT `id` FROM `recipes` WHERE `expansionLevel` = :expansionLevel AND `profession` = :profession ORDER BY `id` ASC';
+            $params['profession'] = $professionID;
+        }
+
+        $recipeIDs = $this->connection->prepare($getRecipeIDsQuery);
+        $recipeIDs->execute($params);
 
         if ($recipeIDs->rowCount() > 0) {
             foreach ($recipeIDs->fetchAll() as $dataset) {
@@ -526,10 +542,27 @@ class AuctionCraftSniper
      * @method setRecipeRequirements [(re)builds all recipeRequirements for an expansion based upon existing recipes via the WoWDB API]
      *
      * @param array $recipeRequirements
+     * @param int   $professionID
      */
-    public function setRecipeRequirements(array $recipeRequirements)
-    : void {
-        $previousDataRemoval = $this->connection->prepare('DELETE * FROM `recipeRequirements` WHERE `expansionLevel` = :expansionLevel');
+    public function setRecipeRequirements(array $recipeRequirements, int $professionID) {
+
+        $recipesToRefresh = [];
+
+        $recipesToRefreshQuery = $this->connection->query('SELECT `id` FROM `recipes` WHERE `profession` = ' . $professionID);
+
+        foreach ($recipesToRefreshQuery->fetchAll() as $recipeToRefresh) {
+            $recipesToRefresh[] = $recipeToRefresh['id'];
+        }
+
+        $deletionQuery = 'DELETE FROM `recipeRequirements` WHERE `expansionLevel` = :expansionLevel AND (';
+
+        foreach ($recipesToRefresh as $recipeToRefresh) {
+            $deletionQuery .= '`recipe` = ' . $recipeToRefresh . ' OR ';
+        }
+
+        $deletionQuery = substr($deletionQuery, 0, -4) . ')';
+
+        $previousDataRemoval = $this->connection->prepare($deletionQuery);
         $previousDataRemoval->execute([
             'expansionLevel' => $this->expansionLevel,
         ]);
@@ -542,16 +575,21 @@ class AuctionCraftSniper
             $requiredItemIDAmount = count($recipeRequirement['requiredItemIDs']);
 
             for ($i = 0; $i < $requiredItemIDAmount; ++$i) {
-                $insert->execute([
-                    'recipeID'       => $recipeRequirement['recipeID'],
-                    'requiredItemID' => $recipeRequirement['requiredItemIDs'][$i],
-                    'requiredAmount' => $recipeRequirement['requiredAmounts'][$i],
-                    'itemName'       => $recipeRequirement['itemNames'][$i],
-                    'rank'           => $recipeRequirement['rank'],
-                    'baseSellPrice'  => $recipeRequirement['baseSellPrices'][$i],
-                    'baseBuyPrice'   => $recipeRequirement['baseBuyPrices'][$i],
-                    'expansionLevel' => $this->expansionLevel,
-                ]);
+                try {
+                    $insert->execute([
+                        'recipeID'       => $recipeRequirement['recipeID'],
+                        'requiredItemID' => $recipeRequirement['requiredItemIDs'][$i],
+                        'requiredAmount' => $recipeRequirement['requiredAmounts'][$i],
+                        'itemName'       => $recipeRequirement['itemNames'][$i],
+                        'rank'           => $recipeRequirement['rank'],
+                        'baseSellPrice'  => $recipeRequirement['baseSellPrices'][$i],
+                        'baseBuyPrice'   => $recipeRequirement['baseBuyPrices'][$i],
+                        'expansionLevel' => $this->expansionLevel,
+                    ]);
+                } catch (PDOException $exception) {
+                    print_r($exception->getMessage());
+                    die;
+                }
             }
         }
     }
