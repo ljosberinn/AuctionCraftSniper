@@ -37,7 +37,7 @@ const searchListener = () => {
 };
 
 const toggleUserInputs = (state: boolean) => {
-  Array.from(document.querySelectorAll('input')).forEach(input => (input.type === 'checkbox' ? (input.disabled = state) : (input.readOnly = state)));
+  document.querySelectorAll('input').forEach(input => (input.type === 'checkbox' ? (input.disabled = state) : (input.readOnly = state)));
   [<HTMLInputElement>document.getElementById('search'), <HTMLSelectElement>document.getElementById('expansion-level')].forEach(el => (el.disabled = state));
 };
 
@@ -177,8 +177,9 @@ const createProductNameTD = (id: number, name: string) => {
 };
 
 const createProfitTD = (profit: number) => {
-  const td = cloneOrigin.td.cloneNode();
+  const td = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
   td.appendChild(formatCurrency(profit));
+  td.dataset.type = 'profit';
 
   return td;
 };
@@ -188,10 +189,6 @@ const createProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON
   const wrap = <HTMLDivElement>document.getElementById('auction-craft-sniper');
 
   const TUJLink = getTUJBaseURL();
-
-  /* while (wrap.lastChild) {
-      wrap.removeChild(wrap.lastChild);
-    } */
 
   const thTexts = ['itemName', 'materialInfo', 'productBuyout', 'profit'];
 
@@ -203,7 +200,11 @@ const createProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON
     [professionName, recipes] = entry;
     console.time(professionName);
 
-    const [table, thead, theadRow] = [cloneOrigin.table.cloneNode(), cloneOrigin.thead.cloneNode(), cloneOrigin.tr.cloneNode()];
+    const previousProfessionTable: NodeListOf<HTMLTableSectionElement> = document.querySelectorAll(`#${professionName.toLowerCase()} tbody`);
+    console.log(previousProfessionTable);
+
+    const [table, thead, theadRow] = [<HTMLTableElement>cloneOrigin.table.cloneNode(), cloneOrigin.thead.cloneNode(), cloneOrigin.tr.cloneNode()];
+    table.id = professionName.toLowerCase();
 
     thTexts.forEach(thText => {
       const th = <HTMLTableHeaderCellElement>cloneOrigin.th.cloneNode();
@@ -213,7 +214,9 @@ const createProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON
     thead.appendChild(theadRow);
     table.appendChild(thead);
 
-    const tbody = cloneOrigin.tbody.cloneNode();
+    const positiveTbody = cloneOrigin.tbody.cloneNode();
+    const negativeTbody = <HTMLTableSectionElement>cloneOrigin.tbody.cloneNode();
+    negativeTbody.classList.add('lossy-recipes');
 
     sortByProfit(recipes).forEach(recipe => {
       const tr = <HTMLTableRowElement>cloneOrigin.tr.cloneNode();
@@ -223,9 +226,9 @@ const createProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON
 
       const [materialTD, materialSum] = createMaterialTD(recipe);
 
-      const productBuyoutTD = createProductBuyoutTD(recipe, TUJLink);
+      const productBuyoutTD = <HTMLTableCellElement>createProductBuyoutTD(recipe, TUJLink);
 
-      const profitTD = createProfitTD(recipe.profit);
+      const profitTD = <HTMLTableCellElement>createProfitTD(recipe.profit);
 
       /*
       const percentageProfit = Math.round(recipe.product.buyout / materialSum) * 100 - 100;
@@ -233,10 +236,20 @@ const createProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON
       */
 
       [productNameTD, materialTD, productBuyoutTD, profitTD].forEach(td => tr.appendChild(td));
-      tbody.appendChild(tr);
+
+      if (recipe.profit > 0) {
+        positiveTbody.appendChild(tr);
+      } else {
+        negativeTbody.appendChild(tr);
+      }
     });
 
-    table.appendChild(tbody);
+    if (negativeTbody.hasChildNodes) {
+      positiveTbody.appendChild(createLossyRecipeHintTR());
+    }
+
+    [positiveTbody, negativeTbody].forEach(tbody => (tbody.hasChildNodes ? table.appendChild(tbody) : void 0));
+
     fragment.appendChild(table);
     console.timeEnd(professionName);
   });
@@ -249,8 +262,36 @@ const createProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON
   console.timeEnd('search');
 };
 
+const toggleLossyRecipes = function() {
+  const target = <HTMLTableSectionElement>this.parentElement.nextElementSibling;
+  const innerTD = this.querySelector('td');
+
+  const isVisible = target.style.display === 'table-row-group';
+
+  if (isVisible) {
+    target.style.display = 'none';
+    innerTD.innerText = 'show lossy recipes';
+  } else {
+    target.style.display = 'table-row-group';
+    innerTD.innerText = 'hide lossy recipes';
+  }
+};
+
+const createLossyRecipeHintTR = () => {
+  const hintTR = cloneOrigin.tr.cloneNode();
+  hintTR.addEventListener('click', toggleLossyRecipes);
+
+  const hintTD = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
+  hintTD.classList.add('lossy-recipes-hint');
+  hintTD.colSpan = 4;
+  hintTD.innerText = 'show lossy recipes';
+
+  hintTR.appendChild(hintTD);
+  return hintTR;
+};
+
 export const addEventListeners = () => {
-  Array.from(document.querySelectorAll('input[type="checkbox"]')).forEach((checkbox: HTMLInputElement) => checkbox.addEventListener('click', checkboxEventListener));
+  document.querySelectorAll('input[type="checkbox"]').forEach((checkbox: HTMLInputElement) => checkbox.addEventListener('click', checkboxEventListener));
   (<HTMLInputElement>document.getElementById('search')).addEventListener('click', searchListener);
 
   const expansionLevelSelect = <HTMLSelectElement>document.getElementById('expansion-level');
@@ -293,6 +334,7 @@ const formatCurrency = (value: number) => {
 
 const createMaterialTD = (recipe: AuctionCraftSniper.innerProfessionDataJSON): [HTMLTableDataCellElement, number] => {
   const materialInfoTD = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
+  materialInfoTD.dataset.type = 'material-profit';
   let materialSum = 0;
 
   const tippyTable = <HTMLTableElement>cloneOrigin.table.cloneNode();
@@ -344,6 +386,7 @@ const createMaterialTD = (recipe: AuctionCraftSniper.innerProfessionDataJSON): [
 
 const createProductBuyoutTD = (recipe: AuctionCraftSniper.innerProfessionDataJSON, TUJBaseUrl: string) => {
   const productBuyoutTD = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
+  productBuyoutTD.dataset.type = 'product-buyout';
 
   const a = <HTMLAnchorElement>cloneOrigin.a.cloneNode();
   a.classList.add('tuj');

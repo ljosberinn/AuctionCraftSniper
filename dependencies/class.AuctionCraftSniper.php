@@ -270,8 +270,7 @@ class AuctionCraftSniper
             `auctionData`.`itemID`,
             `auctionData`.`buyout`,
             `recipes`.`name`,
-            `recipes`.`profession`,
-            `houseUpdateTracker`.`timestamp`
+            `recipes`.`profession`
             FROM `auctionData`
             LEFT JOIN `recipes` ON `auctionData`.`itemID` = `recipes`.`id`
             LEFT JOIN `houseUpdateTracker` on `houseUpdateTracker`.`houseID` = :houseID1 AND `houseUpdateTracker`.`expansionLevel` = :expansionLevel1
@@ -345,8 +344,8 @@ class AuctionCraftSniper
 
                 foreach ($recipeData['materials'] as &$recipeMaterial) {
                     // filter items that can be bought via vendors or are soulbound
-                    if (!in_array($recipeMaterial['itemID'], $this->calculationExemptionItemIDs, true)) {
 
+                    if (!in_array((int)$recipeMaterial['itemID'], $this->calculationExemptionItemIDs, true)) {
                         $getMaterialBuyout->execute([
                             'itemID'         => $recipeMaterial['itemID'],
                             'expansionLevel' => $this->expansionLevel,
@@ -533,7 +532,7 @@ class AuctionCraftSniper
         $getVendorItems = $this->connection->query('SELECT `itemID` FROM `itemCalculationExemptions`');
 
         foreach ($getVendorItems->fetchAll() as $dataset) {
-            $this->calculationExemptionItemIDs[] = $dataset['itemID'];
+            $this->calculationExemptionItemIDs[] = (int)$dataset['itemID'];
         }
     }
 
@@ -650,6 +649,28 @@ class AuctionCraftSniper
     }
 
     /**
+     * @method setHouseTimestamp [updates timestamp of last house validation]
+     *
+     * @param int $timestamp [milliseconds]
+     */
+    private function setHouseTimestamp(int $timestamp = 0)
+    : void {
+        $queryParams = [
+            'houseID'        => $this->houseID,
+            'expansionLevel' => $this->expansionLevel,
+        ];
+
+        $deletePreviousHouseUpdate = $this->connection->prepare('DELETE FROM `houseUpdateTracker` WHERE `houseID` = :houseID AND `expansionLevel` = :expansionLevel');
+        $deletePreviousHouseUpdate->execute($queryParams);
+
+        $insertHouseUpdate = $this->connection->prepare('INSERT INTO `houseUpdateTracker` (`houseID`, `expansionLevel`, `timestamp`) VALUES(:houseID, :expansionLevel, :timestamp)');
+
+        $queryParams['timestamp'] = $timestamp;
+
+        $insertHouseUpdate->execute($queryParams);
+    }
+
+    /**
      * @method isHouseOutdated [checks whether a house has new external data available to be fetched]
      *
      * @return array
@@ -669,12 +690,13 @@ class AuctionCraftSniper
 
         // house has been previously fetched, check whether it needs an update
         if ($getLastUpdateTimestamp->rowCount() === 1) {
-            $lastUpdateTimestamp = $getLastUpdateTimestamp->fetch()['timestamp'] * 1000;
+            $lastUpdateTimestamp = $getLastUpdateTimestamp->fetch()['timestamp'];
         }
 
         $outerAuctionData = $this->getOuterAuctionData();
 
         $this->setInnerHouseURL($outerAuctionData['files'][0]['url']);
+        $this->setHouseTimestamp($outerAuctionData['files'][0]['lastModified']);
 
         // AH technically is older than 20 minutes, but API servers haven't updated yet
         if ($outerAuctionData['files'][0]['lastModified'] <= $lastUpdateTimestamp) {
@@ -697,13 +719,11 @@ class AuctionCraftSniper
     public function updateHouse(array $recipeIDs = [])
     : void {
 
-        $queryParams = [
+        $removePreviousData = $this->connection->prepare('DELETE FROM `auctionData` WHERE `houseID` = :houseID AND `expansionLevel` = :expansionLevel');
+        $removePreviousData->execute([
             'houseID'        => $this->houseID,
             'expansionLevel' => $this->expansionLevel,
-        ];
-
-        $removePreviousData = $this->connection->prepare('DELETE FROM `auctionData` WHERE `houseID` = :houseID AND `expansionLevel` = :expansionLevel');
-        $removePreviousData->execute($queryParams);
+        ]);
 
         $insertHouseData = $this->connection->prepare('INSERT INTO `auctionData` (`houseID`, `itemID`, `buyout`, `expansionLevel`) VALUES (:houseID, :itemID, :buyout, :expansionLevel)');
 
@@ -717,14 +737,6 @@ class AuctionCraftSniper
                 ]);
             }
         }
-
-        $deletePreviousHouseUpdate = $this->connection->prepare('DELETE FROM `houseUpdateTracker` WHERE `houseID` = :houseID AND `expansionLevel` = :expansionLevel');
-        $deletePreviousHouseUpdate->execute($queryParams);
-
-        $insertHouseUpdate        = $this->connection->prepare('INSERT INTO `houseUpdateTracker` (`houseID`, `expansionLevel`, `timestamp`) VALUES(:houseID, :expansionLevel, :timestamp)');
-        $queryParams['timestamp'] = time();
-
-        $insertHouseUpdate->execute($queryParams);
     }
 
     /**

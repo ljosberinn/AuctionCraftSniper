@@ -148,3 +148,12 @@ a + .currency {
 .tippy-tooltip {
     max-width: none !important;
 }
+
+.lossy-recipes-hint {
+    text-align: center;
+    cursor: pointer;
+}
+
+.lossy-recipes {
+    display: none;
+}

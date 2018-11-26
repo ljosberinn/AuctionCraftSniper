@@ -5,14 +5,18 @@ require_once '../dependencies/class.AuctionCraftSniper.php';
 
 $decodedPOST = json_decode(trim(file_get_contents('php://input')), true);
 
+if(!isset($decodedPOST)) {
+    header('Location: ../index.php');
+}
+
 const BYTE_LIMIT = 365;
 const CHUNK_SIZE = 2568505;
 
 if (!isset($decodedPOST['step']) && empty($decodedPOST['itemIDs'])) {
 
     $AuctionCraftSniper = new AuctionCraftSniper();
-    $AuctionCraftSniper->setExpansionLevel($decodedPOST['expansionLevel']);
-    $expansionLevel = $AuctionCraftSniper->isValidExpansionLevel($decodedPOST['expansionLevel']);
+    $expansionLevel     = $AuctionCraftSniper->isValidExpansionLevel($decodedPOST['expansionLevel']);
+    $AuctionCraftSniper->setExpansionLevel($expansionLevel);
 
     $itemIDs              = [];
     $calculationExemption = $AuctionCraftSniper->getCalculationExemptionItemIDs();
@@ -91,11 +95,11 @@ if (file_exists($fileName) && $stream = fopen($fileName, 'rb')) {
         $data = json_decode(substr($data, 0, $auctionEnd), true);
 
         if (in_array($data['item'], $itemKeys)) {
-            $thisPPU = round($data['buyout'] / $data['quantity']);
+            $thisPPU = (int)round($data['buyout'] / $data['quantity']);
 
             $previousPPU = (int)$itemIDs[$data['item']];
 
-            if ($previousPPU === 0 || $thisPPU < $previousPPU && $thisPPU !== 0) {
+            if ($previousPPU === 0 || ($thisPPU < $previousPPU && $thisPPU !== 0)) {
                 $itemIDs[$data['item']] = $thisPPU;
             }
         }
@@ -111,7 +115,7 @@ if (file_exists($fileName) && $stream = fopen($fileName, 'rb')) {
         'percentDone'    => round(($thisChunksEnd / $fileSize) * 100, 2),
     ];
 
-    if ((int)$response['step'] === (int)$response['reqSteps']) {
+    if ($response['step'] === $response['reqSteps']) {
         $AuctionCraftSniper = new AuctionCraftSniper();
         $AuctionCraftSniper->setHouseID($decodedPOST['houseID']);
         $AuctionCraftSniper->setExpansionLevel($expansionLevel);
