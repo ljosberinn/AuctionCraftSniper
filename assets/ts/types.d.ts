@@ -34,11 +34,16 @@ export declare namespace AuctionCraftSniper {
     callback?: string;
   }
 
+  interface ACSSettingsObj {
+    blacklistedRecipes: number[];
+    alwaysShowLossyRecipes: boolean;
+  }
+
   interface localStorageObj {
     houseID?: undefined | number;
     professions?: number[];
     expansionLevel?: number;
-    blacklist?: number[];
+    settings?: ACSSettingsObj;
   }
 
   interface materialJSON {

@@ -111,7 +111,7 @@ if (file_exists($fileName) && $stream = fopen($fileName, 'rb')) {
         'itemIDs'        => $itemIDs,
         'expansionLevel' => $expansionLevel,
         'step'           => $step + 1,
-        'reqSteps'       => ceil($fileSize / CHUNK_SIZE),
+        'reqSteps'       => (int) ceil($fileSize / CHUNK_SIZE),
         'percentDone'    => round(($thisChunksEnd / $fileSize) * 100, 2),
     ];
 

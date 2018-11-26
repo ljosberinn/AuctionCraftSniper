@@ -481,7 +481,7 @@ class AuctionCraftSniper
             $realm->execute(['region' => $region]);
 
             foreach ($realm->fetchAll() as $dataset) {
-                $this->realms[] = $region . '-' . $dataset['name'];
+                $this->realms[$dataset['houseID']] = $region . '-' . $dataset['name'];
             }
         }
     }

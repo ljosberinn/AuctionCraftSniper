@@ -4,30 +4,32 @@ export const ACS: AuctionCraftSniper.localStorageObj = {
   houseID: undefined,
   professions: [],
   expansionLevel: 8,
-  blacklist: [],
+  settings: {
+    blacklistedRecipes: [],
+    alwaysShowLossyRecipes: false,
+  },
 };
 
 export const setACSLocalStorage = (data: AuctionCraftSniper.localStorageObj) => {
-  if (data.houseID) {
-    ACS.houseID = data.houseID;
-  }
+  Object.entries(data).forEach(entry => {
+    const [key, value] = entry;
 
-  if (data.professions) {
-    ACS.professions = data.professions;
-  }
-
-  if (data.expansionLevel) {
-    ACS.expansionLevel = data.expansionLevel;
-  }
+    ACS[key] = value;
+  });
 
   localStorage.ACS = JSON.stringify(ACS);
 };
 
-export  const getACSLocalStorage = () => {
+export const getACSLocalStorage = () => {
   if (localStorage.ACS) {
     const tempACS: AuctionCraftSniper.localStorageObj = JSON.parse(localStorage.ACS);
 
     ACS.houseID = tempACS.houseID;
+    const realm = <HTMLOptionElement>document.querySelector(`#realms [data-house-id="${tempACS.houseID}"]`);
+    if (realm !== null) {
+      (<HTMLInputElement>document.getElementById('realm')).value = realm.value;
+    }
+
     ACS.professions = tempACS.professions;
     ACS.expansionLevel = tempACS.expansionLevel;
 

@@ -179,7 +179,6 @@ const createProductNameTD = (id: number, name: string) => {
 const createProfitTD = (profit: number) => {
   const td = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
   td.appendChild(formatCurrency(profit));
-  td.dataset.type = 'profit';
 
   return td;
 };
@@ -200,8 +199,7 @@ const createProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON
     [professionName, recipes] = entry;
     console.time(professionName);
 
-    const previousProfessionTable: NodeListOf<HTMLTableSectionElement> = document.querySelectorAll(`#${professionName.toLowerCase()} tbody`);
-    console.log(previousProfessionTable);
+    const previousProfessionTable = <HTMLTableElement>document.getElementById(professionName.toLowerCase());
 
     const [table, thead, theadRow] = [<HTMLTableElement>cloneOrigin.table.cloneNode(), cloneOrigin.thead.cloneNode(), cloneOrigin.tr.cloneNode()];
     table.id = professionName.toLowerCase();
@@ -237,20 +235,36 @@ const createProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON
 
       [productNameTD, materialTD, productBuyoutTD, profitTD].forEach(td => tr.appendChild(td));
 
-      if (recipe.profit > 0) {
+      if (recipe.profit > 0 || ACS.settings.alwaysShowLossyRecipes) {
         positiveTbody.appendChild(tr);
       } else {
         negativeTbody.appendChild(tr);
       }
     });
 
+    if (!positiveTbody.hasChildNodes) {
+      positiveTbody.appendChild(createMissingProfitsHintTR());
+    }
+
     if (negativeTbody.hasChildNodes) {
       positiveTbody.appendChild(createLossyRecipeHintTR());
     }
 
-    [positiveTbody, negativeTbody].forEach(tbody => (tbody.hasChildNodes ? table.appendChild(tbody) : void 0));
+    const tbodies = [positiveTbody, negativeTbody];
 
-    fragment.appendChild(table);
+    if (previousProfessionTable !== null) {
+      while (previousProfessionTable.firstChild) {
+        previousProfessionTable.removeChild(previousProfessionTable.lastChild);
+      }
+
+      tbodies.forEach(tbody => previousProfessionTable.appendChild(tbody));
+    } else {
+      tbodies.forEach(tbody => (tbody.hasChildNodes ? table.appendChild(tbody) : void 0));
+      fragment.appendChild(table);
+    }
+
+    console.log(fragment.childNodes);
+
     console.timeEnd(professionName);
   });
 
@@ -262,8 +276,20 @@ const createProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON
   console.timeEnd('search');
 };
 
-const toggleLossyRecipes = function() {
-  const target = <HTMLTableSectionElement>this.parentElement.nextElementSibling;
+const createMissingProfitsHintTR = function () {
+  const hintTR = cloneOrigin.tr.cloneNode();
+
+  const hintTD = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
+  hintTD.classList.add('missing-profits-hint');
+  hintTD.colSpan = 4;
+  hintTD.innerText = 'currently no recipes net profit';
+
+  hintTR.appendChild(hintTD);
+  return hintTR;
+};
+
+const toggleLossyRecipes = function () {
+  const target = <HTMLTableSectionElement> this.parentElement.nextElementSibling;
   const innerTD = this.querySelector('td');
 
   const isVisible = target.style.display === 'table-row-group';
@@ -334,7 +360,6 @@ const formatCurrency = (value: number) => {
 
 const createMaterialTD = (recipe: AuctionCraftSniper.innerProfessionDataJSON): [HTMLTableDataCellElement, number] => {
   const materialInfoTD = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
-  materialInfoTD.dataset.type = 'material-profit';
   let materialSum = 0;
 
   const tippyTable = <HTMLTableElement>cloneOrigin.table.cloneNode();
@@ -386,7 +411,6 @@ const createMaterialTD = (recipe: AuctionCraftSniper.innerProfessionDataJSON): [
 
 const createProductBuyoutTD = (recipe: AuctionCraftSniper.innerProfessionDataJSON, TUJBaseUrl: string) => {
   const productBuyoutTD = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
-  productBuyoutTD.dataset.type = 'product-buyout';
 
   const a = <HTMLAnchorElement>cloneOrigin.a.cloneNode();
   a.classList.add('tuj');
