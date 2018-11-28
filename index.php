@@ -10,6 +10,7 @@ require_once 'dependencies/headers.php';
 require_once 'dependencies/class.AuctionCraftSniper.php';
 
 $AuctionCraftSniper = new AuctionCraftSniper();
+$professions        = $AuctionCraftSniper->getProfessions();
 
 ?>
 
@@ -24,7 +25,7 @@ $AuctionCraftSniper = new AuctionCraftSniper();
 	<h1>` AuctionCraftSniper
 
 		<div style="display: inline-block;">
-            <?php foreach ($AuctionCraftSniper->getProfessions() as $id => $name) { ?>
+            <?php foreach ($professions as $id => $name) { ?>
 				<label><i class="professions-sprite icon-<?= $id ?> icon-disabled" data-tippy="<?= $name ?>"></i>
 					<input type="checkbox" value="<?= $id ?>">
 				</label>
@@ -66,7 +67,9 @@ $AuctionCraftSniper = new AuctionCraftSniper();
 	</div>
 
 	<div id="auction-craft-sniper">
-
+        <?php foreach ($professions as $id => $name) { ?>
+			<table id="<?= lcfirst($name) ?>"></table>
+        <?php } ?>
 	</div>
 
 </main>

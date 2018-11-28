@@ -35,8 +35,9 @@ export declare namespace AuctionCraftSniper {
   }
 
   interface ACSSettingsObj {
-    blacklistedRecipes: number[];
-    alwaysShowLossyRecipes: boolean;
+    blacklistedRecipes?: number[];
+    alwaysShowLossyRecipes?: boolean;
+    fetchOnLoad?: boolean;
   }
 
   interface localStorageObj {

@@ -157,3 +157,24 @@ a + .currency {
 .lossy-recipes {
     display: none;
 }
+
+.blacklisted {
+    opacity: 0.3;
+    transition: 300ms all ease-in-out;
+}
+
+.blacklisted:hover {
+    opacity: 1;
+}
+
+.is-visible {
+    background-image: url(https://wow.zamimg.com/images/wow/icons/large/ability_hibernation.jpg);
+    height: 56px;
+    width: 56px;
+}
+
+.is-invisible {
+    background-image: url(https://wow.zamimg.com/images/wow/icons/large/ability_hunter_aspectoftheviper.jpg);
+    height: 56px;
+    width: 56px;
+}
