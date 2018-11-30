@@ -127,7 +127,7 @@ const parseAuctionData = async (step = 0, itemIDs = {}) => {
   if (json.err) {
     throw new Error(json.err);
   } else {
-    document.getElementById('progress-bar').style.width = `${json.percentDone}%`;
+    (<HTMLProgressElement>document.getElementById('progress-bar')).value = Math.round(json.percentDone);
   }
 
   if (json.step < json.reqSteps) {
@@ -177,13 +177,18 @@ export const toggleBlacklistEntry = function () {
   const blacklistedRecipes = ACS.settings.blacklistedRecipes;
   const recipe = parseInt(this.dataset.recipe);
 
+  let search = '';
+  let replace = '';
+
   if (blacklistedRecipes.includes(recipe)) {
     blacklistedRecipes.splice(blacklistedRecipes.indexOf(recipe), 1);
-    this.classList.replace('is-invisible', 'is-visible');
+    [search, replace] = ['recipe-is-invisible', 'recipe-is-visible'];
   } else {
     blacklistedRecipes.push(recipe);
-    this.classList.replace('is-visible', 'is-invisible');
+    [search, replace] = ['recipe-is-visible', 'recipe-is-invisible'];
   }
+
+  this.classList.replace(search, replace);
 
   setACSLocalStorage({ settings: { blacklistedRecipes } });
 
@@ -208,10 +213,6 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
     console.time(professionName);
 
     const professionTable = <HTMLTableElement>document.getElementById(professionName.toLowerCase());
-
-    const table = <HTMLTableElement>cloneOrigin.table.cloneNode();
-    table.id = professionName.toLowerCase();
-    table.appendChild(thead);
 
     const [positiveTbody, negativeTbody] = [cloneOrigin.tbody.cloneNode(), <HTMLTableSectionElement>cloneOrigin.tbody.cloneNode()];
     negativeTbody.classList.add('lossy-recipes');
@@ -259,13 +260,13 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
       positiveTbody.appendChild(createLossyRecipeHintTR());
     }
 
-    const tbodies = [positiveTbody, negativeTbody];
+    const tableSectionElements = [<HTMLTableSectionElement>initiateTHead(), positiveTbody, negativeTbody];
 
     while (professionTable.firstChild) {
       professionTable.removeChild(professionTable.lastChild);
     }
 
-    tbodies.forEach(tbody => professionTable.appendChild(tbody));
+    tableSectionElements.forEach(tbody => professionTable.appendChild(tbody));
 
     console.timeEnd(professionName);
   });

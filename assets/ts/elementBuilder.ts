@@ -7,7 +7,7 @@ export const createBlackListTD = (recipe: number, isBlacklisted: boolean = false
   const td = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
   td.dataset.recipe = recipe.toString();
   td.addEventListener('click', toggleBlacklistEntry);
-  td.classList.add(isBlacklisted ? 'is-invisible' : 'is-visible');
+  td.classList.add(isBlacklisted ? 'recipe-is-invisible' : 'recipe-is-visible');
 
   return td;
 };

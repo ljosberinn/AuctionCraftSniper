@@ -33,12 +33,8 @@ $jsMakeTime    = filemtime('assets/js/bundle.min.js');
 <meta itemprop="name" content="AuctionCraftSniper"/>
 <meta itemprop="description" content="AuctionCraftSniper provides on-demand near-realtime information about current profession-related auction house prices for Western regions of World of Warcraft"/>
 <meta itemprop="lastReviewed" content="<?= date('Y-m-d', $indexMakeTime ?: $jsMakeTime) ?>"/>
-
-
 <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
-<link href="/assets/css/normalize.css?<?= filemtime('assets/css/normalize.css') ?>" rel="stylesheet">
-<link href="/assets/css/custom.css?<?= filemtime('assets/css/custom.css') ?>" rel="stylesheet">
-<link href="/assets/css/tippy.min.css?<?= filemtime('assets/css/tippy.min.css') ?>" rel="stylesheet">
+<link href="/assets/css/acs.min.css?<?= filemtime('assets/css/acs.min.css') ?>" rel="stylesheet">
 
 <title>AuctionCraftSniper - WIP</title>
 
@@ -53,6 +49,6 @@ $jsMakeTime    = filemtime('assets/js/bundle.min.js');
 <script defer src="https://wow.zamimg.com/widgets/power.js"></script>
 
 <?php foreach (['gold', 'silver', 'copper'] as $currency) { ?>
-	<link rel="preload" as="image" href="https://wow.zamimg.com/images/icons/money-<?= $currency ?>.gif" type="image/gif">
+<link rel="preload" as="image" href="https://wow.zamimg.com/images/icons/money-<?= $currency ?>.gif" type="image/gif">
 <?php } ?>
 <link rel="preload" as="image" href="https://theunderminejournal.com/images/favicons/favicon-16x16.png" type="image/png">

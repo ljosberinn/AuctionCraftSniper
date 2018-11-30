@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc assets/ts/app.ts --sourceMap --outDir assets/js --lib es2017,dom && npx webpack"
+    "build": "tsc assets/ts/app.ts --sourceMap --outDir assets/js --lib es2017,dom && npx webpack",
+    "scss-dev-watch": "npx node-sass assets/scss/acs.scss assets/css/acs.min.css --source-map=true --output-style=compressed --watch",
+    "scss-deploy": "npx node-sass assets/scss/acs.scss assets/css/acs.min.css --output-style=compressed"
   },
   "repository": {
     "type": "git",
@@ -28,6 +30,7 @@
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-typescript": "^0.12.0",
     "node-sass": "^4.10.0",
+    "npx": "^10.2.0",
     "prettier": "^1.14.3",
     "stylelint": "^9.6.0",
     "stylelint-config-recommended": "^2.1.0",
