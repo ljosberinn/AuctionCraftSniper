@@ -34,68 +34,62 @@ h1 {
   transition: 0.33s ease-in-out;
 }
 
-i.professions-sprite + input {
-  display: none;
-}
-
-[class*="icon-"] {
+i.professions-sprite {
   width: 32px;
   height: 32px;
   cursor: pointer;
+
+  + input {
+    display: none;
+  }
 }
 
 i:focus {
   outline: none;
 }
 
-.professions-sprite.icon-disabled {
-  filter: grayscale(100%);
-  opacity: 0.5;
-}
+.professions-sprite {
 
-/* ALCHEMY */
-.professions-sprite.icon-1 {
-  background-position: 0 0;
-}
+  &.icon-disabled {
+    filter: grayscale(100%);
+    opacity: 0.5;
+  }
 
-/* Blacksmithing */
-.professions-sprite.icon-2 {
-  background-position: -32px 0;
-}
+  &.alchemy {
+    background-position: 0 0;
+  }
 
-/* COOKING */
-.professions-sprite.icon-3 {
-  background-position: -64px 0;
-}
+  &.blacksmithing {
+    background-position: -32px 0;
+  }
 
-/* ENCHANTING */
-.professions-sprite.icon-4 {
-  background-position: 0 -32px;
-}
+  &.cooking {
+    background-position: -64px 0;
+  }
 
-/* ENGINEERING */
-.professions-sprite.icon-5 {
-  background-position: -32px -32px;
-}
+  &.enchanting {
+    background-position: 0 -32px;
+  }
 
-/* INSCRIPTION */
-.professions-sprite.icon-6 {
-  background-position: -64px -32px;
-}
+  &.engineering {
+    background-position: -32px -32px;
+  }
 
-/* JEWELCRAFTING */
-.professions-sprite.icon-7 {
-  background-position: 0 -64px;
-}
+  &.inscription {
+    background-position: -64px -32px;
+  }
 
-/* LEATHERWORKING */
-.professions-sprite.icon-8 {
-  background-position: -32px -64px;
-}
+  &.jewelcrafting {
+    background-position: 0 -64px;
+  }
 
-/* TAILORING */
-.professions-sprite.icon-9 {
-  background-position: -64px -64px;
+  &.leatherworking {
+    background-position: -32px -64px;
+  }
+
+  &.tailoring {
+    background-position: -64px -64px;
+  }
 }
 
 main, footer {
