@@ -41,13 +41,12 @@ $jsMakeTime    = filemtime('assets/js/bundle.min.js');
 <script defer src="/assets/js/bundle.min.js?<?= $jsMakeTime ?>"></script>
 <script>
   const whTooltips = {
-    colorLinks: true,
-    iconizeLinks: true,
-    renameLinks: true
-  };
+    "colorlinks": true,
+    "iconizelinks": true,
+    'renamelinks': true
+  }
 </script>
-<script defer src="https://wow.zamimg.com/widgets/power.js"></script>
-
+<script async src="//wow.zamimg.com/widgets/power.js"></script>
 <?php foreach (['gold', 'silver', 'copper'] as $currency) { ?>
 <link rel="preload" as="image" href="https://wow.zamimg.com/images/icons/money-<?= $currency ?>.gif" type="image/gif">
 <?php } ?>

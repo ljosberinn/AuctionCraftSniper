@@ -95,11 +95,16 @@ const checkHouseAge = async () => {
         getProfessionTables();
         break;
       default:
-        throw new Error('invalid callback');
+        showHouseUnavailabilityError();
+        break;
     }
   } else {
     console.warn(`Insufficient params - professions: house: ${houseID}`);
   }
+};
+
+const showHouseUnavailabilityError = () => {
+  console.warn('house unavailable');
 };
 
 const parseAuctionData = async (step = 0, itemIDs = {}) => {
@@ -201,8 +206,6 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
 
   const TUJLink = getTUJBaseURL();
 
-  const thead = <HTMLTableSectionElement>initiateTHead();
-
   const fragment = document.createDocumentFragment();
 
   Object.entries(json).forEach(entry => {
@@ -268,6 +271,8 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
 
     tableSectionElements.forEach(tbody => professionTable.appendChild(tbody));
 
+    eval('$WowheadPower.init();');
+
     console.timeEnd(professionName);
   });
 
@@ -300,7 +305,7 @@ const createLossyRecipeHintTR = () => {
 
   const hintTD = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
   hintTD.classList.add('lossy-recipes-hint');
-  hintTD.colSpan = 4;
+  hintTD.colSpan = 5;
   hintTD.innerText = 'show lossy recipes';
 
   hintTR.appendChild(hintTD);

@@ -42,7 +42,7 @@ export const initiateTHead = () => {
   const thead = cloneOrigin.thead.cloneNode();
   const theadRow = cloneOrigin.tr.cloneNode();
 
-  ['itemName', 'materialInfo', 'productBuyout', 'profit', 'blacklist'].forEach(thText => {
+  ['itemName', 'materialInfo', 'productBuyout', 'profit', ''].forEach(thText => {
     const th = <HTMLTableHeaderCellElement>cloneOrigin.th.cloneNode();
     th.innerText = thText;
     theadRow.appendChild(th);
