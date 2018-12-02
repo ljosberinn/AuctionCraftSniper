@@ -20,97 +20,27 @@ $professions        = $AuctionCraftSniper->getProfessions();
 </header>
 <main>
 
-	<section class="columns">
-		<div class="field column is-4" id="professions">
-			<label class="label">select professions</label>
-			<div class="control">
-                <?php foreach ($professions as $id => $name) { ?>
-					<label class="checkbox">
-						<i class="professions-sprite <?= lcfirst($name) ?> icon-disabled" data-tippy="<?= $name ?>"></i>
-						<input type="checkbox" value="<?= $id ?>">
-					</label>
-                <?php } ?>
-			</div>
-		</div>
+    <?php
 
-		<div class="field column is-2">
-			<label class="label">select region & realm...</label>
-			<div class="control has-icons-right">
-				<input class="input" id="realm" type="text" list="realms" placeholder="e.g. EU-Blackmoore">
-				<datalist id="realms">
-                    <?php foreach ($AuctionCraftSniper->getRealms() as $houseID => $realm) { ?>
-						<option data-house-id="<?= $houseID ?>" value="<?= $realm ?>"></option>
-                    <?php } ?>
-				</datalist>
-				<!--<p class="help is-success">This username is available</p>-->
-			</div>
-		</div>
+    require_once 'app/inc.menu.php';
 
-		<div class="field column is-2">
-			<label class="label" for="expansion-level">change expansion</label>
-			<div class="control">
-				<div class="select">
-					<select id="expansion-level">
-						<option disabled>search expansion-specific recipes...</option>
-                        <?php foreach ($AuctionCraftSniper->getExpansionLevels() as $expansionLevel => $expansionName) { ?>
-							<option value="<?= $expansionLevel ?>"<?= $expansionLevel === 8 ? 'selected' : '' ?>><?= $expansionName ?></option>
-                        <?php } ?>
-					</select>
-				</div>
-			</div>
-		</div>
+    require_once 'app/inc.settings.php';
 
-		<div class="column is-2">
-			<button class="is-primary button" id="search">Go</button>
-			<label class="label">Last update:<br/><span id="last-update"></span></label>
-		</div>
-
-		<div class="column" id="settings-modal">
-            <?php foreach ($AuctionCraftSniper->getAvailableSettings() as $id => $description) { ?>
-				<div class="field">
-					<input type="checkbox" class="is-checkradio" id="<?= $id ?>">
-					<label for="<?= $id ?>"><?= $description ?></label>
-				</div>
-            <?php } ?>
-		</div>
-	</section>
-
+    ?>
 	<section>
 
-		<div class="field" style="width: 100%; height: 50px;">
-			<label id="progress-state"></label>
-			<progress id="progress-bar" class="progress is-primary is-small" max="100"></progress>
-		</div>
+        <?php
 
-		<div class="tabs is-small">
-			<ul>
-                <?php foreach ($professions as $id => $name) { ?>
-					<li>
-						<a>
-							<i class="professions-sprite <?= lcfirst($name) ?> icon-disabled" data-tippy="<?= $name ?>"></i>
-							<span><?= $name ?></span>
-						</a>
-					</li>
-                <?php } ?>
-			</ul>
-		</div>
+        require_once 'app/inc.subNav.php';
 
-		<div id="auction-craft-sniper">
-            <?php foreach ($professions as $id => $name) { ?>
-				<table id="<?= lcfirst($name) ?>" class="table is-narrow is-bordered is-striped"></table>
-            <?php } ?>
-		</div>
+        require_once 'app/inc.tables.php';
+
+        ?>
 	</section>
-
 </main>
 
 <footer>
     <?php require_once 'app/footer.html'; ?>
 </footer>
-<style data-dev>
-	table tr td:not(:first-of-type), table tr th:not(:first-of-type) {
-		text-align: right;
-	}
-</style>
 </body>
 </html>

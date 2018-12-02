@@ -216,11 +216,8 @@ export const toggleBlacklistEntry = function () {
 
 const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON = {}) => {
   console.time('fillProfessionTables');
-  const wrap = <HTMLDivElement>document.getElementById('auction-craft-sniper');
 
   const TUJLink = getTUJBaseURL();
-
-  const fragment = document.createDocumentFragment();
 
   Object.entries(json).forEach(entry => {
     let professionName: string;
@@ -285,15 +282,13 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
 
     tableSectionElements.forEach(tbody => professionTable.appendChild(tbody));
 
-    eval('$WowheadPower.init();');
-
     console.timeEnd(professionName);
   });
 
-  wrap.appendChild(fragment);
-
   toggleUserInputs(false);
   updateState('default');
+  eval('$WowheadPower.init();');
+
   console.timeEnd('fillProfessionTables');
   console.timeEnd('search');
 };

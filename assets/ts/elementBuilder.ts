@@ -33,6 +33,7 @@ export const createProductNameTD = (id: number, name: string) => {
 
 export const createProfitTD = (profit: number = 0) => {
   const td = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
+  td.classList.add('has-text-right');
   td.appendChild(formatCurrency(profit));
 
   return td;
@@ -54,6 +55,8 @@ export const initiateTHead = () => {
 
 export const createMaterialTD = (recipe: AuctionCraftSniper.innerProfessionDataJSON): [HTMLTableDataCellElement, number] => {
   const materialInfoTD = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
+  materialInfoTD.classList.add('has-text-right');
+
   let materialSum = 0;
 
   const tippyTable = <HTMLTableElement>cloneOrigin.table.cloneNode();
@@ -105,6 +108,7 @@ export const createMaterialTD = (recipe: AuctionCraftSniper.innerProfessionDataJ
 
 export const createProductBuyoutTD = (recipe: AuctionCraftSniper.innerProfessionDataJSON, TUJBaseUrl: string) => {
   const productBuyoutTD = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
+  productBuyoutTD.classList.add('has-text-right');
 
   const a = <HTMLAnchorElement>cloneOrigin.a.cloneNode();
   a.classList.add('tuj');
