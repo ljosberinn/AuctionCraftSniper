@@ -1,14 +1,15 @@
-@import '../../node_modules/bulmaswatch/superhero/variables';
+@import "../../node_modules/bulmaswatch/superhero/variables";
 
-$family-sans-serif: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
-@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,700);
+$family-sans-serif: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,700");
 $bulmaswatch-import-font: false;
 
-@import '../../node_modules/bulma/bulma.sass';
-@import '../../node_modules/bulmaswatch/superhero/overrides';
+@import "../../node_modules/bulma/bulma.sass";
+@import "../../node_modules/bulma-checkradio/src/sass/index";
+@import "../../node_modules/bulmaswatch/superhero/overrides";
 
 // workaround because node_modules wasn't resolved
-@import 'tippy/tippy';
+@import "tippy/tippy";
 
 /* custom css */
 
@@ -49,7 +50,6 @@ i:focus {
 }
 
 .professions-sprite {
-
   &.icon-disabled {
     filter: grayscale(100%);
     opacity: 0.5;
@@ -92,7 +92,8 @@ i:focus {
   }
 }
 
-main, footer {
+main,
+footer {
   margin-left: auto;
   margin-right: auto;
   max-width: 80rem;
@@ -103,15 +104,15 @@ body {
 }
 
 .copper:after {
-  background-image: url('https://wow.zamimg.com/images/icons/money-copper.gif');
+  background-image: url("https://wow.zamimg.com/images/icons/money-copper.gif");
 }
 
 .gold:after {
-  background-image: url('https://wow.zamimg.com/images/icons/money-gold.gif');
+  background-image: url("https://wow.zamimg.com/images/icons/money-gold.gif");
 }
 
 .silver:after {
-  background-image: url('https://wow.zamimg.com/images/icons/money-silver.gif');
+  background-image: url("https://wow.zamimg.com/images/icons/money-silver.gif");
 }
 
 .currency:after {
@@ -119,11 +120,11 @@ body {
   height: 13px;
   width: 13px;
   background-repeat: no-repeat;
-  content: '';
+  content: "";
   position: relative;
-  margin-left: .1rem;
-  margin-right: .2rem;
-  top: .1rem;
+  margin-left: 0.1rem;
+  margin-right: 0.2rem;
+  top: 0.1rem;
 }
 
 .tuj {
@@ -131,19 +132,19 @@ body {
   height: 15px;
   background: white url(https://theunderminejournal.com/images/favicons/favicon-16x16.png) no-repeat;
   display: inline-block;
-  padding: .1rem;
+  padding: 0.1rem;
 }
 
 .tippy-content table tbody td {
-  padding: .4rem;
+  padding: 0.4rem;
 }
 
 .negative:before {
-  content: '-';
+  content: "-";
 }
 
 a + .currency {
-  margin-left: .1em;
+  margin-left: 0.1em;
 }
 
 .tippy-tooltip {
@@ -164,7 +165,8 @@ a + .currency {
   transition: 300ms all ease-in-out;
 }
 
-.recipe-is-invisible, .recipe-is-visible {
+.recipe-is-invisible,
+.recipe-is-visible {
   height: 33px;
   width: 33px;
   background-repeat: no-repeat;
@@ -184,27 +186,30 @@ table {
 
 /* Github Corner */
 .github-corner:hover .octo-arm {
-  animation: octocat-wave 560ms ease-in-out
+  animation: octocat-wave 560ms ease-in-out;
 }
 
 @keyframes octocat-wave {
-  0%, 100% {
-    transform: rotate(0)
+  0%,
+  100% {
+    transform: rotate(0);
   }
-  20%, 60% {
-    transform: rotate(-25deg)
+  20%,
+  60% {
+    transform: rotate(-25deg);
   }
-  40%, 80% {
-    transform: rotate(10deg)
+  40%,
+  80% {
+    transform: rotate(10deg);
   }
 }
 
 @media (max-width: 500px) {
   .github-corner:hover .octo-arm {
-    animation: none
+    animation: none;
   }
 
   .github-corner .octo-arm {
-    animation: octocat-wave 560ms ease-in-out
+    animation: octocat-wave 560ms ease-in-out;
   }
 }

@@ -59,6 +59,15 @@ class AuctionCraftSniper
     private $calculationExemptionItemIDs = [];
 
     /**
+     * @var array [contains strings of avaiable settings]
+     */
+    private $activeSettings = [
+        'alwaysShowLossyRecipes'   => 'always show lossy recipes',
+        'fetchOnLoad'              => 'automatically fetch data on page load (last selected realm will be used)',
+        'pushNotificationsAllowed' => 'sends push notifications when new auction house data is available',
+    ];
+
+    /**
      * @method __construct
      */
     public function __construct() {
@@ -75,6 +84,11 @@ class AuctionCraftSniper
 
     /* ---------------------------------------------------------------------------------------------------- */
     // GETTER //
+
+    public function getAvailableSettings()
+    : array {
+        return $this->activeSettings;
+    }
 
     /**
      * @method getInnerAuctionData [clones remote auction house json locally]

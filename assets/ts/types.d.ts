@@ -14,6 +14,8 @@ export declare namespace AuctionCraftSniper {
     td?: HTMLTableCellElement;
     span?: HTMLSpanElement;
     a?: HTMLAnchorElement;
+    div?: HTMLDivElement;
+    button?: HTMLButtonElement;
     currencies?: cloneOriginCurrencynObj;
   }
 
@@ -38,6 +40,7 @@ export declare namespace AuctionCraftSniper {
     blacklistedRecipes?: number[];
     alwaysShowLossyRecipes?: boolean;
     fetchOnLoad?: boolean;
+    pushNotificationsAllowed?: boolean;
   }
 
   interface localStorageObj {

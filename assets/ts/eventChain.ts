@@ -11,7 +11,7 @@ import {
   initiateTHead, createBlackListTD, createProfitTD, createMissingProfitsHintTR, createProductNameTD, createMaterialTD, createProductBuyoutTD, getCurrencyElements,
 } from './elementBuilder';
 
-const checkboxEventListener = function (e: Event) {
+const professionsEventListener = function (e: Event) {
   e.stopPropagation();
 
   const { value, checked } = <HTMLInputElement> this;
@@ -29,6 +29,17 @@ const checkboxEventListener = function (e: Event) {
 };
 
 const expansionLevelListener = (expansionLevel: number) => setACSLocalStorage({ expansionLevel });
+
+const settingListener = () => {
+  document.querySelectorAll('#settings-modal input[type="checkbox"]').forEach(checkbox => {
+    checkbox.addEventListener('change', function () {
+      const payload = {};
+      payload[this.id] = this.checked;
+
+      setACSLocalStorage({ settings: payload });
+    });
+  });
+};
 
 export const searchListener = () => {
   const value = (<HTMLInputElement>document.getElementById('realm')).value.split('-');
@@ -90,6 +101,9 @@ const checkHouseAge = async () => {
     switch (json.callback) {
       case 'houseRequiresUpdate':
         getAuctionHouseData();
+        if (ACS.settings.pushNotificationsAllowed) {
+          // eventual Push notification implementation
+        }
         break;
       case 'getProfessionTables':
         getProfessionTables();
@@ -254,12 +268,12 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
     });
 
     // add hint in case entire profession is making loss
-    if (!positiveTbody.hasChildNodes) {
+    if (!positiveTbody.hasChildNodes()) {
       positiveTbody.appendChild(createMissingProfitsHintTR());
     }
 
     // add hint in case at least some professions are lossy
-    if (negativeTbody.hasChildNodes) {
+    if (negativeTbody.hasChildNodes()) {
       positiveTbody.appendChild(createLossyRecipeHintTR());
     }
 
@@ -313,11 +327,13 @@ const createLossyRecipeHintTR = () => {
 };
 
 export const addEventListeners = () => {
-  document.querySelectorAll('input[type="checkbox"]').forEach((checkbox: HTMLInputElement) => checkbox.addEventListener('click', checkboxEventListener));
+  document.querySelectorAll('#professions input[type="checkbox"]').forEach((checkbox: HTMLInputElement) => checkbox.addEventListener('click', professionsEventListener));
   (<HTMLInputElement>document.getElementById('search')).addEventListener('click', searchListener);
 
   const expansionLevelSelect = <HTMLSelectElement>document.getElementById('expansion-level');
   expansionLevelSelect.addEventListener('change', () => expansionLevelListener(parseInt(expansionLevelSelect.value)));
+
+  settingListener();
 };
 
 export const formatCurrency = (value: number) => {

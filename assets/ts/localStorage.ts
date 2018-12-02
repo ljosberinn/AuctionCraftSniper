@@ -2,20 +2,31 @@ import { AuctionCraftSniper } from './types';
 import { searchListener } from './eventChain';
 
 export const ACS: AuctionCraftSniper.localStorageObj = {
-  houseID: undefined,
+  houseID: 0,
   professions: [],
   expansionLevel: 8,
   settings: {
     blacklistedRecipes: [],
     alwaysShowLossyRecipes: false,
     fetchOnLoad: false,
+    pushNotificationsAllowed: false,
   },
 };
 
 export const setACSLocalStorage = (data: AuctionCraftSniper.localStorageObj) => {
   Object.entries(data).forEach(entry => {
     const [key, value] = entry;
-    ACS[key] = value;
+
+    // prevent overwriting of settings via obj destructuring through setACSLocalStorage({ settings: payload })
+    if (key === 'settings') {
+      Object.entries(value).forEach(settingsEntry => {
+        const [setting, settingsValue] = settingsEntry;
+
+        ACS.settings[setting] = settingsValue;
+      });
+    } else {
+      ACS[key] = value;
+    }
   });
 
   localStorage.ACS = JSON.stringify(ACS);
@@ -40,8 +51,20 @@ export const getACSLocalStorage = () => {
 
     (<HTMLSelectElement>document.getElementById('expansion-level')).selectedIndex = ACS.expansionLevel;
 
+    setSettingCheckboxes();
+
     if (ACS.settings.fetchOnLoad) {
       searchListener();
     }
   }
+};
+
+const setSettingCheckboxes = () => {
+  Object.entries(ACS.settings).forEach(entry => {
+    const [settingName, value] = entry;
+
+    if (typeof value !== 'object') {
+      (<HTMLInputElement>document.getElementById(settingName)).checked = value;
+    }
+  });
 };

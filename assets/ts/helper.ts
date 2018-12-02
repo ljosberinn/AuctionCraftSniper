@@ -5,7 +5,7 @@ export const initiateCloneObj = (): AuctionCraftSniper.cloneOriginObj => {
     currencies: {},
   };
 
-  ['table', 'thead', 'tbody', 'tr', 'th', 'td', 'a'].forEach(tag => (obj[tag] = document.createElement(tag)));
+  ['table', 'thead', 'tbody', 'tr', 'th', 'td', 'a', 'div', 'button'].forEach(tag => (obj[tag] = document.createElement(tag)));
 
   ['gold', 'silver', 'copper'].forEach(currency => {
     const span = document.createElement('span');
@@ -19,28 +19,46 @@ export const initiateCloneObj = (): AuctionCraftSniper.cloneOriginObj => {
 
 export const cloneOrigin = initiateCloneObj();
 
-export const updateState = (state: string) => {
-  let stateDescription: string;
+const createStateNotification = (notificationType: string, notificationContent: string) => {
+  const notification = <HTMLDivElement>cloneOrigin.div.cloneNode();
+  notification.classList.add('notification', notificationType);
 
+  const button = <HTMLButtonElement>cloneOrigin.button.cloneNode();
+  button.type = 'button';
+  button.classList.add('delete');
+
+  button.addEventListener('click', function () {
+    this.parentElement.remove();
+  });
+
+  notification.innerText = notificationContent;
+  notification.prepend(button);
+
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.remove();
+  }, 3000);
+};
+
+export const updateState = (state: string) => {
   switch (state) {
     case 'parseAuctionData':
-      stateDescription = 'parsing data';
+      createStateNotification('is-primary', 'parsing data');
       break;
     case 'getProfessionTables':
-      stateDescription = 'fetching results';
+      createStateNotification('is-primary', 'fetching results');
       break;
     case 'getAuctionHouseData':
-      stateDescription = 'retrieving data from Blizzard';
+      createStateNotification('is-primary', 'retrieving data from Blizzard');
       break;
     case 'checkHouseAge':
-      stateDescription = 'validating data age';
+      createStateNotification('is-primary', 'validating data age');
       break;
     default:
-      stateDescription = 'idling';
+      createStateNotification('is-primary', 'idling');
       break;
   }
-
-  document.getElementById('progress-state').innerText = stateDescription;
 };
 
 export const sortByProfit = (innerProfessionData: AuctionCraftSniper.innerProfessionDataJSON[]) => innerProfessionData.sort((objA, objB) => objB.profit - objA.profit);

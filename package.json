@@ -40,6 +40,7 @@
   },
   "dependencies": {
     "@sentry/browser": "^4.3.4",
+    "bulma-checkradio": "^2.1.0",
     "date-fns": "^1.29.0",
     "tippy.js": "^3.2.0",
     "typescript": "^3.1.1"
