@@ -13,6 +13,10 @@ export const ACS: AuctionCraftSniper.localStorageObj = {
   },
 };
 
+/**
+ *
+ * @param {AuctionCraftSniper.localStorageObj} data
+ */
 export const setACSLocalStorage = (data: AuctionCraftSniper.localStorageObj) => {
   Object.entries(data).forEach(entry => {
     const [key, value] = entry;

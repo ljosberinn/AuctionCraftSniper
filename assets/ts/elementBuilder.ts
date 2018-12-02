@@ -1,5 +1,5 @@
 import tippy from 'tippy.js';
-import { cloneOrigin, getWoWheadURL } from './helper';
+import { cloneOrigin, getWoWheadURL, calculateRecipeProfit } from './helper';
 import { toggleBlacklistEntry, formatCurrency } from './eventChain';
 import { AuctionCraftSniper } from './types';
 
@@ -24,6 +24,11 @@ export const createMissingProfitsHintTR = function () {
   return hintTR;
 };
 
+/**
+ *
+ * @param {number} id
+ * @param {string} name
+ */
 export const createProductNameTD = (id: number, name: string) => {
   const td = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
   td.innerHTML = `<a href="${getWoWheadURL(id)}">${name}</a>`;
@@ -31,6 +36,10 @@ export const createProductNameTD = (id: number, name: string) => {
   return td;
 };
 
+/**
+ *
+ * @param {number} profit
+ */
 export const createProfitTD = (profit: number = 0) => {
   const td = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
   td.classList.add('has-text-right');
@@ -43,7 +52,7 @@ export const initiateTHead = () => {
   const thead = cloneOrigin.thead.cloneNode();
   const theadRow = cloneOrigin.tr.cloneNode();
 
-  ['itemName', 'materialInfo', 'productBuyout', 'profit', ''].forEach(thText => {
+  ['itemName', 'materialInfo', 'productBuyout', 'profit', 'margin', ''].forEach(thText => {
     const th = <HTMLTableHeaderCellElement>cloneOrigin.th.cloneNode();
     th.innerText = thText;
     theadRow.appendChild(th);
@@ -53,6 +62,11 @@ export const initiateTHead = () => {
   return thead;
 };
 
+/**
+ *
+ * @param {AuctionCraftSniper.innerProfessionDataJSON} recipe
+ * @returns {mixed}
+ */
 export const createMaterialTD = (recipe: AuctionCraftSniper.innerProfessionDataJSON): [HTMLTableDataCellElement, number] => {
   const materialInfoTD = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
   materialInfoTD.classList.add('has-text-right');
@@ -106,6 +120,11 @@ export const createMaterialTD = (recipe: AuctionCraftSniper.innerProfessionDataJ
   return [materialInfoTD, materialSum];
 };
 
+/**
+ *
+ * @param {AuctionCraftSniper.innerProfessionDataJSON} recipe
+ * @param {string} TUJBaseUrl
+ */
 export const createProductBuyoutTD = (recipe: AuctionCraftSniper.innerProfessionDataJSON, TUJBaseUrl: string) => {
   const productBuyoutTD = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
   productBuyoutTD.classList.add('has-text-right');
@@ -122,6 +141,10 @@ export const createProductBuyoutTD = (recipe: AuctionCraftSniper.innerProfession
   return productBuyoutTD;
 };
 
+/**
+ *
+ * @param {AuctionCraftSniper.valueObj} valueObj
+ */
 export const getCurrencyElements = (valueObj: AuctionCraftSniper.valueObj) => {
   const fragment = document.createDocumentFragment();
 
@@ -164,3 +187,16 @@ const initiateMaterialInfoTippyThead = () => {
 };
 
 const materialInfoTippyHead = initiateMaterialInfoTippyThead();
+
+/**
+ *
+ * @param {number} buyout
+ * @param {number} cost
+ */
+export const createWinMarginTD = (buyout: number, cost: number) => {
+  const td = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
+  td.classList.add('has-text-right');
+  td.innerText = `${calculateRecipeProfit(buyout, cost)}%`;
+
+  return td;
+};

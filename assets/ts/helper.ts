@@ -1,4 +1,5 @@
 import { AuctionCraftSniper } from './types';
+import { ACS } from '../js/localStorage';
 
 export const initiateCloneObj = (): AuctionCraftSniper.cloneOriginObj => {
   const obj: AuctionCraftSniper.cloneOriginObj = {
@@ -19,6 +20,11 @@ export const initiateCloneObj = (): AuctionCraftSniper.cloneOriginObj => {
 
 export const cloneOrigin = initiateCloneObj();
 
+/**
+ *
+ * @param {string} notificationType
+ * @param {string} notificationContent
+ */
 const createStateNotification = (notificationType: string, notificationContent: string) => {
   const notification = <HTMLDivElement>cloneOrigin.div.cloneNode();
   notification.classList.add('notification', notificationType);
@@ -36,11 +42,19 @@ const createStateNotification = (notificationType: string, notificationContent: 
 
   document.body.appendChild(notification);
 
+  if (ACS.settings.pushNotificationsAllowed) {
+    new Notification(notificationContent);
+  }
+
   setTimeout(() => {
     notification.remove();
   }, 3000);
 };
 
+/**
+ *
+ * @param state
+ */
 export const updateState = (state: string) => {
   switch (state) {
     case 'parseAuctionData':
@@ -61,12 +75,45 @@ export const updateState = (state: string) => {
   }
 };
 
+/**
+ *
+ * @param {AuctionCraftSniper.innerProfessionDataJSON[]} innerProfessionData
+ */
 export const sortByProfit = (innerProfessionData: AuctionCraftSniper.innerProfessionDataJSON[]) => innerProfessionData.sort((objA, objB) => objB.profit - objA.profit);
 
-export const getTUJBaseURL = () => {
+export const getTUJBaseURL = (): string => {
   const [region, realm] = (<HTMLInputElement>document.getElementById('realm')).value.split('-');
 
   return `https://theunderminejournal.com/#${region}/${realm}/item/`;
 };
 
-export const getWoWheadURL = (itemID: number) => `https://wowhead.com/?item=${itemID}`;
+/**
+ *
+ * @param {number} itemID
+ */
+export const getWoWheadURL = (itemID: number): string => `https://wowhead.com/?item=${itemID}`;
+
+/**
+ *
+ * @param {number} buyout
+ * @param {number} cost
+ */
+export const calculateRecipeProfit = (buyout: number, cost: number) => ((buyout / cost - 1) * 100).toFixed(2);
+
+export const toggleSearchLoadingState = () => {
+  document.getElementById('search').classList.toggle('is-loading');
+  console.log('triggered loading anim', document.getElementById('search').classList);
+};
+
+export const showInvalidRegionRealmPairHint = () => {
+  const target = document.getElementById('hint-invalid-region-realm');
+  const display = target.style.display;
+
+  if (display !== 'block') {
+    target.style.display = 'block';
+
+    setTimeout(() => {
+      target.style.display = 'none';
+    }, 3500);
+  }
+};

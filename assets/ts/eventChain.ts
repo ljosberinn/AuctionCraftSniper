@@ -3,14 +3,26 @@ import tippy from 'tippy.js';
 
 import { setACSLocalStorage, ACS } from './localStorage';
 import {
-  updateState, sortByProfit, getTUJBaseURL, cloneOrigin,
+  updateState, sortByProfit, getTUJBaseURL, cloneOrigin, toggleSearchLoadingState, showInvalidRegionRealmPairHint,
 } from './helper';
 import { AuctionCraftSniper } from './types';
 
 import {
-  initiateTHead, createBlackListTD, createProfitTD, createMissingProfitsHintTR, createProductNameTD, createMaterialTD, createProductBuyoutTD, getCurrencyElements,
+  initiateTHead,
+  createBlackListTD,
+  createProfitTD,
+  createMissingProfitsHintTR,
+  createProductNameTD,
+  createMaterialTD,
+  createProductBuyoutTD,
+  getCurrencyElements,
+  createWinMarginTD,
 } from './elementBuilder';
 
+/**
+ *
+ * @param {Event} e
+ */
 const professionsEventListener = function (e: Event) {
   e.stopPropagation();
 
@@ -28,16 +40,37 @@ const professionsEventListener = function (e: Event) {
   setACSLocalStorage({ professions: ACS.professions });
 };
 
+/**
+ *
+ * @param {number} expansionLevel
+ */
 const expansionLevelListener = (expansionLevel: number) => setACSLocalStorage({ expansionLevel });
+
+const requestNotificationPermission = () => {
+  // if user is requested for the first time || user revoked rights at some point
+  if (!ACS.settings.pushNotificationsAllowed && 'Notification' in window) {
+    Notification.requestPermission().then(result => {
+      setACSLocalStorage({ settings: { pushNotificationsAllowed: result === 'granted' } });
+    });
+  } else {
+    setACSLocalStorage({ settings: { pushNotificationsAllowed: false } });
+  }
+};
+
+const settingEvent = function () {
+  const payload = {};
+  payload[this.id] = this.checked;
+
+  setACSLocalStorage({ settings: payload });
+};
 
 const settingListener = () => {
   document.querySelectorAll('#settings-modal input[type="checkbox"]').forEach(checkbox => {
-    checkbox.addEventListener('change', function () {
-      const payload = {};
-      payload[this.id] = this.checked;
-
-      setACSLocalStorage({ settings: payload });
-    });
+    if (checkbox.id === 'pushNotificationsAllowed') {
+      checkbox.addEventListener('change', requestNotificationPermission);
+    } else {
+      checkbox.addEventListener('change', settingEvent);
+    }
   });
 };
 
@@ -47,15 +80,26 @@ export const searchListener = () => {
   if (value.length === 2) {
     console.time('search');
     toggleUserInputs(true);
+    toggleSearchLoadingState();
     validateRegionRealm(value);
+  } else {
+    showInvalidRegionRealmPairHint();
   }
 };
 
+/**
+ *
+ * @param {bool} state
+ */
 const toggleUserInputs = (state: boolean) => {
   document.querySelectorAll('input').forEach(input => (input.type === 'checkbox' ? (input.disabled = state) : (input.readOnly = state)));
   [<HTMLInputElement>document.getElementById('search'), <HTMLSelectElement>document.getElementById('expansion-level')].forEach(el => (el.disabled = state));
 };
 
+/**
+ *
+ * @param {string} value
+ */
 const validateRegionRealm = async (value: string[]) => {
   const region: string = value[0];
   const realm: string = value[1];
@@ -121,6 +165,11 @@ const showHouseUnavailabilityError = () => {
   console.warn('house unavailable');
 };
 
+/**
+ *
+ * @param {number} step
+ * @param {object} itemIDs
+ */
 const parseAuctionData = async (step = 0, itemIDs = {}) => {
   const payload: AuctionCraftSniper.parseAuctionDataPayload = {
     houseID: ACS.houseID,
@@ -214,10 +263,62 @@ export const toggleBlacklistEntry = function () {
   this.parentElement.classList.toggle('blacklisted');
 };
 
+/**
+ *
+ * @param {number} recipe
+ * @param {string} TUJLink
+ */
+const fillRecipeTR = (recipe: AuctionCraftSniper.innerProfessionDataJSON, TUJLink: string) => {
+  const tr = <HTMLTableRowElement>cloneOrigin.tr.cloneNode();
+
+  const isBlacklisted = ACS.settings.blacklistedRecipes.includes(recipe.product.item);
+
+  if (isBlacklisted) {
+    tr.classList.add('blacklisted');
+  }
+
+  const productNameTD = createProductNameTD(recipe.product.item, recipe.product.name);
+  const [materialTD, materialSum] = createMaterialTD(recipe);
+  const productBuyoutTD = createProductBuyoutTD(recipe, TUJLink);
+  const profitTD = createProfitTD(recipe.profit);
+  const winMarginTD = createWinMarginTD(recipe.product.buyout, materialSum);
+  const blackListTD = createBlackListTD(recipe.product.item, isBlacklisted);
+
+  [productNameTD, materialTD, productBuyoutTD, profitTD, winMarginTD, blackListTD].forEach(td => tr.appendChild(td));
+
+  return tr;
+};
+
+const hideProfessionTabs = () => {
+  document.querySelectorAll('[data-profession-tab]').forEach((li: HTMLUListElement) => {
+    li.classList.remove('is-active');
+    li.style.display = 'none';
+  });
+};
+
+const hideProfessionTables = () => {
+  document.querySelectorAll('#auction-craft-sniper table').forEach((table: HTMLTableElement) => (table.style.display = 'none'));
+};
+
+/**
+ *
+ * @param {string} professionName
+ */
+const getProfessionTabListElement = (professionName: string) => document.querySelector(`[data-profession-tab="${professionName}"]`);
+
+/**
+ *
+ * @param {AuctionCraftSniper.outerProfessionDataJSON} json
+ */
 const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON = {}) => {
   console.time('fillProfessionTables');
 
   const TUJLink = getTUJBaseURL();
+
+  let subNavHasActiveIndicator = false;
+
+  hideProfessionTabs();
+  hideProfessionTables();
 
   Object.entries(json).forEach(entry => {
     let professionName: string;
@@ -226,36 +327,23 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
 
     console.time(professionName);
 
-    const professionTable = <HTMLTableElement>document.getElementById(professionName.toLowerCase());
+    const professionTable = <HTMLTableElement>document.getElementById(professionName);
+
+    const professionTabListElement = <HTMLUListElement>getProfessionTabListElement(professionName);
+    professionTabListElement.style.display = 'block';
+
+    if (!subNavHasActiveIndicator) {
+      professionTabListElement.classList.add('is-active');
+
+      professionTable.style.display = 'table';
+      subNavHasActiveIndicator = true;
+    }
 
     const [positiveTbody, negativeTbody] = [cloneOrigin.tbody.cloneNode(), <HTMLTableSectionElement>cloneOrigin.tbody.cloneNode()];
     negativeTbody.classList.add('lossy-recipes');
 
     sortByProfit(recipes).forEach(recipe => {
-      const tr = <HTMLTableRowElement>cloneOrigin.tr.cloneNode();
-
-      const isBlacklisted = ACS.settings.blacklistedRecipes.includes(recipe.product.item);
-
-      if (isBlacklisted) {
-        tr.classList.add('blacklisted');
-      }
-
-      const productNameTD = createProductNameTD(recipe.product.item, recipe.product.name);
-
-      const [materialTD, materialSum] = createMaterialTD(recipe);
-
-      const productBuyoutTD = <HTMLTableCellElement>createProductBuyoutTD(recipe, TUJLink);
-
-      const profitTD = <HTMLTableCellElement>createProfitTD(recipe.profit);
-
-      const blackListTD = createBlackListTD(recipe.product.item, isBlacklisted);
-
-      /*
-      const percentageProfit = Math.round(recipe.product.buyout / materialSum) * 100 - 100;
-      tippy(profitTD, { content: `${percentageProfit > 0 ? '' : '-'}${percentageProfit.toPrecision(2)}'%` });
-      */
-
-      [productNameTD, materialTD, productBuyoutTD, profitTD, blackListTD].forEach(td => tr.appendChild(td));
+      const tr = <HTMLTableRowElement>fillRecipeTR(recipe, TUJLink);
 
       if (recipe.profit > 0 || ACS.settings.alwaysShowLossyRecipes) {
         positiveTbody.appendChild(tr);
@@ -287,6 +375,7 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
 
   toggleUserInputs(false);
   updateState('default');
+  toggleSearchLoadingState();
   eval('$WowheadPower.init();');
 
   console.timeEnd('fillProfessionTables');
@@ -321,6 +410,14 @@ const createLossyRecipeHintTR = () => {
   return hintTR;
 };
 
+const subNavEventListener = function () {
+  if (!this.classList.contains('is-active')) {
+    this.parentElement.querySelectorAll('li[data-profession-tab]').forEach((li: HTMLUListElement) => li.classList[li === this ? 'add' : 'remove']('is-active'));
+
+    document.querySelectorAll('#auction-craft-sniper table').forEach((table: HTMLTableElement) => (table.style.display = table.id !== this.dataset.professionTab ? 'none' : 'table'));
+  }
+};
+
 export const addEventListeners = () => {
   document.querySelectorAll('#professions input[type="checkbox"]').forEach((checkbox: HTMLInputElement) => checkbox.addEventListener('click', professionsEventListener));
   (<HTMLInputElement>document.getElementById('search')).addEventListener('click', searchListener);
@@ -328,9 +425,15 @@ export const addEventListeners = () => {
   const expansionLevelSelect = <HTMLSelectElement>document.getElementById('expansion-level');
   expansionLevelSelect.addEventListener('change', () => expansionLevelListener(parseInt(expansionLevelSelect.value)));
 
+  document.querySelectorAll('li[data-profession-tab]').forEach(listElement => listElement.addEventListener('click', subNavEventListener));
+
   settingListener();
 };
 
+/**
+ *
+ * @param {number} value
+ */
 export const formatCurrency = (value: number) => {
   let isNegative = false;
 
@@ -365,6 +468,10 @@ export const formatCurrency = (value: number) => {
   return getCurrencyElements(valueObj);
 };
 
+/**
+ *
+ * @param {number} lastUpdate
+ */
 const insertLastUpdate = (lastUpdate: number) => {
   const date = new Date(lastUpdate);
 

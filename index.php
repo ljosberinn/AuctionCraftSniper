@@ -29,6 +29,11 @@ $professions        = $AuctionCraftSniper->getProfessions();
     ?>
 	<section>
 
+		<div class="column is-2">
+			<button class="is-primary button" id="search">Go</button>
+			<label class="label">Last update:<br/><span id="last-update"></span></label>
+		</div>
+
         <?php
 
         require_once 'app/inc.subNav.php';

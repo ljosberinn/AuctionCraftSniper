@@ -379,7 +379,7 @@ class AuctionCraftSniper
                 }
                 unset($recipeMaterial);
 
-                $professionTableData[$this->professions[$recipe['profession']]][] = $recipeData;
+                $professionTableData[lcfirst($this->professions[$recipe['profession']])][] = $recipeData;
             }
         }
 

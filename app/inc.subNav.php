@@ -3,12 +3,12 @@
 	<progress id="progress-bar" class="progress is-primary is-small" max="100"></progress>
 </div>
 
-<div class="tabs is-small">
+<div class="tabs is-boxed is-small">
 	<ul>
         <?php foreach ($professions as $id => $name) { ?>
-			<li>
+			<li data-profession-tab="<?= lcfirst($name) ?>">
 				<a>
-					<i class="professions-sprite <?= lcfirst($name) ?> icon-disabled" data-tippy="<?= $name ?>"></i>
+					<i class="professions-sprite <?= lcfirst($name) ?> icon-disabled"></i>
 					<span><?= $name ?></span>
 				</a>
 			</li>
