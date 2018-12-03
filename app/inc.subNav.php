@@ -13,5 +13,10 @@
 				</a>
 			</li>
         <?php } ?>
+		<li data-tippy="export all whitelisted recipes to TSM" id="general-tsm-export">
+			<a>
+				<i class="tsm"></i>
+			</a>
+		</li>
 	</ul>
 </div>

@@ -3,7 +3,7 @@ import tippy from 'tippy.js';
 
 import { setACSLocalStorage, ACS } from './localStorage';
 import {
-  updateState, sortByProfit, getTUJBaseURL, cloneOrigin, toggleSearchLoadingState, showInvalidRegionRealmPairHint,
+  updateState, sortByProfit, getTUJBaseURL, cloneOrigin, toggleSearchLoadingState, showInvalidRegionRealmPairHint, copyOnClick,
 } from './helper';
 import { AuctionCraftSniper } from './types';
 
@@ -16,8 +16,36 @@ import {
   createMaterialTD,
   createProductBuyoutTD,
   getCurrencyElements,
+  createLossyRecipeHintTR,
   createWinMarginTD,
 } from './elementBuilder';
+
+/**
+ *
+ * @param {any} queryElement
+ * @param {string} selector
+ * @returns {string}
+ */
+const buildTSMString = (queryElement: any, selector: string): string => {
+  let exportString = '';
+
+  queryElement.querySelectorAll(selector).forEach((td: HTMLTableCellElement) => (exportString += `i:${parseInt(td.dataset.recipe)},`));
+
+  return exportString.slice(0, -1);
+};
+
+const generalTSMExportListener = () => copyOnClick(buildTSMString(document, '#auction-craft-sniper td.recipe-is-visible[data-recipe]'));
+
+/**
+ *
+ * @param {string} target
+ */
+export const TSMListener = (el: HTMLTableCellElement, target: string) => {
+  const previousTable = el.closest('table');
+  const tbodySpecifics = target === '.lossy-recipes' ? target : ':first-of-type';
+
+  copyOnClick(buildTSMString(previousTable, `tbody${tbodySpecifics} td.recipe-is-visible[data-recipe]`));
+};
 
 /**
  *
@@ -306,6 +334,14 @@ const hideProfessionTables = () => {
  */
 const getProfessionTabListElement = (professionName: string) => document.querySelector(`[data-profession-tab="${professionName}"]`);
 
+const emptyProfessionTables = () => {
+  document.querySelectorAll('#auction-craft-sniper table').forEach((table: HTMLTableElement) => {
+    while (table.firstChild) {
+      table.removeChild(table.lastChild);
+    }
+  });
+};
+
 /**
  *
  * @param {AuctionCraftSniper.outerProfessionDataJSON} json
@@ -319,6 +355,7 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
 
   hideProfessionTabs();
   hideProfessionTables();
+  emptyProfessionTables();
 
   Object.entries(json).forEach(entry => {
     let professionName: string;
@@ -364,10 +401,6 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
 
     const tableSectionElements = [<HTMLTableSectionElement>initiateTHead(), positiveTbody, negativeTbody];
 
-    while (professionTable.firstChild) {
-      professionTable.removeChild(professionTable.lastChild);
-    }
-
     tableSectionElements.forEach(tbody => professionTable.appendChild(tbody));
 
     console.timeEnd(professionName);
@@ -382,32 +415,21 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
   console.timeEnd('search');
 };
 
-const toggleLossyRecipes = function () {
-  const target = <HTMLTableSectionElement> this.parentElement.nextElementSibling;
-  const innerTD = this.querySelector('td');
-
+export const toggleLossyRecipes = function () {
+  const target = <HTMLTableSectionElement> this.closest('tbody').nextElementSibling;
   const isVisible = target.style.display === 'table-row-group';
+
+  let newText: string;
 
   if (isVisible) {
     target.style.display = 'none';
-    innerTD.innerText = 'show lossy recipes';
+    newText = 'show lossy recipes';
   } else {
     target.style.display = 'table-row-group';
-    innerTD.innerText = 'hide lossy recipes';
+    newText = 'hide lossy recipes';
   }
-};
 
-const createLossyRecipeHintTR = () => {
-  const hintTR = cloneOrigin.tr.cloneNode();
-  hintTR.addEventListener('click', toggleLossyRecipes);
-
-  const hintTD = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
-  hintTD.classList.add('lossy-recipes-hint');
-  hintTD.colSpan = 5;
-  hintTD.innerText = 'show lossy recipes';
-
-  hintTR.appendChild(hintTD);
-  return hintTR;
+  this.innerText = newText;
 };
 
 const subNavEventListener = function () {
@@ -426,6 +448,8 @@ export const addEventListeners = () => {
   expansionLevelSelect.addEventListener('change', () => expansionLevelListener(parseInt(expansionLevelSelect.value)));
 
   document.querySelectorAll('li[data-profession-tab]').forEach(listElement => listElement.addEventListener('click', subNavEventListener));
+
+  document.getElementById('general-tsm-export').addEventListener('click', generalTSMExportListener);
 
   settingListener();
 };

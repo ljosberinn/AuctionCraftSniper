@@ -71,15 +71,15 @@ export declare namespace AuctionCraftSniper {
   }
 
   interface outerProfessionDataJSON {
-    Alchemy?: innerProfessionDataJSON[];
-    Blacksmithing?: innerProfessionDataJSON[];
-    Cooking?: innerProfessionDataJSON[];
-    Enchanting?: innerProfessionDataJSON[];
-    Engineering?: innerProfessionDataJSON[];
-    Inscription?: innerProfessionDataJSON[];
-    Jewelcrafting?: innerProfessionDataJSON[];
-    Leatherworking?: innerProfessionDataJSON[];
-    Tailoring?: innerProfessionDataJSON[];
+    alchemy?: innerProfessionDataJSON[];
+    blacksmithing?: innerProfessionDataJSON[];
+    cooking?: innerProfessionDataJSON[];
+    enchanting?: innerProfessionDataJSON[];
+    engineering?: innerProfessionDataJSON[];
+    inscription?: innerProfessionDataJSON[];
+    jewelcrafting?: innerProfessionDataJSON[];
+    leatherworking?: innerProfessionDataJSON[];
+    tailoring?: innerProfessionDataJSON[];
   }
 
   interface valueObj {

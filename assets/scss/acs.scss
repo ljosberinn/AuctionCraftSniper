@@ -178,9 +178,13 @@ table {
   width: 100%;
 }
 
+div.tabs.is-boxed.is-small {
+  overflow: hidden;
+}
+
 /* Github Corner */
 .github-corner:hover .octo-arm {
-  animation: octocat-wave 560ms ease-in-out;
+  animation: octocat-wave 560ms infinite ease-in-out;
 }
 
 @keyframes octocat-wave {
@@ -208,10 +212,11 @@ table {
   }
 }
 
-li[data-profession-tab] {
+li {
   display: none;
 
-  &.is-active a i.icon-disabled {
+  &.is-active a i.icon-disabled,
+  &:hover a i.icon-disabled {
     opacity: 1;
     filter: none;
   }
@@ -219,8 +224,36 @@ li[data-profession-tab] {
   & a i + span {
     margin-left: .5rem;
   }
+
+  &:last-of-type:hover i {
+    animation: spin 1s infinite linear;
+  }
+}
+
+@-webkit-keyframes spin {
+  to {
+    -webkit-transform: rotate(360deg)
+  }
+}
+
+@keyframes spin {
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg)
+  }
 }
 
 #hint-invalid-region-realm {
   display: none;
+}
+
+.tsm {
+  cursor: pointer;
+  background: url(../img/tsm-icon.png) no-repeat;
+  height: 33px;
+  width: 33px;
+
+  &:hover {
+    animation: spin 1s infinite linear;
+  }
 }

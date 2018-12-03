@@ -1,5 +1,5 @@
 import { AuctionCraftSniper } from './types';
-import { ACS } from '../js/localStorage';
+import { ACS } from './localStorage';
 
 export const initiateCloneObj = (): AuctionCraftSniper.cloneOriginObj => {
   const obj: AuctionCraftSniper.cloneOriginObj = {
@@ -22,55 +22,24 @@ export const cloneOrigin = initiateCloneObj();
 
 /**
  *
- * @param {string} notificationType
- * @param {string} notificationContent
- */
-const createStateNotification = (notificationType: string, notificationContent: string) => {
-  const notification = <HTMLDivElement>cloneOrigin.div.cloneNode();
-  notification.classList.add('notification', notificationType);
-
-  const button = <HTMLButtonElement>cloneOrigin.button.cloneNode();
-  button.type = 'button';
-  button.classList.add('delete');
-
-  button.addEventListener('click', function () {
-    this.parentElement.remove();
-  });
-
-  notification.innerText = notificationContent;
-  notification.prepend(button);
-
-  document.body.appendChild(notification);
-
-  if (ACS.settings.pushNotificationsAllowed) {
-    new Notification(notificationContent);
-  }
-
-  setTimeout(() => {
-    notification.remove();
-  }, 3000);
-};
-
-/**
- *
  * @param state
  */
 export const updateState = (state: string) => {
   switch (state) {
     case 'parseAuctionData':
-      createStateNotification('is-primary', 'parsing data');
+      createNotification('is-primary', 'parsing data');
       break;
     case 'getProfessionTables':
-      createStateNotification('is-primary', 'fetching results');
+      createNotification('is-primary', 'fetching results');
       break;
     case 'getAuctionHouseData':
-      createStateNotification('is-primary', 'retrieving data from Blizzard');
+      createNotification('is-primary', 'retrieving data from Blizzard');
       break;
     case 'checkHouseAge':
-      createStateNotification('is-primary', 'validating data age');
+      createNotification('is-primary', 'validating data age');
       break;
     default:
-      createStateNotification('is-primary', 'idling');
+      createNotification('is-primary', 'idling');
       break;
   }
 };
@@ -102,7 +71,6 @@ export const calculateRecipeProfit = (buyout: number, cost: number) => ((buyout 
 
 export const toggleSearchLoadingState = () => {
   document.getElementById('search').classList.toggle('is-loading');
-  console.log('triggered loading anim', document.getElementById('search').classList);
 };
 
 export const showInvalidRegionRealmPairHint = () => {
@@ -116,4 +84,52 @@ export const showInvalidRegionRealmPairHint = () => {
       target.style.display = 'none';
     }, 3500);
   }
+};
+
+/**
+ *
+ * @param {string} notificationType
+ * @param {string} notificationContent
+ */
+const createNotification = (notificationType: string, notificationContent: string) => {
+  const notification = <HTMLDivElement>cloneOrigin.div.cloneNode();
+  notification.classList.add('notification', notificationType);
+
+  const button = <HTMLButtonElement>cloneOrigin.button.cloneNode();
+  button.type = 'button';
+  button.classList.add('delete');
+
+  button.addEventListener('click', function () {
+    this.parentElement.remove();
+  });
+
+  notification.innerText = notificationContent;
+  notification.prepend(button);
+
+  document.body.appendChild(notification);
+
+  if (ACS.settings.pushNotificationsAllowed) {
+    new Notification(notificationContent);
+  }
+
+  setTimeout(() => {
+    notification.remove();
+  }, 3000);
+};
+
+/**
+ *
+ * @param {any} valueToCopy
+ */
+export const copyOnClick = (valueToCopy: any) => {
+  const input = document.createElement('input');
+  input.value = valueToCopy;
+
+  document.body.appendChild(input);
+  input.select();
+  document.execCommand('copy');
+
+  input.remove();
+
+  createNotification('is-primary', 'copied TSM string');
 };

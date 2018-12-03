@@ -1,6 +1,8 @@
 import tippy from 'tippy.js';
 import { cloneOrigin, getWoWheadURL, calculateRecipeProfit } from './helper';
-import { toggleBlacklistEntry, formatCurrency } from './eventChain';
+import {
+  toggleBlacklistEntry, formatCurrency, toggleLossyRecipes, TSMListener,
+} from './eventChain';
 import { AuctionCraftSniper } from './types';
 
 export const createBlackListTD = (recipe: number, isBlacklisted: boolean = false) => {
@@ -8,6 +10,8 @@ export const createBlackListTD = (recipe: number, isBlacklisted: boolean = false
   td.dataset.recipe = recipe.toString();
   td.addEventListener('click', toggleBlacklistEntry);
   td.classList.add(isBlacklisted ? 'recipe-is-invisible' : 'recipe-is-visible');
+
+  tippy(td, { content: 'black- or whitelist this recipe' });
 
   return td;
 };
@@ -52,11 +56,15 @@ export const initiateTHead = () => {
   const thead = cloneOrigin.thead.cloneNode();
   const theadRow = cloneOrigin.tr.cloneNode();
 
-  ['itemName', 'materialInfo', 'productBuyout', 'profit', 'margin', ''].forEach(thText => {
+  ['itemName', 'materialInfo', 'productBuyout', 'profit', 'margin'].forEach(thText => {
     const th = <HTMLTableHeaderCellElement>cloneOrigin.th.cloneNode();
     th.innerText = thText;
     theadRow.appendChild(th);
   });
+
+  const TSMTD = createTSMTD();
+  theadRow.appendChild(TSMTD);
+
   thead.appendChild(theadRow);
 
   return thead;
@@ -199,4 +207,31 @@ export const createWinMarginTD = (buyout: number, cost: number) => {
   td.innerText = `${calculateRecipeProfit(buyout, cost)}%`;
 
   return td;
+};
+
+export const createTSMTD = (target: string = '') => {
+  const TSMTD = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
+  TSMTD.classList.add('tsm');
+  TSMTD.addEventListener('click', function () {
+    TSMListener(this, target);
+  });
+
+  tippy(TSMTD, { content: target === '' ? 'exports profitable non-blacklisted recipes to TSM' : 'exports all non-blacklisted recipes to TSM' });
+
+  return TSMTD;
+};
+
+export const createLossyRecipeHintTR = () => {
+  const hintTR = cloneOrigin.tr.cloneNode();
+
+  const hintTD = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
+  hintTD.classList.add('lossy-recipes-hint');
+  hintTD.colSpan = 5;
+  hintTD.innerText = 'show lossy recipes';
+  hintTD.addEventListener('click', toggleLossyRecipes);
+
+  const TSMTD = createTSMTD('.lossy-recipes');
+
+  [hintTD, TSMTD].forEach(td => hintTR.appendChild(td));
+  return hintTR;
 };
