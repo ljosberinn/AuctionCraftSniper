@@ -390,6 +390,8 @@ class AuctionCraftSniper {
             }
         }
 
+        ini_set('serialize_precision', -1);
+
         return $professionTableData;
     }
 
