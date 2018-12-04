@@ -257,3 +257,8 @@ li {
     animation: spin 1s infinite linear;
   }
 }
+
+.tag:not(body).is-warning {
+  vertical-align: top;
+  margin-right: .2rem;
+}

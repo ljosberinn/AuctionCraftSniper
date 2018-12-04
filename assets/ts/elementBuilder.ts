@@ -1,5 +1,5 @@
 import tippy from 'tippy.js';
-import { cloneOrigin, getWoWheadURL, calculateRecipeProfit } from './helper';
+import { cloneOrigin, getWoWheadURL } from './helper';
 import {
   toggleBlacklistEntry, formatCurrency, toggleLossyRecipes, TSMListener,
 } from './eventChain';
@@ -33,9 +33,25 @@ export const createMissingProfitsHintTR = function () {
  * @param {number} id
  * @param {string} name
  */
-export const createProductNameTD = (id: number, name: string) => {
+export const createProductNameTD = ({ item, name, producedQuantity }: AuctionCraftSniper.productJSON) => {
   const td = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
-  td.innerHTML = `<a href="${getWoWheadURL(id)}">${name}</a>`;
+
+  if (producedQuantity > 1) {
+    const strong = <HTMLElement>cloneOrigin.strong.cloneNode();
+
+    strong.classList.add('tag', 'is-warning', 'has-text-dark');
+    strong.innerText = `${producedQuantity}x`;
+
+    tippy(strong, { content: `This recipe always produces ${producedQuantity}, thus the product buyout column is adjusted to reflect that.` });
+
+    td.appendChild(strong);
+  }
+
+  const a = <HTMLAnchorElement>cloneOrigin.a.cloneNode();
+  a.href = getWoWheadURL(item);
+  a.innerText = name;
+
+  td.appendChild(a);
 
   return td;
 };
@@ -75,11 +91,9 @@ export const initiateTHead = () => {
  * @param {AuctionCraftSniper.innerProfessionDataJSON} recipe
  * @returns {mixed}
  */
-export const createMaterialTD = (recipe: AuctionCraftSniper.innerProfessionDataJSON): [HTMLTableDataCellElement, number] => {
+export const createMaterialTD = (recipe: AuctionCraftSniper.innerProfessionDataJSON): HTMLTableDataCellElement => {
   const materialInfoTD = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
   materialInfoTD.classList.add('has-text-right');
-
-  let materialSum = 0;
 
   const tippyTable = <HTMLTableElement>cloneOrigin.table.cloneNode();
   const [thead, tbody] = [materialInfoTippyHead.cloneNode(true), cloneOrigin.tbody.cloneNode()];
@@ -115,17 +129,15 @@ export const createMaterialTD = (recipe: AuctionCraftSniper.innerProfessionDataJ
     }
 
     tbody.appendChild(tr);
-
-    materialSum += material.buyout * material.amount;
   });
 
-  materialInfoTD.appendChild(formatCurrency(materialSum));
+  materialInfoTD.appendChild(formatCurrency(recipe.materialCostSum));
 
   tippyTable.appendChild(thead);
   tippyTable.appendChild(tbody);
   tippy(materialInfoTD, { content: tippyTable });
 
-  return [materialInfoTD, materialSum];
+  return materialInfoTD;
 };
 
 /**
@@ -196,15 +208,10 @@ const initiateMaterialInfoTippyThead = () => {
 
 const materialInfoTippyHead = initiateMaterialInfoTippyThead();
 
-/**
- *
- * @param {number} buyout
- * @param {number} cost
- */
-export const createWinMarginTD = (buyout: number, cost: number) => {
+export const createWinMarginTD = (margin: number) => {
   const td = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
   td.classList.add('has-text-right');
-  td.innerText = `${calculateRecipeProfit(buyout, cost)}%`;
+  td.innerText = `${margin}%`;
 
   return td;
 };

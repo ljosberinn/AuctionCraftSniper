@@ -6,7 +6,7 @@ export const initiateCloneObj = (): AuctionCraftSniper.cloneOriginObj => {
     currencies: {},
   };
 
-  ['table', 'thead', 'tbody', 'tr', 'th', 'td', 'a', 'div', 'button'].forEach(tag => (obj[tag] = document.createElement(tag)));
+  ['table', 'thead', 'tbody', 'tr', 'th', 'td', 'a', 'div', 'button', 'strong'].forEach(tag => (obj[tag] = document.createElement(tag)));
 
   ['gold', 'silver', 'copper'].forEach(currency => {
     const span = document.createElement('span');
@@ -61,13 +61,6 @@ export const getTUJBaseURL = (): string => {
  * @param {number} itemID
  */
 export const getWoWheadURL = (itemID: number): string => `https://wowhead.com/?item=${itemID}`;
-
-/**
- *
- * @param {number} buyout
- * @param {number} cost
- */
-export const calculateRecipeProfit = (buyout: number, cost: number) => ((buyout / cost - 1) * 100).toFixed(2);
 
 export const toggleSearchLoadingState = () => {
   document.getElementById('search').classList.toggle('is-loading');

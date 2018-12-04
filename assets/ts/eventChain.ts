@@ -305,11 +305,11 @@ const fillRecipeTR = (recipe: AuctionCraftSniper.innerProfessionDataJSON, TUJLin
     tr.classList.add('blacklisted');
   }
 
-  const productNameTD = createProductNameTD(recipe.product.item, recipe.product.name);
-  const [materialTD, materialSum] = createMaterialTD(recipe);
+  const productNameTD = createProductNameTD(recipe.product);
+  const materialTD = createMaterialTD(recipe);
   const productBuyoutTD = createProductBuyoutTD(recipe, TUJLink);
   const profitTD = createProfitTD(recipe.profit);
-  const winMarginTD = createWinMarginTD(recipe.product.buyout, materialSum);
+  const winMarginTD = createWinMarginTD(recipe.margin);
   const blackListTD = createBlackListTD(recipe.product.item, isBlacklisted);
 
   [productNameTD, materialTD, productBuyoutTD, profitTD, winMarginTD, blackListTD].forEach(td => tr.appendChild(td));

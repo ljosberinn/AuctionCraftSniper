@@ -16,6 +16,7 @@ export declare namespace AuctionCraftSniper {
     a?: HTMLAnchorElement;
     div?: HTMLDivElement;
     button?: HTMLButtonElement;
+    strong?: HTMLElement;
     currencies?: cloneOriginCurrencynObj;
   }
 
@@ -53,7 +54,6 @@ export declare namespace AuctionCraftSniper {
   interface materialJSON {
     buyout: number;
     name: string;
-    rank: number;
     amount: number;
     itemID: number;
   }
@@ -62,12 +62,15 @@ export declare namespace AuctionCraftSniper {
     buyout: number;
     item: number;
     name: string;
+    producedQuantity: number;
   }
 
   interface innerProfessionDataJSON {
     materials: materialJSON[];
     product: productJSON;
     profit: number;
+    margin: number;
+    materialCostSum: number;
   }
 
   interface outerProfessionDataJSON {
