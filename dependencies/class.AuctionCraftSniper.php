@@ -319,7 +319,7 @@ class AuctionCraftSniper {
 
         if ($getCurrentlyAvailableRecipes->rowCount() > 0) {
 
-            $getConnectedRecipeRequirements = $this->connection->prepare('SELECT `requiredItemID` as `itemID`, `requiredAmount` as `amount`, `itemName` as `name`, `rank`, `baseBuyPrice`, `producedQuantity` FROM `recipeRequirements` WHERE `recipe` = :recipeID AND (`rank` = 3 OR `rank` = 0)');
+            $getConnectedRecipeRequirements = $this->connection->prepare('SELECT `requiredItemID` as `itemID`, `requiredAmount` as `amount`, `itemName` as `name`, `baseBuyPrice`, `producedQuantity` FROM `recipeRequirements` WHERE `recipe` = :recipeID AND (`rank` = 3 OR `rank` = 0)');
             $getMaterialBuyout              = $this->connection->prepare('SELECT `buyout` FROM `auctionData` WHERE `itemID` = :itemID AND `expansionLevel` = :expansionLevel AND `houseID` = :houseID');
 
             $calculationExemptionItemIDs = array_keys($this->calculationExemptionItemIDs);
@@ -327,14 +327,16 @@ class AuctionCraftSniper {
             foreach ($getCurrentlyAvailableRecipes->fetchAll() as $recipe) {
 
                 $recipeData = [
-                    'product'   => [
-                        'item'   => $recipe['itemID'],
-                        'name'   => $recipe['name'],
-                        'buyout' => $recipe['buyout'],
+                    'product'         => [
+                        'item'             => $recipe['itemID'],
+                        'name'             => $recipe['name'],
+                        'buyout'           => $recipe['buyout'],
+                        'producedQuantity' => 1,
                     ],
-                    'materials' => [],
-                    'profit'    => $recipe['buyout'],
-                    'margin'    => 0.00,
+                    'materials'       => [],
+                    'materialCostSum' => 0,
+                    'profit'          => $recipe['buyout'],
+                    'margin'          => 0.00,
                 ];
 
                 $getConnectedRecipeRequirements->execute([
@@ -350,6 +352,15 @@ class AuctionCraftSniper {
                 $recipeCost = 0;
 
                 foreach ($recipeData['materials'] as &$recipeMaterial) {
+
+                    // apply factor of producedQuantity for some recipes (Enchanting, Cooking) beforehand
+                    if ((int) $recipeMaterial['producedQuantity'] !== $recipeData['product']['producedQuantity']) {
+                        $recipeData['product']['producedQuantity'] = $recipeMaterial['producedQuantity'];
+                        $recipeData['profit']                      *= $recipeData['product']['producedQuantity'];
+                    }
+
+                    unset($recipeMaterial['producedQuantity']);
+
                     // filter items that can be bought via vendors or are soulbound
                     if (!in_array((int) $recipeMaterial['itemID'], $calculationExemptionItemIDs, true)) {
                         $getMaterialBuyout->execute([
@@ -375,10 +386,6 @@ class AuctionCraftSniper {
                     }
 
                     $recipeCost += $recipeMaterial['buyout'] * $recipeMaterial['amount'];
-                }
-
-                if ((int) $recipeMaterial['producedQuantity'] > 1) {
-                    $recipeData['profit'] = round($recipeData['profit'] /= $recipeMaterial['producedQuantity']);
                 }
 
                 $recipeData['margin']          = round(($recipeData['product']['buyout'] / $recipeCost - 1) * 100, 2);
