@@ -295,7 +295,7 @@ class AuctionCraftSniper
             FROM `auctionData`
             LEFT JOIN `recipes` ON `auctionData`.`itemID` = `recipes`.`id`
             LEFT JOIN `houseUpdateTracker` ON `houseUpdateTracker`.`houseID` = @houseID
-            LEFT JOIN `itemNames` ON `auctionData`.`itemID` = `itemNames`.`itemID`
+            LEFT JOIN `itemNames` ON `itemNames`.`itemID` = `auctionData`.`itemID`
             WHERE `auctionData`.`houseID` = @houseID
             AND `houseUpdateTracker`.`expansionLevel` = @expansionLevel  
             AND `auctionData`.`expansionLevel` = @expansionLevel AND (
@@ -357,7 +357,7 @@ class AuctionCraftSniper
                 $recipeData = [
                     'product'         => [
                         'item'             => $recipe['itemID'],
-                        'name'             => $recipe['name'],
+                        'name'             => $recipe['itemName'],
                         'buyout'           => $recipe['buyout'],
                         'producedQuantity' => 1,
                     ],
