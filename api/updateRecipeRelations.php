@@ -1,55 +1,54 @@
 <?php
 
+require_once '../dependencies/headers.php';
+
 $success = 0;
 
-if (isset($_GET['expansionLevel']) && is_numeric($_GET['expansionLevel']) && (int)$_GET['expansionLevel'] !== 0) {
+if (isset($_GET['expansionLevel'], $_GET['professionID']) && is_numeric($_GET['expansionLevel']) && is_numeric($_GET['professionID']) && (int)$_GET['expansionLevel'] !== 0 && (int)$_GET['professionID'] !== 4) {
 
-    require_once '../dependencies/headers.php';
     require_once '../dependencies/class.AuctionCraftSniper.php';
 
     $AuctionCraftSniper = new AuctionCraftSniper();
+    $professionID       = $AuctionCraftSniper->AreValidProfessions([$_GET['professionID']])[0];
 
     $AuctionCraftSniper->setExpansionLevel($_GET['expansionLevel']);
 
-    $professions = $AuctionCraftSniper->getProfessions();
-    unset($professions[4]);
+    $recipeRequirements = [];
 
-    foreach ($professions as $professionID => $professionName) {
+    foreach ($AuctionCraftSniper->getRecipeIDs($professionID) as $recipeID) {
 
-        $recipeRequirements = [];
+        foreach ($AuctionCraftSniper->getWoWDBJSON('/item/' . $recipeID)['CreatedBySpellIDs'] as $spellID) {
+            $spellData = $AuctionCraftSniper->getWoWDBJSON('/spell/' . $spellID);
 
-        foreach ($AuctionCraftSniper->getRecipeIDs($professionID) as $recipeID) {
+            $spellDetails = [
+                'recipeID'         => $recipeID,
+                'requiredItemIDs'  => [],
+                'requiredAmounts'  => [],
+                'baseSellPrices'   => [],
+                'baseBuyPrices'    => [],
+                'itemNames'        => [],
+                'producedQuantity' => 1,
+                'rank'             => (int)str_replace('Rank ', '', $spellData['Rank']),
+            ];
 
-            foreach ($AuctionCraftSniper->getWoWDBJSON('/item/' . $recipeID)['CreatedBySpellIDs'] as $spellID) {
-                $spellData = $AuctionCraftSniper->getWoWDBJSON('/spell/' . $spellID);
+            foreach ($spellData['Reagents'] as $reagents) {
+                $spellDetails['requiredItemIDs'][] = $reagents['Item'];
+                $spellDetails['requiredAmounts'][] = (int)$reagents['ItemQty'];
 
-                $spellDetails = [
-                    'recipeID'        => $recipeID,
-                    'requiredItemIDs' => [],
-                    'requiredAmounts' => [],
-                    'baseSellPrices'  => [],
-                    'baseBuyPrices'   => [],
-                    'itemNames'       => [],
-                    'rank'            => (int)str_replace('Rank ', '', $spellData['Rank']),
-                ];
+                $reagentData = $AuctionCraftSniper->getWoWDBJSON('/item/' . $reagents['Item']);
 
-                foreach ($spellData['Reagents'] as $reagents) {
-                    $spellDetails['requiredItemIDs'][] = $reagents['Item'];
-                    $spellDetails['requiredAmounts'][] = (int)$reagents['ItemQty'];
-
-                    $reagentData = $AuctionCraftSniper->getWoWDBJSON('/item/' . $reagents['Item']);
-
-                    $spellDetails['itemNames'][]      = $reagentData['Name'];
-                    $spellDetails['baseSellPrices'][] = (int)$reagentData['SellPrice'];
-                    $spellDetails['baseBuyPrices'][]  = (int)$reagentData['BuyPrice'];
-                }
-
-                $recipeRequirements[] = $spellDetails;
+                $spellDetails['itemNames'][]      = $reagentData['Name'];
+                $spellDetails['baseSellPrices'][] = (int)$reagentData['SellPrice'];
+                $spellDetails['baseBuyPrices'][]  = (int)$reagentData['BuyPrice'];
             }
-        }
 
-        $AuctionCraftSniper->setRecipeRequirements($recipeRequirements, $professionID);
+            $spellDetails['producedQuantity'] = $spellData['Effects'][0]['BasePoints'];
+
+            $recipeRequirements[] = $spellDetails;
+        }
     }
+
+    $AuctionCraftSniper->setRecipeRequirements($recipeRequirements);
 
     $success = 1;
 }

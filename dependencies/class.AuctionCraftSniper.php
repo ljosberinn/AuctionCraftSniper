@@ -280,24 +280,28 @@ class AuctionCraftSniper
      * @return bool|PDOStatement
      */
     private function getCurrentlyAvailableRecipes(array $professions = []) {
+
+        $storeHouseID = $this->connection->prepare('SET @houseID = :houseID');
+        $storeHouseID->execute(['houseID' => $this->houseID]);
+
+        $storeExpansionLevel = $this->connection->prepare('SET @expansionLevel = :expansionLevel');
+        $storeExpansionLevel->execute(['expansionLevel' => $this->expansionLevel]);
+
         $getCurrentlyAvailableRecipesQuery = 'SELECT
             `auctionData`.`itemID`,
             `auctionData`.`buyout`,
-            `recipes`.`name`,
+            `itemNames`.`itemName`,
             `recipes`.`profession`
             FROM `auctionData`
             LEFT JOIN `recipes` ON `auctionData`.`itemID` = `recipes`.`id`
-            LEFT JOIN `houseUpdateTracker` on `houseUpdateTracker`.`houseID` = :houseID1 AND `houseUpdateTracker`.`expansionLevel` = :expansionLevel1
-            WHERE `auctionData`.`houseID` = :houseID2 AND
-            `auctionData`.`expansionLevel` = :expansionLevel2 AND (
+            LEFT JOIN `houseUpdateTracker` ON `houseUpdateTracker`.`houseID` = @houseID
+            LEFT JOIN `itemNames` ON `auctionData`.`itemID` = `itemNames`.`itemID`
+            WHERE `auctionData`.`houseID` = @houseID
+            AND `houseUpdateTracker`.`expansionLevel` = @expansionLevel  
+            AND `auctionData`.`expansionLevel` = @expansionLevel AND (
            ';
 
-        $queryParams = [
-            'houseID1'        => $this->houseID,
-            'expansionLevel1' => $this->expansionLevel,
-            'houseID2'        => $this->houseID,
-            'expansionLevel2' => $this->expansionLevel,
-        ];
+        $queryParams = [];
 
         $professionCount = count($professions);
 
@@ -331,8 +335,20 @@ class AuctionCraftSniper
 
         if ($getCurrentlyAvailableRecipes->rowCount() > 0) {
 
-            $getConnectedRecipeRequirements = $this->connection->prepare('SELECT `requiredItemID` as `itemID`, `requiredAmount` as `amount`, `itemName` as `name`, `baseBuyPrice`, `producedQuantity` FROM `recipeRequirements` WHERE `recipe` = :recipeID AND (`rank` = 3 OR `rank` = 0)');
-            $getMaterialBuyout              = $this->connection->prepare('SELECT `buyout` FROM `auctionData` WHERE `itemID` = :itemID AND `expansionLevel` = :expansionLevel AND `houseID` = :houseID');
+            $getConnectedRecipeRequirements = $this->connection->prepare('SELECT
+                `requiredItemID` as `itemID`,
+                `requiredAmount` as `amount`,
+                `itemNames`.`itemName` as `name`,
+                `baseBuyPrice`, `producedQuantity`
+                FROM `recipeRequirements`
+                LEFT JOIN `itemNames` ON `requiredItemID` = `itemNames`.`itemID`
+                WHERE `recipe` = :recipeID AND (`rank` = 3 OR `rank` = 0)');
+
+            $getMaterialBuyout = $this->connection->prepare('SELECT `buyout`
+                          FROM `auctionData`
+                          WHERE `itemID` = :itemID
+                          AND `expansionLevel` = :expansionLevel
+                          AND `houseID` = :houseID');
 
             $calculationExemptionItemIDs = array_keys($this->calculationExemptionItemIDs);
 
@@ -581,49 +597,53 @@ class AuctionCraftSniper
      * @method setRecipeRequirements [(re)builds all recipeRequirements for an expansion based upon existing recipes via the WoWDB API]
      *
      * @param array $recipeRequirements
-     * @param int   $professionID
      */
-    public function setRecipeRequirements(array $recipeRequirements, int $professionID) {
+    public function setRecipeRequirements(array $recipeRequirements) {
+        $existingItems    = [];
 
-        $recipesToRefresh = [];
+        $getExistingItems = $this->connection->query('SELECT * FROM `itemNames` ORDER BY `itemID` ASC');
 
-        $recipesToRefreshQuery = $this->connection->query('SELECT `id` FROM `recipes` WHERE `profession` = ' . $professionID);
-
-        foreach ($recipesToRefreshQuery->fetchAll() as $recipeToRefresh) {
-            $recipesToRefresh[] = $recipeToRefresh['id'];
+        foreach ($getExistingItems->fetchAll() as $item) {
+            $existingItems[$item['itemID']] = $item['itemName'];
         }
 
-        $deletionQuery = 'DELETE FROM `recipeRequirements` WHERE `expansionLevel` = :expansionLevel AND (';
+        $insertRecipe = $this->connection->prepare('INSERT INTO `recipeRequirements` (
+                      `recipe`, `requiredItemID`, `requiredAmount`, `rank`, `baseSellPrice`, `baseBuyPrice`, `expansionLevel`, `producedQuantity`) VALUES (
+                      :recipeID, :requiredItemID, :requiredAmount, :rank, :baseSellPrice, :baseBuyPrice, :expansionLevel, :producedQuantity)');
 
-        foreach ($recipesToRefresh as $recipeToRefresh) {
-            $deletionQuery .= '`recipe` = ' . $recipeToRefresh . ' OR ';
-        }
+        $insertName = $this->connection->prepare('INSERT INTO `itemNames` (`itemID`, `itemName`) VALUES(:itemID, :itemName)');
 
-        $deletionQuery = substr($deletionQuery, 0, -4) . ')';
-
-        $previousDataRemoval = $this->connection->prepare($deletionQuery);
-        $previousDataRemoval->execute([
-            'expansionLevel' => $this->expansionLevel,
-        ]);
-
-        $insert = $this->connection->prepare('INSERT INTO `recipeRequirements` (
-                      `recipe`, `requiredItemID`, `requiredAmount`, `itemName`, `rank`, `baseSellPrice`, `baseBuyPrice`, `expansionLevel`) VALUES (
-                      :recipeID, :requiredItemID, :requiredAmount, :itemName, :rank, :baseSellPrice, :baseBuyPrice, :expansionLevel)');
+        $deletePreviousRecipeData = $this->connection->prepare('DELETE FROM `recipeRequirements` WHERE `recipe` = :recipeID AND `requiredItemID` = :requiredItemID AND `rank` = :rank AND `expansionLevel` = :expansionLevel');
 
         foreach ($recipeRequirements as $recipeRequirement) {
             $requiredItemIDAmount = count($recipeRequirement['requiredItemIDs']);
 
             for ($i = 0; $i < $requiredItemIDAmount; ++$i) {
                 try {
-                    $insert->execute([
+
+                    if (!array_key_exists($recipeRequirement['requiredItemIDs'][$i], $existingItems)) {
+                        $insertName->execute([
+                            'itemID'   => $recipeRequirement['requiredItemIDs'][$i],
+                            'itemName' => $recipeRequirement['itemNames'][$i],
+                        ]);
+                    }
+
+                    $deletePreviousRecipeData->execute([
                         'recipeID'       => $recipeRequirement['recipeID'],
                         'requiredItemID' => $recipeRequirement['requiredItemIDs'][$i],
-                        'requiredAmount' => $recipeRequirement['requiredAmounts'][$i],
-                        'itemName'       => $recipeRequirement['itemNames'][$i],
                         'rank'           => $recipeRequirement['rank'],
-                        'baseSellPrice'  => $recipeRequirement['baseSellPrices'][$i],
-                        'baseBuyPrice'   => $recipeRequirement['baseBuyPrices'][$i],
                         'expansionLevel' => $this->expansionLevel,
+                    ]);
+
+                    $insertRecipe->execute([
+                        'recipeID'         => $recipeRequirement['recipeID'],
+                        'requiredItemID'   => $recipeRequirement['requiredItemIDs'][$i],
+                        'requiredAmount'   => $recipeRequirement['requiredAmounts'][$i],
+                        'rank'             => $recipeRequirement['rank'],
+                        'baseSellPrice'    => $recipeRequirement['baseSellPrices'][$i],
+                        'baseBuyPrice'     => $recipeRequirement['baseBuyPrices'][$i],
+                        'expansionLevel'   => $this->expansionLevel,
+                        'producedQuantity' => $recipeRequirement['producedQuantity'],
                     ]);
                 } catch (PDOException $exception) {
                     print_r($exception->getMessage());
