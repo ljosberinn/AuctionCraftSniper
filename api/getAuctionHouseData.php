@@ -1,12 +1,12 @@
 <?php
 
-require_once '../dependencies/headers.php';
+require '../dependencies/headers.php';
 
 $response = ['callback' => 'throwHouseUnavailabilityError'];
 
 if (isset($_GET['houseID']) && is_numeric($_GET['houseID'])) {
 
-    require_once '../dependencies/class.AuctionCraftSniper.php';
+    require '../dependencies/class.AuctionCraftSniper.php';
 
     $AuctionCraftSniper = new AuctionCraftSniper();
     $AuctionCraftSniper->setHouseID($_GET['houseID']);

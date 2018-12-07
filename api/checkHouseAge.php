@@ -1,6 +1,6 @@
 <?php
 
-require_once '../dependencies/headers.php';
+require '../dependencies/headers.php';
 
 $response = [
     'callback'   => 'throwHouseUnavailabilityError',
@@ -9,11 +9,11 @@ $response = [
 
 if (isset($_GET['houseID'], $_GET['expansionLevel']) && is_numeric($_GET['houseID']) && is_numeric($_GET['expansionLevel'])) {
 
-    require_once '../dependencies/class.AuctionCraftSniper.php';
+    require '../dependencies/class.AuctionCraftSniper.php';
 
     $AuctionCraftSniper = new AuctionCraftSniper();
 
-    $AuctionCraftSniper->setHouseID($_GET['houseID']);
+    $AuctionCraftSniper->setHouseID((int) $_GET['houseID']);
     $AuctionCraftSniper->setExpansionLevel($_GET['expansionLevel']);
 
     $response = $AuctionCraftSniper->isHouseOutdated();

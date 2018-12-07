@@ -1,7 +1,7 @@
 <?php
 
-require_once '../dependencies/headers.php';
-require_once '../dependencies/class.AuctionCraftSniper.php';
+require '../dependencies/headers.php';
+require '../dependencies/class.AuctionCraftSniper.php';
 
 $decodedPOST = json_decode(trim(file_get_contents('php://input')), true);
 
