@@ -13,7 +13,7 @@ if (isset($_GET['houseID'], $_GET['professions'], $_GET['expansionLevel']) && is
     $AuctionCraftSniper->setExpansionLevel((int) $_GET['expansionLevel']);
     $AuctionCraftSniper->setHouseID((int) $_GET['houseID']);
 
-    $professions = $AuctionCraftSniper->AreValidProfessions(explode(',', $_GET['professions']));
+    $professions = $AuctionCraftSniper->areValidProfessions(explode(',', $_GET['professions']));
 
     if ($professions) {
         $response = $AuctionCraftSniper->getProfessionData($professions);

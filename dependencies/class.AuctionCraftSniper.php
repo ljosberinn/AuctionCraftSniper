@@ -858,7 +858,7 @@ class AuctionCraftSniper
      *
      * @return array|bool
      */
-    public function AreValidProfessions(array $professionIDs = []) {
+    public function areValidProfessions(array $professionIDs = []) {
         if (empty($this->professions)) {
             $this->getProfessions();
         }
