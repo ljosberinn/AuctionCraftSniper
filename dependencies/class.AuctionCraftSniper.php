@@ -182,20 +182,28 @@ class AuctionCraftSniper
      */
     private function getOuterAuctionData()
     : array {
-        $curl = curl_init();
 
-        curl_setopt_array($curl, [
-            CURLOPT_URL            => $this->getOuterAuctionURL(),
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_SSL_VERIFYPEER => true,
-        ]);
+        $outerAuctionURL = $this->getOuterAuctionURL();
 
-        $response = curl_exec($curl);
+        if (!empty($outerAuctionURL)) {
 
-        curl_close($curl);
+            $curl = curl_init();
 
-        return (array)json_decode($response, true);
+            curl_setopt_array($curl, [
+                CURLOPT_URL            => $outerAuctionURL,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_SSL_VERIFYPEER => true,
+            ]);
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+
+            return (array)json_decode($response, true);
+        }
+
+        return [];
     }
 
     /**
@@ -218,23 +226,24 @@ class AuctionCraftSniper
     /**
      * @method getAuctionsURL [retrieves auctionURL depending on current house]
      *
-     * @return bool|string
+     * @return string
      */
-    private function getOuterAuctionURL() {
+    private function getOuterAuctionURL()
+    : string {
         $getAuctionsURL = $this->connection->prepare('SELECT `region`, `slug` FROM `realms` WHERE `houseID` = :houseID LIMIT 1');
 
         $getAuctionsURL->execute(['houseID' => $this->houseID]);
         if ($getAuctionsURL->rowCount() > 0) {
-            /**
-             * @var $region string
-             * @var $slug   string
-             */
-            extract($getAuctionsURL->fetch(), EXTR_OVERWRITE);
+
+            $result = $getAuctionsURL->fetch();
+
+            $region = $result['region'];
+            $slug   = $result['slug'];
 
             return 'https://' . strtolower($region) . '.api.blizzard.com/wow/auction/data/' . $slug . '?access_token=' . $this->OAuthAccessToken;
         }
 
-        return false;
+        return '';
     }
 
     /**
@@ -415,9 +424,10 @@ class AuctionCraftSniper
                     $recipeData['materialCostSum'] += $recipeMaterial['buyout'] * $recipeMaterial['amount'];
                 }
 
+                unset($recipeMaterial);
+
                 $recipeData['margin'] = round(($recipeData['product']['buyout'] / $recipeData['materialCostSum'] - 1) * 100, 2);
 
-                unset($recipeMaterial);
 
                 $professionTableData[lcfirst($this->professions[$recipe['profession']])][] = $recipeData;
             }
@@ -468,9 +478,7 @@ class AuctionCraftSniper
      */
     public function setHouseID(int $houseID = 0)
     : bool {
-        $houseID = $this->isValidHouse($houseID);
-
-        if ($houseID) {
+        if ($this->isValidHouse($houseID)) {
             $this->houseID = $houseID;
 
             return true;
@@ -488,9 +496,7 @@ class AuctionCraftSniper
      */
     public function setExpansionLevel(int $expansionLevel = 0)
     : bool {
-        $expansionLevel = $this->isValidExpansionLevel($expansionLevel);
-
-        if ($expansionLevel) {
+        if ($this->isValidExpansionLevel($expansionLevel)) {
             $this->expansionLevel = $expansionLevel;
 
             return true;
@@ -598,8 +604,9 @@ class AuctionCraftSniper
      *
      * @param array $recipeRequirements
      */
-    public function setRecipeRequirements(array $recipeRequirements) {
-        $existingItems    = [];
+    public function setRecipeRequirements(array $recipeRequirements)
+    : void {
+        $existingItems = [];
 
         $getExistingItems = $this->connection->query('SELECT * FROM `itemNames` ORDER BY `itemID` ASC');
 
@@ -755,20 +762,25 @@ class AuctionCraftSniper
 
         $outerAuctionData = $this->getOuterAuctionData();
 
-        $this->setInnerHouseURL($outerAuctionData['files'][0]['url']);
-        $this->setHouseTimestamp($outerAuctionData['files'][0]['lastModified']);
+        if (!empty($outerAuctionData)) {
 
-        // AH technically is older than 20 minutes, but API servers haven't updated yet
-        if ($outerAuctionData['files'][0]['lastModified'] <= $lastUpdateTimestamp) {
-            $houseRequiresUpdate = false;
+            $this->setInnerHouseURL($outerAuctionData['files'][0]['url']);
+            $this->setHouseTimestamp($outerAuctionData['files'][0]['lastModified']);
+
+            // AH technically is older than 20 minutes, but API servers haven't updated yet
+            if ($outerAuctionData['files'][0]['lastModified'] <= $lastUpdateTimestamp) {
+                $houseRequiresUpdate = false;
+            }
+
+            $lastUpdateTimestamp = $outerAuctionData['files'][0]['lastModified'];
+
+            return [
+                'callback'   => $houseRequiresUpdate ? 'houseRequiresUpdate' : 'getProfessionTables',
+                'lastUpdate' => $lastUpdateTimestamp,
+            ];
         }
 
-        $lastUpdateTimestamp = $outerAuctionData['files'][0]['lastModified'];
-
-        return [
-            'callback'   => $houseRequiresUpdate ? 'houseRequiresUpdate' : 'getProfessionTables',
-            'lastUpdate' => $lastUpdateTimestamp,
-        ];
+        return ['callback' => 'throwHouseUnavailabilityError'];
     }
 
     /**
@@ -856,18 +868,20 @@ class AuctionCraftSniper
      *
      * @param array $professionIDs
      *
-     * @return array|bool
+     * @return array
      */
-    public function areValidProfessions(array $professionIDs = []) {
+    public function areValidProfessions(array $professionIDs = [])
+    : array {
         if (empty($this->professions)) {
-            $this->getProfessions();
+            $this->setProfessions();
         }
 
         $validProfessions = array_keys($this->professions);
 
         foreach ($professionIDs as $professionID) {
-            if (!in_array((int)$professionID, $validProfessions, true)) {
-                return false;
+            $professionID = (int)$professionID;
+            if (!in_array($professionID, $validProfessions, true)) {
+                array_splice($professionIDs, array_search($professionID, $professionIDs, true), 1);
             }
         }
 
@@ -898,11 +912,12 @@ class AuctionCraftSniper
      *
      * @param int $expansionLevel
      *
-     * @return bool|int
+     * @return int
      */
-    public function isValidExpansionLevel(int $expansionLevel = 8) {
+    public function isValidExpansionLevel(int $expansionLevel = 8)
+    : int {
         if (empty($this->expansionLevels)) {
-            $this->getExpansionLevels();
+            $this->setExpansionLevels();
         }
 
         if (!array_key_exists($expansionLevel, $this->expansionLevels)) {

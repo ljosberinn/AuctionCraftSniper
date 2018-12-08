@@ -10,14 +10,12 @@ if (isset($_GET['houseID'], $_GET['professions'], $_GET['expansionLevel']) && is
 
     $AuctionCraftSniper = new AuctionCraftSniper();
 
-    $AuctionCraftSniper->setExpansionLevel((int) $_GET['expansionLevel']);
-    $AuctionCraftSniper->setHouseID((int) $_GET['houseID']);
+    $AuctionCraftSniper->setExpansionLevel((int)$_GET['expansionLevel']);
+    $AuctionCraftSniper->setHouseID((int)$_GET['houseID']);
 
     $professions = $AuctionCraftSniper->areValidProfessions(explode(',', $_GET['professions']));
 
-    if ($professions) {
-        $response = $AuctionCraftSniper->getProfessionData($professions);
-    }
+    $response = $AuctionCraftSniper->getProfessionData($professions);
 }
 
 echo json_encode($response, JSON_NUMERIC_CHECK);
