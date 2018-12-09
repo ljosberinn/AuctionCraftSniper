@@ -1,0 +1,36 @@
+.progress {
+  background: $progress-bar-background-color;
+
+  &::-webkit-progress-bar {
+    background: transparent !important; // override bulma.css
+  }
+
+  &:indeterminate {
+    animation: progress-indeterminate 1.5s linear infinite;
+    background: $progress-bar-background-color linear-gradient(to right, $text 30%, $progress-bar-background-color 30%) top left / 150% 150% no-repeat;
+
+    &::-moz-progress-bar {
+      background: transparent !important; // override bulma.css
+    }
+
+    @each $name, $pair in $colors {
+      $color: nth($pair, 1);
+      &.is-#{$name} {
+        background: $progress-bar-background-color linear-gradient(
+                        to right,
+                        $color 30%,
+                        $progress-bar-background-color 30%
+        ) top left / 150% 150% no-repeat;
+      }
+    }
+  }
+}
+
+@keyframes progress-indeterminate {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

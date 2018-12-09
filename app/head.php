@@ -3,6 +3,8 @@
 $indexMakeTime = filemtime('index.php');
 $jsMakeTime    = filemtime('assets/js/bundle.min.js');
 
+$pageDescriptionEnding = 'on-demand near-real time information about profession-related auction house prices for World of Warcraft';
+
 ?>
 
 <meta charset="utf-8">
@@ -27,11 +29,11 @@ $jsMakeTime    = filemtime('assets/js/bundle.min.js');
 <!--<meta property="og:title" content="AuctionCraftSniper"/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://acs.gerritalex.de/">
-<meta property="og:description" content="AuctionCraftSniper provides on-demand near-realtime information about current profession-related auction house prices for Western regions of World of Warcraft"/>-->
+<meta property="og:description" content="AuctionCraftSniper provides <?= $pageDescriptionEnding ?>"/>-->
 
 <!-- Google+ page description -->
 <meta itemprop="name" content="AuctionCraftSniper"/>
-<meta itemprop="description" content="AuctionCraftSniper provides on-demand near-realtime information about current profession-related auction house prices for Western regions of World of Warcraft"/>
+<meta itemprop="description" content="AuctionCraftSniper provides <?= $pageDescriptionEnding ?>"/>
 <meta itemprop="lastReviewed" content="<?= date('Y-m-d', $indexMakeTime ?: $jsMakeTime) ?>"/>
 <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
 <link href="/assets/css/acs.min.css?<?= filemtime('assets/css/acs.min.css') ?>" rel="stylesheet">
@@ -48,6 +50,5 @@ $jsMakeTime    = filemtime('assets/js/bundle.min.js');
 </script>
 <script async src="//wow.zamimg.com/widgets/power.js"></script>
 <?php foreach (['gold', 'silver', 'copper'] as $currency) { ?>
-<link rel="preload" as="image" href="https://wow.zamimg.com/images/icons/money-<?= $currency ?>.gif" type="image/gif">
+<link rel="preload" as="image" href="//wow.zamimg.com/images/icons/money-<?= $currency ?>.gif" type="image/gif">
 <?php } ?>
-<link rel="preload" as="image" href="https://theunderminejournal.com/images/favicons/favicon-16x16.png" type="image/png">

@@ -1,9 +1,8 @@
 import * as distanceInWordsStrict from 'date-fns/distance_in_words_strict';
-import tippy from 'tippy.js';
 
 import { setACSLocalStorage, ACS } from './localStorage';
 import {
-  updateState, sortByProfit, getTUJBaseURL, cloneOrigin, toggleSearchLoadingState, showInvalidRegionRealmPairHint, copyOnClick,
+  updateState, sortByProfit, getTUJBaseURL, cloneOrigin, toggleSearchLoadingState, showInvalidRegionRealmPairHint, copyOnClick, showLocalStorage, clearLocalStorage
 } from './helper';
 import { AuctionCraftSniper } from './types';
 
@@ -102,6 +101,17 @@ const settingListener = () => {
   });
 };
 
+let refreshInterval;
+
+const refreshData = () => {
+  if ((ACS.lastUpdate - new Date().getTime()) > 20 * 1000 * 60) {
+    console.log('Refresher triggered - searching for data...');
+    searchListener();
+  } else {
+    console.log('Refresher triggered - update currently impossible.');
+  }
+};
+
 export const searchListener = () => {
   const value = (<HTMLInputElement>document.getElementById('realm')).value.split('-');
 
@@ -110,6 +120,11 @@ export const searchListener = () => {
     toggleUserInputs(true);
     toggleSearchLoadingState();
     validateRegionRealm(value);
+
+    // initiate refresher every 60 seconds
+    if (typeof refreshInterval === 'undefined') {
+      refreshInterval = setInterval(refreshData, 60000);
+    }
   } else {
     showInvalidRegionRealmPairHint();
   }
@@ -120,7 +135,7 @@ export const searchListener = () => {
  * @param {bool} state
  */
 const toggleUserInputs = (state: boolean) => {
-  document.querySelectorAll('input').forEach(input => (input.type === 'checkbox' ? (input.disabled = state) : (input.readOnly = state)));
+  document.querySelectorAll('input').forEach(input => (input.disabled = state));
   [<HTMLInputElement>document.getElementById('search'), <HTMLSelectElement>document.getElementById('expansion-level')].forEach(el => (el.disabled = state));
 };
 
@@ -168,6 +183,7 @@ const checkHouseAge = async () => {
 
     if (json.lastUpdate !== 0) {
       insertLastUpdate(json.lastUpdate);
+      setACSLocalStorage({ lastUpdate: json.lastUpdate });
     }
 
     switch (json.callback) {
@@ -220,16 +236,21 @@ const parseAuctionData = async (step = 0, itemIDs = {}) => {
 
   const json: AuctionCraftSniper.parseAuctionDataResponseJSON = await data.json();
 
+  const progressBar = <HTMLProgressElement>document.getElementById('progress-bar');
+
   if (json.err) {
     throw new Error(json.err);
   } else {
-    (<HTMLProgressElement>document.getElementById('progress-bar')).value = Math.round(json.percentDone);
+    progressBar.value = Math.round(json.percentDone);
   }
 
   if (json.step < json.reqSteps) {
     parseAuctionData(json.step, json.itemIDs);
   } else if (json.reqSteps === json.step && json.callback === 'getProfessionTables') {
     getProfessionTables();
+    setTimeout(() => {
+      progressBar.value = 0;
+    }, 2000);
   }
 };
 
@@ -452,6 +473,9 @@ export const addEventListeners = () => {
   document.getElementById('general-tsm-export').addEventListener('click', generalTSMExportListener);
 
   settingListener();
+
+  document.getElementById('showLocalStorage').addEventListener('click', showLocalStorage);
+  document.getElementById('clearLocalStorage').addEventListener('click', clearLocalStorage);
 };
 
 /**
@@ -499,9 +523,7 @@ export const formatCurrency = (value: number) => {
 const insertLastUpdate = (lastUpdate: number) => {
   const date = new Date(lastUpdate);
 
-  const target = document.getElementById('last-update');
-
-  target.innerText = distanceInWordsStrict(new Date(), lastUpdate, { addSuffix: true });
-
-  tippy('#last-update', { content: `${date.toLocaleDateString()} - ${date.toLocaleTimeString()}` });
+  (<HTMLSpanElement>document.getElementById('last-update')).innerText = `${distanceInWordsStrict(new Date(), lastUpdate, {
+    addSuffix: true,
+  })} (${date.toLocaleDateString()} - ${date.toLocaleTimeString()})`;
 };

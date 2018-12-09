@@ -223,7 +223,7 @@ export const createTSMTD = (target: string = '') => {
     TSMListener(this, target);
   });
 
-  tippy(TSMTD, { content: target === '' ? 'exports profitable non-blacklisted recipes to TSM' : 'exports all non-blacklisted recipes to TSM' });
+  tippy(TSMTD, { content: target === '' ? 'exports <strong>profitable</strong> non-blacklisted recipes to TSM' : 'exports <strong>all</strong> non-blacklisted recipes to TSM' });
 
   return TSMTD;
 };

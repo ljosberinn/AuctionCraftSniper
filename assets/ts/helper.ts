@@ -126,3 +126,31 @@ export const copyOnClick = (valueToCopy: any) => {
 
   createNotification('is-primary', 'copied TSM string');
 };
+
+const removeLocalStorageTextarea = () => {
+  document.getElementById('localStorage-textarea').remove();
+
+  const triggerElement = document.getElementById('showLocalStorage');
+  triggerElement.removeEventListener('click', removeLocalStorageTextarea);
+  triggerElement.addEventListener('click', showLocalStorage);
+};
+
+export const showLocalStorage = () => {
+  const triggerElement = document.getElementById('showLocalStorage');
+  triggerElement.removeEventListener('click', showLocalStorage);
+
+  const textarea = document.createElement('textarea');
+  textarea.classList.add('textarea');
+  textarea.rows = 10;
+  textarea.id = 'localStorage-textarea';
+  textarea.innerHTML = JSON.stringify(JSON.parse(localStorage.ACS), null, 2).replace(/<br\s*[\/]?>/gi, '\n');
+
+  triggerElement.insertAdjacentElement('afterend', textarea);
+
+  triggerElement.addEventListener('click', removeLocalStorageTextarea);
+};
+
+export const clearLocalStorage = () => {
+  localStorage.clear();
+  createNotification('is-info', 'All your data has been removed.');
+};

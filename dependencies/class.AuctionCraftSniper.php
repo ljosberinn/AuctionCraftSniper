@@ -62,9 +62,15 @@ class AuctionCraftSniper
      * @var array [contains strings of avaiable settings]
      */
     private $activeSettings = [
-        'alwaysShowLossyRecipes'   => 'always show lossy recipes',
-        'fetchOnLoad'              => 'automatically fetch data on page load (last selected realm will be used)',
-        'pushNotificationsAllowed' => 'sends push notifications when new auction house data is available',
+        // checkbox
+        'alwaysShowLossyRecipes'   => ['description' => 'always show lossy recipes', 'type' => 'checkbox', 'classes' => 'is-checkradio'],
+        'fetchOnLoad'              => ['description' => 'automatically fetch data on page load (last selected realm will be used)', 'type' => 'checkbox', 'classes' => 'is-checkradio'],
+        'pushNotificationsAllowed' => ['description' => 'sends push notifications when new auction house data is available', 'type' => 'checkbox', 'classes' => 'is-checkradio'],
+        // input
+        'marginThreshold'          => ['description' => 'define a custom threshold of recipes to show (COMING SOON)', 'type' => 'number', 'classes' => 'input'],
+        // button
+        'showLocalStorage'         => ['description' => 'show all locally stored data', 'type' => 'button', 'classes' => 'is-info', 'icon' => 'info'],
+        'clearLocalStorage'        => ['description' => 'clear all locally stored data', 'type' => 'button', 'classes' => 'is-danger', 'icon' => 'nuke'],
     ];
 
     /**

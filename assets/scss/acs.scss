@@ -11,6 +11,10 @@ $bulmaswatch-import-font: false;
 // workaround because node_modules wasn't resolved
 @import 'tippy/tippy';
 
+@import 'github-corner';
+@import 'icons';
+@import 'progress-indeterminate';
+
 /* custom css */
 
 @font-face {
@@ -23,109 +27,6 @@ h1 {
   font-weight: normal;
   margin-left: 1rem;
   color: white;
-}
-
-/** ICONS **/
-
-i.professions-sprite {
-  width: 32px;
-  height: 32px;
-  cursor: pointer;
-
-  + input {
-    display: none;
-  }
-}
-
-i:focus {
-  outline: none;
-}
-
-.professions-sprite {
-  background-image: url(../img/sprite-professions-min.png);
-  background-repeat: no-repeat;
-  display: inline-block;
-
-  transition: 0.33s ease-in-out;
-
-  &.icon-disabled {
-    filter: grayscale(100%);
-    opacity: 0.5;
-  }
-
-  &.alchemy {
-    background-position: 0 0;
-  }
-
-  &.blacksmithing {
-    background-position: -32px 0;
-  }
-
-  &.cooking {
-    background-position: -64px 0;
-  }
-
-  &.enchanting {
-    background-position: 0 -32px;
-  }
-
-  &.engineering {
-    background-position: -32px -32px;
-  }
-
-  &.inscription {
-    background-position: -64px -32px;
-  }
-
-  &.jewelcrafting {
-    background-position: 0 -64px;
-  }
-
-  &.leatherworking {
-    background-position: -32px -64px;
-  }
-
-  &.tailoring {
-    background-position: -64px -64px;
-  }
-}
-
-main {
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 80rem;
-}
-
-.copper:after {
-  background-image: url("https://wow.zamimg.com/images/icons/money-copper.gif");
-}
-
-.gold:after {
-  background-image: url("https://wow.zamimg.com/images/icons/money-gold.gif");
-}
-
-.silver:after {
-  background-image: url("https://wow.zamimg.com/images/icons/money-silver.gif");
-}
-
-.currency:after {
-  display: inline-block;
-  height: 13px;
-  width: 13px;
-  background-repeat: no-repeat;
-  content: "";
-  position: relative;
-  margin-left: 0.1rem;
-  margin-right: 0.2rem;
-  top: 0.1rem;
-}
-
-.tuj {
-  width: 15px;
-  height: 15px;
-  background: white url(https://theunderminejournal.com/images/favicons/favicon-16x16.png) no-repeat;
-  display: inline-block;
-  padding: 0.1rem;
 }
 
 .tippy-content table tbody td {
@@ -149,7 +50,9 @@ a + .currency {
   cursor: pointer;
 }
 
-.lossy-recipes {
+.lossy-recipes,
+#hint-invalid-region-realm,
+#settings-modal {
   display: none;
 }
 
@@ -158,58 +61,12 @@ a + .currency {
   transition: 300ms all ease-in-out;
 }
 
-.recipe-is-invisible,
-.recipe-is-visible {
-  height: 33px;
-  width: 33px;
-  background-repeat: no-repeat;
-  cursor: pointer;
-}
-
-.recipe-is-visible {
-  background-image: url(../img/is-visible.png);
-}
-
-.recipe-is-invisible {
-  background-image: url(../img/is-invisible.png);
-}
-
 table {
   width: 100%;
 }
 
 div.tabs.is-boxed.is-small {
   overflow: hidden;
-}
-
-/* Github Corner */
-.github-corner:hover .octo-arm {
-  animation: octocat-wave 560ms infinite ease-in-out;
-}
-
-@keyframes octocat-wave {
-  0%,
-  100% {
-    transform: rotate(0);
-  }
-  20%,
-  60% {
-    transform: rotate(-25deg);
-  }
-  40%,
-  80% {
-    transform: rotate(10deg);
-  }
-}
-
-@media (max-width: 500px) {
-  .github-corner:hover .octo-arm {
-    animation: none;
-  }
-
-  .github-corner .octo-arm {
-    animation: octocat-wave 560ms ease-in-out;
-  }
 }
 
 li {
@@ -243,10 +100,6 @@ li {
   }
 }
 
-#hint-invalid-region-realm {
-  display: none;
-}
-
 .tsm {
   cursor: pointer;
   background: url(../img/tsm-icon.png) no-repeat;
@@ -261,4 +114,16 @@ li {
 .tag:not(body).is-warning {
   vertical-align: top;
   margin-right: .2rem;
+}
+
+footer, .hero {
+  background-color: #2B3E50;
+  color: #f5f5f5;
+}
+
+a.is-loading {
+  background-color: #fff;
+  border-color: #dee5ed;
+  box-shadow: none;
+  opacity: .5;
 }

@@ -15,36 +15,31 @@ $professions        = $AuctionCraftSniper->getProfessions();
 </head>
 <body>
 
-<header class="has-text-centered">
-	<h1 class="is-size-1">` AuctionCraftSniper</h1>
-</header>
-<main>
-
+<section class="hero">
+	<div class="hero-body">
+		<div class="container">
+			<h1 class="title is-size-1 is-size-3-mobile"> ` AuctionCraftSniper</h1>
+			<h2 class="subtitle is-size-6-mobile"><?= $pageDescriptionEnding ?></h2>
+		</div>
+	</div>
+</section>
+<div class="container">
     <?php
+
+    require_once 'app/description.html';
 
     require_once 'app/inc.menu.php';
 
     require_once 'app/inc.settings.php';
 
+    require_once 'app/inc.subNav.php';
+
+    require_once 'app/inc.tables.php';
+
     ?>
-	<section>
+</div>
 
-		<div class="column is-2">
-			<button class="is-primary button" id="search">Go</button>
-			<label class="label">Last update:<br/><span id="last-update"></span></label>
-		</div>
-
-        <?php
-
-        require_once 'app/inc.subNav.php';
-
-        require_once 'app/inc.tables.php';
-
-        ?>
-	</section>
-</main>
-
-<footer>
+<footer class="footer is-dark">
     <?php require_once 'app/footer.html'; ?>
 </footer>
 </body>
