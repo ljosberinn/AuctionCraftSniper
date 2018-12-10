@@ -166,7 +166,7 @@ export const toggleProgressBar = (show: boolean): void => {
  *
  * @param {bool} state
  */
-export const toggleUserInputs = (state: boolean): void => {
+export const toggleUserInputs = (state: boolean = true): void => {
   document.querySelectorAll('input').forEach(input => (input.disabled = state));
   [<HTMLInputElement>document.getElementById('search'), <HTMLSelectElement>document.getElementById('expansion-level')].forEach(el => (el.disabled = state));
 };

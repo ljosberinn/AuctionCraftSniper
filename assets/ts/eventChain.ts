@@ -29,6 +29,9 @@ import {
   createWinMarginTD,
 } from './elementBuilder';
 
+// minutes to milliseconds
+const UPDATE_INTERVAL = 2700000; // 45 * 1000 * 60
+
 /**
  *
  * @param {any} queryElement
@@ -110,10 +113,16 @@ const settingListener = (): void => {
 let refreshInterval;
 
 const refreshData = (): void => {
-  if (new Date().getTime() - ACS.lastUpdate > 45 * 1000 * 60) {
+  if (new Date().getTime() - ACS.lastUpdate > UPDATE_INTERVAL) {
     console.log('Refresher triggered - searching for data...');
     setACSLocalStorage({ currentTab: (<HTMLUListElement>document.querySelector('li.is-active')).dataset.professionTab });
-    searchListener();
+    // searchListener();
+    // since we're using the stored data, skip searchListener() & validateRegionRealm()
+    console.group(`starting search for houseID ${ACS.houseID} with profession ${ACS.professions.toString()} at expansionLevel ${ACS.expansionLevel}`);
+    console.time('search');
+    toggleUserInputs();
+    toggleSearchLoadingState();
+    checkHouseAge();
   } else {
     console.log('Refresher triggered - update currently impossible.');
     insertLastUpdate(ACS.lastUpdate);
@@ -133,13 +142,14 @@ export const searchListener = () => {
     return false;
   }
 
+  console.group(`starting search for houseID ${ACS.houseID} with profession ${ACS.professions.toString()} at expansionLevel ${ACS.expansionLevel}`);
   console.time('search');
 
   document.getElementById('auction-craft-sniper').classList.add('visible');
   document.getElementById('description').classList.remove('visible');
   document.getElementById('house-unavailable-disclaimer').classList.remove('visible');
 
-  toggleUserInputs(true);
+  toggleUserInputs();
   toggleSearchLoadingState();
   validateRegionRealm(value);
 
@@ -251,6 +261,7 @@ const parseAuctionData = async (step = 0, itemIDs = {}) => {
   const progressBar = <HTMLProgressElement>document.getElementById('progress-bar');
 
   if (json.err) {
+    showHouseUnavailabilityError();
     throw new Error(json.err);
   } else {
     progressBar.value = Math.round(json.percentDone);
@@ -378,6 +389,7 @@ const emptyProfessionTables = () => {
  * @param {AuctionCraftSniper.outerProfessionDataJSON} json
  */
 const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON = {}) => {
+  console.group(`filling profession tables for ${ACS.professions.length} professions`);
   console.time('fillProfessionTables');
 
   const TUJLink = getTUJBaseURL();
@@ -419,7 +431,7 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
     sortByProfit(recipes).forEach(recipe => {
       const isBlacklisted = ACS.settings.blacklistedRecipes.includes(recipe.product.item);
 
-      if((!ACS.settings.hideBlacklistedRecipes && isBlacklisted) || !isBlacklisted) {
+      if ((!ACS.settings.hideBlacklistedRecipes && isBlacklisted) || !isBlacklisted) {
         const tr = <HTMLTableRowElement>fillRecipeTR(recipe, TUJLink, isBlacklisted);
 
         if (recipe.profit > 0 || ACS.settings.alwaysShowLossyRecipes) {
@@ -450,8 +462,10 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
   toggleSearchLoadingState();
   eval('$WowheadPower.init();');
 
+  console.groupEnd();
   console.timeEnd('fillProfessionTables');
   console.timeEnd('search');
+  console.groupEnd();
 };
 
 export const toggleLossyRecipes = function () {
