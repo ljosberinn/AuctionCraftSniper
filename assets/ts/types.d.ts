@@ -49,6 +49,7 @@ export declare namespace AuctionCraftSniper {
     professions?: number[];
     expansionLevel?: number;
     lastUpdate?: number;
+    houseUpdateInterval?: number;
     currentTab?: undefined | string;
     settings?: ACSSettingsObj;
   }
@@ -124,5 +125,9 @@ export declare namespace AuctionCraftSniper {
     buyout: number;
     item: number;
     name: string;
+  }
+  interface validateRegionRealmJSON {
+    houseID: number;
+    updateInterval: number;
   }
 }

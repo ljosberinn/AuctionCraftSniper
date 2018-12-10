@@ -6,6 +6,7 @@ export const ACS: AuctionCraftSniper.localStorageObj = {
   professions: [],
   expansionLevel: 8,
   lastUpdate: 0,
+  houseUpdateInterval: 3300000, // 55 as default value
   currentTab: undefined,
   settings: {
     blacklistedRecipes: [],

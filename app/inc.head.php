@@ -10,12 +10,12 @@ $pageDescriptionEnding = 'on-demand near-real time information about profession-
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width">
-
-<meta name="theme-color" content="#342f2d"/>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2B3E50"/>
 <!-- All Search Engines -->
-<!--<meta name="robots" content="index,nofollow"/>-->
+<meta name="robots" content="index,nofollow"/>
 <!-- Google Specific -->
-<!--<meta name="googlebot" content="index,nofollow"/>-->
+<meta name="googlebot" content="index,nofollow"/>
 <!-- admin contact information -->
 <link rel="me" href="mailto:admin@gerritalex.de"/>
 <meta name="author" content="Gerrit Alex"/>
@@ -23,13 +23,13 @@ $pageDescriptionEnding = 'on-demand near-real time information about profession-
 
 <meta name="reply-to" content="admin@gerritalex.de"/>
 <meta name="distribution" content="global"/>
-<!--<meta name="revisit-after" content="7 days"/>-->
+<meta name="revisit-after" content="7 days"/>
 
 <!-- OpenGraph for Facebook & WhatsApp -->
-<!--<meta property="og:title" content="AuctionCraftSniper"/>
+<meta property="og:title" content="AuctionCraftSniper"/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://auctioncraftsniper.com/">
-<meta property="og:description" content="AuctionCraftSniper provides <?= $pageDescriptionEnding ?>"/>-->
+<meta property="og:description" content="AuctionCraftSniper provides <?= $pageDescriptionEnding ?>"/>
 
 <!-- Google+ page description -->
 <meta itemprop="name" content="AuctionCraftSniper"/>
@@ -40,6 +40,9 @@ $pageDescriptionEnding = 'on-demand near-real time information about profession-
 <link href="/assets/css/acs.min.css?<?= filemtime('assets/css/acs.min.css') ?>" rel="stylesheet">
 
 <title>AuctionCraftSniper - WIP</title>
+
+<meta name="description" content="AuctionCraftSniper provides <?= $pageDescriptionEnding ?>" />
+<link rel="icon" type="image/png" href="/assets/img/favicon.png">
 
 <script defer src="/assets/js/bundle.min.js?<?= $jsMakeTime ?>"></script>
 <script>

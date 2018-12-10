@@ -11,8 +11,8 @@ if (isset($_GET['region'], $_GET['realm']) && !is_numeric($_GET['region']) && !i
     [$houseID, $updateInterval] = (new AuctionCraftSniper())->validateRegionRealm((string) $_GET['region'], (string) $_GET['realm']);
 
     if ($houseID !== 0) {
-        $response['houseID']        = $houseID;
-        $response['updateInterval'] = $updateInterval;
+        $response['houseID'] = $houseID;
+        $response['updateInterval'] = $updateInterval * 60 * 1000;
     }
 }
 

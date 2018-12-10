@@ -1,0 +1,6 @@
+User-agent: *
+Sitemap: http://auctioncraftsniper.com/sitemap.xml
+Disallow: /assets/
+Disallow: /dependencies/
+Disallow: /api/
+Disallow: /app/

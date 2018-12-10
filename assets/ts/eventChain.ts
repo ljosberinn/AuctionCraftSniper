@@ -30,7 +30,6 @@ import {
 } from './elementBuilder';
 
 // minutes to milliseconds
-const UPDATE_THRESHOLD = 3300000; // 55 * 1000 * 60
 const REFRESHER_INTERVAL = 30000; // 0.5 * 1000 * 60
 
 /**
@@ -114,10 +113,9 @@ const settingListener = (): void => {
 let refreshInterval;
 
 const refreshData = (): void => {
-  if (new Date().getTime() - ACS.lastUpdate > UPDATE_THRESHOLD) {
+  if (new Date().getTime() - ACS.lastUpdate > ACS.houseUpdateInterval) {
     console.log('Refresher triggered - searching for data...');
     setACSLocalStorage({ currentTab: (<HTMLUListElement>document.querySelector('li.is-active')).dataset.professionTab });
-    // searchListener();
     // since we're using the stored data, skip searchListener() & validateRegionRealm()
     console.group(`starting search for houseID ${ACS.houseID} with profession ${ACS.professions.toString()} at expansionLevel ${ACS.expansionLevel}`);
     console.time('search');
@@ -175,11 +173,11 @@ const validateRegionRealm = async (value: string[]) => {
     mode: 'same-origin',
   });
 
-  const json = await data.json();
+  const json: AuctionCraftSniper.validateRegionRealmJSON = await data.json();
 
   // only proceed when input is valid REGION-REALM pair and server responded with houseID
   if (json.houseID) {
-    setACSLocalStorage({ houseID: json.houseID });
+    setACSLocalStorage({ houseID: json.houseID, houseUpdateInterval: json.updateInterval });
     checkHouseAge();
   } else {
     showHouseUnavailabilityError();
@@ -344,6 +342,11 @@ export const toggleBlacklistEntry = function () {
     [search, replace] = ['recipe-is-invisible', 'recipe-is-visible'];
   } else {
     blacklistedRecipes.push(recipe);
+    if (ACS.settings.hideBlacklistedRecipes) {
+      this.parentElement.remove();
+      setACSLocalStorage({ settings: { blacklistedRecipes } });
+      return;
+    }
     [search, replace] = ['recipe-is-visible', 'recipe-is-invisible'];
   }
 
