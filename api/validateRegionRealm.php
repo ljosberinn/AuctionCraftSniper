@@ -8,10 +8,11 @@ if (isset($_GET['region'], $_GET['realm']) && !is_numeric($_GET['region']) && !i
 
     require '../dependencies/class.AuctionCraftSniper.php';
 
-    $houseID = (new AuctionCraftSniper())->validateRegionRealm((string) $_GET['region'], (string) $_GET['realm']);
+    [$houseID, $updateInterval] = (new AuctionCraftSniper())->validateRegionRealm((string) $_GET['region'], (string) $_GET['realm']);
 
-    if ($houseID) {
-        $response['houseID'] = $houseID;
+    if ($houseID !== 0) {
+        $response['houseID']        = $houseID;
+        $response['updateInterval'] = $updateInterval;
     }
 }
 

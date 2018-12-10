@@ -716,22 +716,23 @@ class AuctionCraftSniper {
      *
      * @return int
      */
-    public function validateRegionRealm(string $region = '', string $realm = ''): int {
+    public function validateRegionRealm(string $region = '', string $realm = ''): array {
 
         if (in_array(strtoupper($region), $this->regions, true)) {
 
-            $validation = $this->connection->prepare('SELECT `houseID` FROM `realms` WHERE `region` = :region AND `name` = :name');
+            $validation = $this->connection->prepare('SELECT `houseID`, `updateInterval` FROM `realms` WHERE `region` = :region AND `name` = :name');
             $validation->execute([
                 'region' => $region,
                 'name'   => $realm,
             ]);
 
             if ($validation->rowCount() > 0) {
-                return $validation->fetch()['houseID'];
+                $result = $validation->fetch();
+                return [$result['houseID'], $result['updateInterval']];
             }
         }
 
-        return 0;
+        return [0, 0];
     }
 
     /**
