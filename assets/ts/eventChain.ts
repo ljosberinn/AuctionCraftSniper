@@ -332,10 +332,8 @@ export const toggleBlacklistEntry = function () {
  * @param {number} recipe
  * @param {string} TUJLink
  */
-const fillRecipeTR = (recipe: AuctionCraftSniper.innerProfessionDataJSON, TUJLink: string) => {
+const fillRecipeTR = (recipe: AuctionCraftSniper.innerProfessionDataJSON, TUJLink: string, isBlacklisted: boolean) => {
   const tr = <HTMLTableRowElement>cloneOrigin.tr.cloneNode();
-
-  const isBlacklisted = ACS.settings.blacklistedRecipes.includes(recipe.product.item);
 
   if (isBlacklisted) {
     tr.classList.add('blacklisted');
@@ -419,12 +417,16 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
     negativeTbody.classList.add('lossy-recipes');
 
     sortByProfit(recipes).forEach(recipe => {
-      const tr = <HTMLTableRowElement>fillRecipeTR(recipe, TUJLink);
+      const isBlacklisted = ACS.settings.blacklistedRecipes.includes(recipe.product.item);
 
-      if (recipe.profit > 0 || ACS.settings.alwaysShowLossyRecipes) {
-        positiveTbody.appendChild(tr);
-      } else {
-        negativeTbody.appendChild(tr);
+      if((!ACS.settings.hideBlacklistedRecipes && isBlacklisted) || !isBlacklisted) {
+        const tr = <HTMLTableRowElement>fillRecipeTR(recipe, TUJLink, isBlacklisted);
+
+        if (recipe.profit > 0 || ACS.settings.alwaysShowLossyRecipes) {
+          positiveTbody.appendChild(tr);
+        } else {
+          negativeTbody.appendChild(tr);
+        }
       }
     });
 

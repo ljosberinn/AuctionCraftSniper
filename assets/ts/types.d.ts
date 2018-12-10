@@ -41,6 +41,7 @@ export declare namespace AuctionCraftSniper {
     alwaysShowLossyRecipes?: boolean;
     fetchOnLoad?: boolean;
     pushNotificationsAllowed?: boolean;
+    hideBlacklistedRecipes?: boolean;
   }
 
   interface localStorageObj {

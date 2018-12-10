@@ -30,8 +30,9 @@ export const createMissingProfitsHintTR = function (): HTMLTableRowElement {
 
   const hintTD = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
   hintTD.classList.add('missing-profits-hint');
-  hintTD.colSpan = 4;
+  hintTD.colSpan = 6;
   hintTD.innerText = 'currently no recipes net profit';
+  hintTD.classList.add('has-text-centered');
 
   hintTR.appendChild(hintTD);
   return hintTR;
