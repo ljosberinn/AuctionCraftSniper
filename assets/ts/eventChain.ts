@@ -110,7 +110,7 @@ const settingListener = (): void => {
 let refreshInterval;
 
 const refreshData = (): void => {
-  if (new Date().getTime() - ACS.lastUpdate > 20 * 1000 * 60) {
+  if (new Date().getTime() - ACS.lastUpdate > 45 * 1000 * 60) {
     console.log('Refresher triggered - searching for data...');
     setACSLocalStorage({ currentTab: (<HTMLUListElement>document.querySelector('li.is-active')).dataset.professionTab });
     searchListener();
