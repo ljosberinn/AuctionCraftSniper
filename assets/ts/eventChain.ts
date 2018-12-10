@@ -2,7 +2,17 @@ import * as distanceInWordsStrict from 'date-fns/distance_in_words_strict';
 
 import { setACSLocalStorage, ACS } from './localStorage';
 import {
-  updateState, sortByProfit, getTUJBaseURL, cloneOrigin, toggleSearchLoadingState, showInvalidRegionRealmPairHint, copyOnClick, showLocalStorage, clearLocalStorage
+  updateState,
+  sortByProfit,
+  getTUJBaseURL,
+  cloneOrigin,
+  toggleSearchLoadingState,
+  showHint,
+  copyOnClick,
+  showLocalStorage,
+  clearLocalStorage,
+  toggleProgressBar,
+  toggleUserInputs,
 } from './helper';
 import { AuctionCraftSniper } from './types';
 
@@ -33,13 +43,13 @@ const buildTSMString = (queryElement: any, selector: string): string => {
   return exportString.slice(0, -1);
 };
 
-const generalTSMExportListener = () => copyOnClick(buildTSMString(document, '#auction-craft-sniper td.recipe-is-visible[data-recipe]'));
+const generalTSMExportListener = (): void => copyOnClick(buildTSMString(document, '#auction-craft-sniper td.recipe-is-visible[data-recipe]'));
 
 /**
  *
  * @param {string} target
  */
-export const TSMListener = (el: HTMLTableCellElement, target: string) => {
+export const TSMListener = (el: HTMLTableCellElement, target: string): void => {
   const previousTable = el.closest('table');
   const tbodySpecifics = target === '.lossy-recipes' ? target : ':first-of-type';
 
@@ -50,7 +60,7 @@ export const TSMListener = (el: HTMLTableCellElement, target: string) => {
  *
  * @param {Event} e
  */
-const professionsEventListener = function (e: Event) {
+const professionsEventListener = function (e: Event): void {
   e.stopPropagation();
 
   const { value, checked } = <HTMLInputElement> this;
@@ -67,13 +77,9 @@ const professionsEventListener = function (e: Event) {
   setACSLocalStorage({ professions: ACS.professions });
 };
 
-/**
- *
- * @param {number} expansionLevel
- */
-const expansionLevelListener = (expansionLevel: number) => setACSLocalStorage({ expansionLevel });
+const expansionLevelListener = (expansionLevel: number): void => setACSLocalStorage({ expansionLevel });
 
-const requestNotificationPermission = () => {
+const requestNotificationPermission = (): void => {
   // if user is requested for the first time || user revoked rights at some point
   if (!ACS.settings.pushNotificationsAllowed && 'Notification' in window) {
     Notification.requestPermission().then(result => {
@@ -84,14 +90,14 @@ const requestNotificationPermission = () => {
   }
 };
 
-const settingEvent = function () {
+const settingEvent = function (): void {
   const payload = {};
   payload[this.id] = this.checked;
 
   setACSLocalStorage({ settings: payload });
 };
 
-const settingListener = () => {
+const settingListener = (): void => {
   document.querySelectorAll('#settings-modal input[type="checkbox"]').forEach(checkbox => {
     if (checkbox.id === 'pushNotificationsAllowed') {
       checkbox.addEventListener('change', requestNotificationPermission);
@@ -103,8 +109,8 @@ const settingListener = () => {
 
 let refreshInterval;
 
-const refreshData = () => {
-  if ((ACS.lastUpdate - new Date().getTime()) > 20 * 1000 * 60) {
+const refreshData = (): void => {
+  if (ACS.lastUpdate - new Date().getTime() > 20 * 1000 * 60) {
     console.log('Refresher triggered - searching for data...');
     searchListener();
   } else {
@@ -115,28 +121,30 @@ const refreshData = () => {
 export const searchListener = () => {
   const value = (<HTMLInputElement>document.getElementById('realm')).value.split('-');
 
-  if (value.length === 2) {
-    console.time('search');
-    toggleUserInputs(true);
-    toggleSearchLoadingState();
-    validateRegionRealm(value);
-
-    // initiate refresher every 60 seconds
-    if (typeof refreshInterval === 'undefined') {
-      refreshInterval = setInterval(refreshData, 60000);
-    }
-  } else {
-    showInvalidRegionRealmPairHint();
+  if (value.length !== 2) {
+    showHint('region-realm');
+    return false;
   }
-};
 
-/**
- *
- * @param {bool} state
- */
-const toggleUserInputs = (state: boolean) => {
-  document.querySelectorAll('input').forEach(input => (input.disabled = state));
-  [<HTMLInputElement>document.getElementById('search'), <HTMLSelectElement>document.getElementById('expansion-level')].forEach(el => (el.disabled = state));
+  if (ACS.professions.length === 0) {
+    showHint('professions');
+    return false;
+  }
+
+  console.time('search');
+
+  document.getElementById('auction-craft-sniper').classList.add('visible');
+  document.getElementById('description').classList.remove('visible');
+  document.getElementById('house-unavailable-disclaimer').classList.remove('visible');
+
+  toggleUserInputs(true);
+  toggleSearchLoadingState();
+  validateRegionRealm(value);
+
+  // initiate refresher, updating every 60 seconds
+  if (typeof refreshInterval === 'undefined') {
+    refreshInterval = setInterval(refreshData, 60000);
+  }
 };
 
 /**
@@ -144,34 +152,32 @@ const toggleUserInputs = (state: boolean) => {
  * @param {string} value
  */
 const validateRegionRealm = async (value: string[]) => {
-  const region: string = value[0];
-  const realm: string = value[1];
+  const [region, realm] = value;
 
-  updateState('validateRegionRealm');
+  updateState('validating region & realm');
 
-  await fetch(`api/validateRegionRealm.php?region=${region}&realm=${realm}`, {
+  const data = await fetch(`api/validateRegionRealm.php?region=${region}&realm=${realm}`, {
     method: 'GET',
     credentials: 'same-origin',
     mode: 'same-origin',
-  })
-    .then(response => response.json())
-    .then(json => {
-      // only proceed when input is valid REGION-REALM pair and server responded with house ID
-      if (json.houseID) {
-        setACSLocalStorage({ houseID: json.houseID });
-        checkHouseAge();
-      }
-    })
-    .catch(err => {
-      console.error(`Error validating region and/or realm: ${err}`);
-    });
+  });
+
+  const json = await data.json();
+
+  // only proceed when input is valid REGION-REALM pair and server responded with houseID
+  if (json.houseID) {
+    setACSLocalStorage({ houseID: json.houseID });
+    checkHouseAge();
+  } else {
+    showHouseUnavailabilityError();
+  }
 };
 
 const checkHouseAge = async () => {
   const { houseID, expansionLevel } = ACS;
 
   if (houseID !== undefined) {
-    updateState('checkHouseAge');
+    updateState('validating data age');
 
     const data = await fetch(`api/checkHouseAge.php?houseID=${houseID}&expansionLevel=${expansionLevel}`, {
       method: 'GET',
@@ -205,8 +211,12 @@ const checkHouseAge = async () => {
   }
 };
 
-const showHouseUnavailabilityError = () => {
+const showHouseUnavailabilityError = (): void => {
   console.warn('house unavailable');
+  toggleUserInputs(false);
+  toggleSearchLoadingState();
+  document.getElementById('auction-craft-sniper').classList.remove('visible');
+  document.getElementById('house-unavailable-disclaimer').classList.add('visible');
 };
 
 /**
@@ -225,7 +235,7 @@ const parseAuctionData = async (step = 0, itemIDs = {}) => {
     payload.step = step;
   }
 
-  updateState('parseAuctionData');
+  updateState('parsing data');
 
   const data = await fetch('api/parseAuctionData.php', {
     method: 'POST',
@@ -248,14 +258,11 @@ const parseAuctionData = async (step = 0, itemIDs = {}) => {
     parseAuctionData(json.step, json.itemIDs);
   } else if (json.reqSteps === json.step && json.callback === 'getProfessionTables') {
     getProfessionTables();
-    setTimeout(() => {
-      progressBar.value = 0;
-    }, 2000);
   }
 };
 
 const getAuctionHouseData = async () => {
-  updateState('getAuctionHouseData');
+  updateState('retrieving data from Blizzard - this can take up to a minute, please be patient!');
 
   const data = await fetch(`api/getAuctionHouseData.php?houseID=${ACS.houseID}`, {
     method: 'GET',
@@ -270,12 +277,12 @@ const getAuctionHouseData = async () => {
       parseAuctionData();
       break;
     default:
-      throw new Error('invalid callback');
+      showHouseUnavailabilityError();
   }
 };
 
 const getProfessionTables = async () => {
-  updateState('getProfessionTables');
+  updateState('fetching results');
 
   const { houseID, expansionLevel, professions } = ACS;
 
@@ -287,7 +294,13 @@ const getProfessionTables = async () => {
 
   const json: AuctionCraftSniper.outerProfessionDataJSON = await data.json();
 
-  fillProfessionTables(json);
+  if (json.callback) {
+    showHouseUnavailabilityError();
+  } else {
+    fillProfessionTables(json);
+
+    toggleProgressBar(false);
+  }
 };
 
 export const toggleBlacklistEntry = function () {
@@ -339,10 +352,7 @@ const fillRecipeTR = (recipe: AuctionCraftSniper.innerProfessionDataJSON, TUJLin
 };
 
 const hideProfessionTabs = () => {
-  document.querySelectorAll('[data-profession-tab]').forEach((li: HTMLUListElement) => {
-    li.classList.remove('is-active');
-    li.style.display = 'none';
-  });
+  document.querySelectorAll('[data-profession-tab]').forEach((li: HTMLUListElement) => li.classList.remove('is-active', 'visible'));
 };
 
 const hideProfessionTables = () => {
@@ -388,7 +398,7 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
     const professionTable = <HTMLTableElement>document.getElementById(professionName);
 
     const professionTabListElement = <HTMLUListElement>getProfessionTabListElement(professionName);
-    professionTabListElement.style.display = 'block';
+    professionTabListElement.classList.add('visible');
 
     if (!subNavHasActiveIndicator) {
       professionTabListElement.classList.add('is-active');
@@ -420,15 +430,13 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
       positiveTbody.appendChild(createLossyRecipeHintTR());
     }
 
-    const tableSectionElements = [<HTMLTableSectionElement>initiateTHead(), positiveTbody, negativeTbody];
-
-    tableSectionElements.forEach(tbody => professionTable.appendChild(tbody));
+    [initiateTHead(), positiveTbody, negativeTbody].forEach(tbody => professionTable.appendChild(tbody));
 
     console.timeEnd(professionName);
   });
 
   toggleUserInputs(false);
-  updateState('default');
+  updateState('idling');
   toggleSearchLoadingState();
   eval('$WowheadPower.init();');
 
@@ -461,6 +469,10 @@ const subNavEventListener = function () {
   }
 };
 
+const toggleSettingsModal = () => {
+  document.getElementById('settings-modal').classList.toggle('visible');
+};
+
 export const addEventListeners = () => {
   document.querySelectorAll('#professions input[type="checkbox"]').forEach((checkbox: HTMLInputElement) => checkbox.addEventListener('click', professionsEventListener));
   (<HTMLInputElement>document.getElementById('search')).addEventListener('click', searchListener);
@@ -470,12 +482,17 @@ export const addEventListeners = () => {
 
   document.querySelectorAll('li[data-profession-tab]').forEach(listElement => listElement.addEventListener('click', subNavEventListener));
 
-  document.getElementById('general-tsm-export').addEventListener('click', generalTSMExportListener);
-
   settingListener();
 
-  document.getElementById('showLocalStorage').addEventListener('click', showLocalStorage);
-  document.getElementById('clearLocalStorage').addEventListener('click', clearLocalStorage);
+  Object.entries({
+    'general-tsm-export': generalTSMExportListener,
+    settings: toggleSettingsModal,
+    showLocalStorage,
+    clearLocalStorage,
+  }).forEach(entry => {
+    const [el, fn] = entry;
+    document.getElementById(el).addEventListener('click', fn);
+  });
 };
 
 /**
@@ -521,9 +538,11 @@ export const formatCurrency = (value: number) => {
  * @param {number} lastUpdate
  */
 const insertLastUpdate = (lastUpdate: number) => {
+  const lastUpdateSpan = <HTMLSpanElement>document.getElementById('last-update');
+
+  lastUpdateSpan.parentElement.classList.add('visible');
+
   const date = new Date(lastUpdate);
 
-  (<HTMLSpanElement>document.getElementById('last-update')).innerText = `${distanceInWordsStrict(new Date(), lastUpdate, {
-    addSuffix: true,
-  })} (${date.toLocaleDateString()} - ${date.toLocaleTimeString()})`;
+  lastUpdateSpan.innerText = `${distanceInWordsStrict(new Date(), lastUpdate, { addSuffix: true })} (${date.toLocaleDateString()} - ${date.toLocaleTimeString()})`;
 };

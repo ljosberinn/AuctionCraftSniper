@@ -63,14 +63,45 @@ class AuctionCraftSniper
      */
     private $activeSettings = [
         // checkbox
-        'alwaysShowLossyRecipes'   => ['description' => 'always show lossy recipes', 'type' => 'checkbox', 'classes' => 'is-checkradio'],
-        'fetchOnLoad'              => ['description' => 'automatically fetch data on page load (last selected realm will be used)', 'type' => 'checkbox', 'classes' => 'is-checkradio'],
-        'pushNotificationsAllowed' => ['description' => 'sends push notifications when new auction house data is available', 'type' => 'checkbox', 'classes' => 'is-checkradio'],
+        'fetchOnLoad'              => [
+            'description' => 'automatically fetch data on page load (last selected realm will be used)',
+            'type'        => 'checkbox',
+            'classes'     => 'is-checkradio',
+        ],
+        'pushNotificationsAllowed' => [
+            'description' => 'send push notifications when new auction house data is available',
+            'type'        => 'checkbox',
+            'classes'     => 'is-checkradio',
+        ],
+        'alwaysShowLossyRecipes'   => [
+            'description' => 'always show lossy recipes',
+            'type'        => 'checkbox',
+            'classes'     => 'is-checkradio',
+        ],
         // input
-        'marginThreshold'          => ['description' => 'define a custom threshold of recipes to show (COMING SOON)', 'type' => 'number', 'classes' => 'input'],
+        'marginThresholdPercent'   => [
+            'description' => '<span class="has-text-warning">COMING SOON</span> define a custom <strong>percentage</strong> threshold of recipes to show',
+            'type'        => 'number',
+            'classes'     => 'input',
+        ],
+        'marginThresholdValue'     => [
+            'description' => '<span class="has-text-warning">COMING SOON</span> define a custom <strong>absolute value</strong> threshold of recipes to show',
+            'type'        => 'number',
+            'classes'     => 'input',
+        ],
         // button
-        'showLocalStorage'         => ['description' => 'show all locally stored data', 'type' => 'button', 'classes' => 'is-info', 'icon' => 'info'],
-        'clearLocalStorage'        => ['description' => 'clear all locally stored data', 'type' => 'button', 'classes' => 'is-danger', 'icon' => 'nuke'],
+        'showLocalStorage'         => [
+            'description' => 'show locally stored data',
+            'type'        => 'button',
+            'classes'     => 'is-info',
+            'icon'        => 'info',
+        ],
+        'clearLocalStorage'        => [
+            'description' => 'clear locally stored data',
+            'type'        => 'button',
+            'classes'     => 'is-danger',
+            'icon'        => 'nuke',
+        ],
     ];
 
     /**
@@ -786,7 +817,10 @@ class AuctionCraftSniper
             ];
         }
 
-        return ['callback' => 'throwHouseUnavailabilityError'];
+        return [
+            'callback'   => 'throwHouseUnavailabilityError',
+            'lastUpdate' => 0,
+        ];
     }
 
     /**

@@ -1,6 +1,9 @@
 import { AuctionCraftSniper } from './types';
 import { ACS } from './localStorage';
 
+/**
+ * @returns {AuctionCraftSniper.cloneOriginObj}
+ */
 export const initiateCloneObj = (): AuctionCraftSniper.cloneOriginObj => {
   const obj: AuctionCraftSniper.cloneOriginObj = {
     currencies: {},
@@ -22,34 +25,22 @@ export const cloneOrigin = initiateCloneObj();
 
 /**
  *
- * @param state
+ * @param {string} state
  */
-export const updateState = (state: string) => {
-  switch (state) {
-    case 'parseAuctionData':
-      createNotification('is-primary', 'parsing data');
-      break;
-    case 'getProfessionTables':
-      createNotification('is-primary', 'fetching results');
-      break;
-    case 'getAuctionHouseData':
-      createNotification('is-primary', 'retrieving data from Blizzard');
-      break;
-    case 'checkHouseAge':
-      createNotification('is-primary', 'validating data age');
-      break;
-    default:
-      createNotification('is-primary', 'idling');
-      break;
-  }
+export const updateState = (state: string): void => {
+  document.getElementById('progress-bar').dataset.state = state;
 };
 
 /**
  *
  * @param {AuctionCraftSniper.innerProfessionDataJSON[]} innerProfessionData
+ * @returns {AuctionCraftSniper.innerProfessionDataJSON[]} innerProfessionData
  */
 export const sortByProfit = (innerProfessionData: AuctionCraftSniper.innerProfessionDataJSON[]) => innerProfessionData.sort((objA, objB) => objB.profit - objA.profit);
 
+/**
+ * @returns {string}
+ */
 export const getTUJBaseURL = (): string => {
   const [region, realm] = (<HTMLInputElement>document.getElementById('realm')).value.split('-');
 
@@ -59,24 +50,25 @@ export const getTUJBaseURL = (): string => {
 /**
  *
  * @param {number} itemID
+ * @returns {string}
  */
 export const getWoWheadURL = (itemID: number): string => `https://wowhead.com/?item=${itemID}`;
 
 export const toggleSearchLoadingState = () => {
   document.getElementById('search').classList.toggle('is-loading');
+  toggleProgressBar(true);
 };
 
-export const showInvalidRegionRealmPairHint = () => {
-  const target = document.getElementById('hint-invalid-region-realm');
-  const display = target.style.display;
+export const showHint = (hintType: string): void => {
+  const target = document.getElementById(`hint-invalid-${hintType}`);
 
-  if (display !== 'block') {
-    target.style.display = 'block';
+  const classList = target.classList;
 
-    setTimeout(() => {
-      target.style.display = 'none';
-    }, 3500);
-  }
+  classList.add('visible');
+
+  setTimeout(() => {
+    classList.remove('visible');
+  }, 3500);
 };
 
 /**
@@ -84,7 +76,7 @@ export const showInvalidRegionRealmPairHint = () => {
  * @param {string} notificationType
  * @param {string} notificationContent
  */
-const createNotification = (notificationType: string, notificationContent: string) => {
+const createNotification = (notificationType: string, notificationContent: string): void => {
   const notification = <HTMLDivElement>cloneOrigin.div.cloneNode();
   notification.classList.add('notification', notificationType);
 
@@ -114,7 +106,7 @@ const createNotification = (notificationType: string, notificationContent: strin
  *
  * @param {any} valueToCopy
  */
-export const copyOnClick = (valueToCopy: any) => {
+export const copyOnClick = (valueToCopy: any): void => {
   const input = document.createElement('input');
   input.value = valueToCopy;
 
@@ -127,7 +119,7 @@ export const copyOnClick = (valueToCopy: any) => {
   createNotification('is-primary', 'copied TSM string');
 };
 
-const removeLocalStorageTextarea = () => {
+const removeLocalStorageTextarea = (): void => {
   document.getElementById('localStorage-textarea').remove();
 
   const triggerElement = document.getElementById('showLocalStorage');
@@ -135,7 +127,7 @@ const removeLocalStorageTextarea = () => {
   triggerElement.addEventListener('click', showLocalStorage);
 };
 
-export const showLocalStorage = () => {
+export const showLocalStorage = (): void => {
   const triggerElement = document.getElementById('showLocalStorage');
   triggerElement.removeEventListener('click', showLocalStorage);
 
@@ -150,7 +142,31 @@ export const showLocalStorage = () => {
   triggerElement.addEventListener('click', removeLocalStorageTextarea);
 };
 
-export const clearLocalStorage = () => {
+export const clearLocalStorage = (): void => {
   localStorage.clear();
   createNotification('is-info', 'All your data has been removed.');
+};
+
+/**
+ *
+ * @param {boolean} show
+ */
+export const toggleProgressBar = (show: boolean): void => {
+  const progressBar = <HTMLProgressElement>document.getElementById('progress-bar');
+
+  if (show) {
+    progressBar.parentElement.classList.add('visible');
+  } else {
+    progressBar.removeAttribute('value');
+    progressBar.parentElement.classList.remove('visible');
+  }
+};
+
+/**
+ *
+ * @param {bool} state
+ */
+export const toggleUserInputs = (state: boolean): void => {
+  document.querySelectorAll('input').forEach(input => (input.disabled = state));
+  [<HTMLInputElement>document.getElementById('search'), <HTMLSelectElement>document.getElementById('expansion-level')].forEach(el => (el.disabled = state));
 };

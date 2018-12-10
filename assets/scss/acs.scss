@@ -52,7 +52,13 @@ a + .currency {
 
 .lossy-recipes,
 #hint-invalid-region-realm,
-#settings-modal {
+#settings-modal,
+#auction-craft-sniper,
+#description,
+#progress-bar-wrap,
+#last-update-wrap,
+#house-unavailable-disclaimer,
+[id^="hint-invalid-"] {
   display: none;
 }
 
@@ -69,7 +75,7 @@ div.tabs.is-boxed.is-small {
   overflow: hidden;
 }
 
-li {
+li[data-profession-tab] {
   display: none;
 
   &.is-active a i.icon-disabled,
@@ -126,4 +132,60 @@ a.is-loading {
   border-color: #dee5ed;
   box-shadow: none;
   opacity: .5;
+}
+
+.visible {
+  display: block !important;
+}
+
+/* https://stackoverflow.com/questions/50400219/bulma-progress-text-in-middle */
+
+#progress-bar {
+  position: relative;
+}
+
+#progress-bar:after {
+  content: attr(data-state);
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: calc(1.25rem / 1.5);
+  line-height: 1.25rem;
+}
+
+.horde {
+  background-color: #8c161660;
+}
+
+.alliance {
+  background-color: #14458760;
+}
+
+.field input[type="number"] {
+  width: 33.33%;
+}
+
+.field input[type="number"] + label {
+  height: 2.25em;
+  position: relative;
+  top: 7px;
+}
+
+#auction-craft-sniper table thead th:not(:first-of-type) {
+  text-align: right;
+}
+
+#auction-craft-sniper table tbody td:nth-of-type(2) {
+  cursor: pointer;
+}
+
+h2.title {
+  font-family: 'LifeCraft', sans-serif;
+}
+
+svg.linked {
+  width: 23px;
+  height: 23px;
+  vertical-align: inherit;
 }

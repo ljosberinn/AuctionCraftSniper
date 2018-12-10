@@ -18,7 +18,7 @@ export const ACS: AuctionCraftSniper.localStorageObj = {
  *
  * @param {AuctionCraftSniper.localStorageObj} data
  */
-export const setACSLocalStorage = (data: AuctionCraftSniper.localStorageObj) => {
+export const setACSLocalStorage = (data: AuctionCraftSniper.localStorageObj): void => {
   Object.entries(data).forEach(entry => {
     const [key, value] = entry;
 
@@ -37,7 +37,7 @@ export const setACSLocalStorage = (data: AuctionCraftSniper.localStorageObj) => 
   localStorage.ACS = JSON.stringify(ACS);
 };
 
-export const getACSLocalStorage = () => {
+export const getACSLocalStorage = (): void => {
   if (localStorage.ACS) {
     const tempACS: AuctionCraftSniper.localStorageObj = JSON.parse(localStorage.ACS);
 
@@ -64,7 +64,7 @@ export const getACSLocalStorage = () => {
   }
 };
 
-const setSettingCheckboxes = () => {
+const setSettingCheckboxes = (): void => {
   Object.entries(ACS.settings).forEach(entry => {
     const [settingName, value] = entry;
 

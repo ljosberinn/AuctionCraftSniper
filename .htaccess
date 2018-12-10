@@ -366,7 +366,7 @@ AddDefaultCharset utf-8
 
 <IfModule mod_headers.c>
 	# HSTS Header nur bei Variable HTTPS setzen
-	Header always set Strict-Transport-Security "max-age=16070400" env=HTTPS
+	Header always set Strict-Transport-Security "max-age=31536000; preload; includeSubDomains" env=HTTPS
 </IfModule>
 
 # ----------------------------------------------------------------------

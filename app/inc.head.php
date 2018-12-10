@@ -28,14 +28,15 @@ $pageDescriptionEnding = 'on-demand near-real time information about profession-
 <!-- OpenGraph for Facebook & WhatsApp -->
 <!--<meta property="og:title" content="AuctionCraftSniper"/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://acs.gerritalex.de/">
+<meta property="og:url" content="https://auctioncraftsniper.com/">
 <meta property="og:description" content="AuctionCraftSniper provides <?= $pageDescriptionEnding ?>"/>-->
 
 <!-- Google+ page description -->
 <meta itemprop="name" content="AuctionCraftSniper"/>
 <meta itemprop="description" content="AuctionCraftSniper provides <?= $pageDescriptionEnding ?>"/>
 <meta itemprop="lastReviewed" content="<?= date('Y-m-d', $indexMakeTime ?: $jsMakeTime) ?>"/>
-<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+<link rel="canonical" href="https://auctioncraftsniper.com">
+<link href="//fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
 <link href="/assets/css/acs.min.css?<?= filemtime('assets/css/acs.min.css') ?>" rel="stylesheet">
 
 <title>AuctionCraftSniper - WIP</title>

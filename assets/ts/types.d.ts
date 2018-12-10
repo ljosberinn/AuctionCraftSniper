@@ -12,7 +12,6 @@ export declare namespace AuctionCraftSniper {
     th?: HTMLTableHeaderCellElement;
     tr?: HTMLTableRowElement;
     td?: HTMLTableCellElement;
-    span?: HTMLSpanElement;
     a?: HTMLAnchorElement;
     div?: HTMLDivElement;
     button?: HTMLButtonElement;
@@ -84,6 +83,7 @@ export declare namespace AuctionCraftSniper {
     jewelcrafting?: innerProfessionDataJSON[];
     leatherworking?: innerProfessionDataJSON[];
     tailoring?: innerProfessionDataJSON[];
+    callback?: string;
   }
 
   interface valueObj {
