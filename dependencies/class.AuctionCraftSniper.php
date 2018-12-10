@@ -455,8 +455,10 @@ class AuctionCraftSniper {
 
                 unset($recipeMaterial);
 
-                $recipeData['margin'] = round(($recipeData['product']['buyout'] / $recipeData['materialCostSum'] - 1) * 100, 2);
-
+                // avoid division by zero
+                if ($recipeData['materialCostSum'] !== 0) {
+                    $recipeData['margin'] = round(($recipeData['product']['buyout'] / $recipeData['materialCostSum'] - 1) * 100, 2);
+                }
 
                 $professionTableData[lcfirst($this->professions[$recipe['profession']])][] = $recipeData;
             }
