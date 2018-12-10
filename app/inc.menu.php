@@ -8,7 +8,8 @@
             <?php } ?>
 		</datalist>
 		<p id="hint-invalid-region-realm" class="help has-text-danger">Invalid region-realm pair.</p>
-		<p id="last-update-wrap" class="help has-text-info">Last update: <span id="last-update"></span></p>
+		<p id="last-update-wrap" class="help has-text-info">Last update <span id="last-update"></span></p>
+		<p id="next-update-wrap" class="help has-text-warning">Next update in <span id="next-update"></span></p>
 	</div>
 
 	<div class="field column" id="professions">
@@ -23,7 +24,7 @@
 		</div>
 	</div>
 
-	<div class="field column is-2">
+	<div class="field column is-2 is-12-mobile">
 		<div class="control select">
 			<select id="expansion-level">
 				<option disabled>search expansion-specific recipes...</option>
@@ -48,4 +49,3 @@
         <?php } ?>
 	</div>
 </div>
-

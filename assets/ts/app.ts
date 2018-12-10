@@ -1,11 +1,10 @@
-// import { init } from '@sentry/browser';
+import { init } from '@sentry/browser';
 import { getACSLocalStorage } from './localStorage';
 import { addEventListeners } from './eventChain';
 
-/* init({
+init({
   dsn: 'https://a14f918eaf6544eea696ad35340f68a5@sentry.io/1329859',
-  debug: true,
-}); */
+});
 
 document.onreadystatechange = () => {
   if (document.readyState === 'complete') {

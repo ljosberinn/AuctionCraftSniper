@@ -19,7 +19,6 @@ ob_start(function ($buffer) {
     return preg_replace($search, $replace, $buffer);
 });
 
-require_once 'dependencies/headers.php';
 require_once 'dependencies/class.AuctionCraftSniper.php';
 
 $AuctionCraftSniper = new AuctionCraftSniper();

@@ -12,6 +12,8 @@ export const initiateCloneObj = (): AuctionCraftSniper.cloneOriginObj => {
   };
 
   ['table', 'thead', 'tbody', 'tr', 'th', 'td', 'a', 'div', 'button', 'strong'].forEach(tag => (obj[tag] = document.createElement(tag)));
+  obj.a.rel = 'noreferrer';
+  obj.a.target = '_blank';
 
   ['gold', 'silver', 'copper'].forEach(currency => {
     const span = document.createElement('span');

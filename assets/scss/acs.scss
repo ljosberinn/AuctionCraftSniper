@@ -58,6 +58,8 @@ a + .currency {
 #progress-bar-wrap,
 #last-update-wrap,
 #house-unavailable-disclaimer,
+#general-tsm-export,
+#next-update-wrap,
 [id^="hint-invalid-"] {
   display: none;
 }
@@ -95,14 +97,14 @@ li[data-profession-tab] {
 
 @-webkit-keyframes spin {
   to {
-    -webkit-transform: rotate(360deg)
+    -webkit-transform: rotate(359deg)
   }
 }
 
 @keyframes spin {
   to {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg)
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg)
   }
 }
 
@@ -184,8 +186,74 @@ h2.title {
   font-family: 'LifeCraft', sans-serif;
 }
 
-svg.linked {
+svg.svg {
   width: 23px;
   height: 23px;
   vertical-align: inherit;
+}
+
+.button,
+#professions label.checkbox {
+  transition: 200ms ease-in-out;
+}
+
+.blurred {
+  filter: blur(5px);
+}
+
+#description .image {
+  transition: filter 200ms ease-out;
+}
+
+a.button:hover,
+#professions label.checkbox:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);
+  filter: brightness(130%);
+}
+
+.notification {
+  position: absolute;
+  margin-bottom: 1rem !important;
+  right: 1rem;
+  bottom: 0;
+}
+
+/* RESPONSIVENESS */
+
+@media (max-width: 768px) {
+  .columns {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .control.select, .control.select select {
+    width: 100%;
+  }
+}
+
+@media (max-width: 1090px) {
+  #general-tsm-export {
+    display: none !important;
+  }
+
+  td.tsm {
+    background-image: none;
+    pointer-events: none;
+  }
+
+  .columns {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media (max-width: 1279px) {
+  .column a.button {
+    width: 100%;
+  }
+
+  .column a.button:not(:first-of-type) {
+    margin-top: .3rem;
+  }
 }

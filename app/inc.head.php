@@ -20,6 +20,7 @@ $pageDescriptionEnding = 'on-demand near-real time information about profession-
 <link rel="me" href="mailto:admin@gerritalex.de"/>
 <meta name="author" content="Gerrit Alex"/>
 <meta name="language" content="en"/>
+<meta name="description" content="AuctionCraftSniper provides <?= $pageDescriptionEnding ?>" />
 
 <meta name="reply-to" content="admin@gerritalex.de"/>
 <meta name="distribution" content="global"/>
@@ -38,11 +39,13 @@ $pageDescriptionEnding = 'on-demand near-real time information about profession-
 <link rel="canonical" href="https://auctioncraftsniper.com">
 <link href="//fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
 <link href="/assets/css/acs.min.css?<?= filemtime('assets/css/acs.min.css') ?>" rel="stylesheet">
-
-<title>AuctionCraftSniper - WIP</title>
-
-<meta name="description" content="AuctionCraftSniper provides <?= $pageDescriptionEnding ?>" />
 <link rel="icon" type="image/png" href="/assets/img/favicon.png">
+
+<?php foreach (['gold', 'silver', 'copper'] as $currency) { ?>
+	<link rel="preload" as="image" href="//wow.zamimg.com/images/icons/money-<?= $currency ?>.gif" type="image/gif">
+<?php } ?>
+
+<title>AuctionCraftSniper</title>
 
 <script defer src="/assets/js/bundle.min.js?<?= $jsMakeTime ?>"></script>
 <script>
@@ -53,6 +56,4 @@ $pageDescriptionEnding = 'on-demand near-real time information about profession-
   }
 </script>
 <script async src="//wow.zamimg.com/widgets/power.js"></script>
-<?php foreach (['gold', 'silver', 'copper'] as $currency) { ?>
-<link rel="preload" as="image" href="//wow.zamimg.com/images/icons/money-<?= $currency ?>.gif" type="image/gif">
-<?php } ?>
+

@@ -1,0 +1,112 @@
+{
+    "dir": "ltr",
+    "lang": "en",
+    "name": "AuctionCraftSniper",
+    "scope": "/",
+    "display": "browser",
+    "start_url": "https://auctioncraftsniper.com/",
+    "short_name": "ACS",
+    "theme_color": "#342f2d",
+    "background_color": "#342f2d",
+    "description": "AuctionCraftSniper provides on-demand near-real time information about profession-related auction house prices for World of Warcraft",
+    "orientation": "any",
+    "related_applications": [],
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "/assets/img/favicons/6c79bd57-55e4-04bd-1def-63a17ca63d38.webPlatform.png",
+            "sizes": "44x44",
+            "type": "image/png"
+        },
+        {
+            "src": "/assets/img/favicons/8d577cce-4ecb-6462-14d4-3c905ce4ed78.webPlatform.png",
+            "sizes": "48x48",
+            "type": "image/png"
+        },
+        {
+            "src": "/assets/img/favicons/44f206a6-d1dc-4e4f-1ed2-736babf2b49a.webPlatform.png",
+            "sizes": "1240x600",
+            "type": "image/png"
+        },
+        {
+            "src": "/assets/img/favicons/61fe6548-bd25-813b-7825-052d10147549.webPlatform.png",
+            "sizes": "300x300",
+            "type": "image/png"
+        },
+        {
+            "src": "/assets/img/favicons/951c4bc0-c075-7b29-0da6-ec97fa025225.webPlatform.png",
+            "sizes": "150x150",
+            "type": "image/png"
+        },
+        {
+            "src": "/assets/img/favicons/1430f735-8d71-1a8a-cdfc-e1d485a69763.webPlatform.png",
+            "sizes": "88x88",
+            "type": "image/png"
+        },
+        {
+            "src": "/assets/img/favicons/8acecc3c-449c-1632-c5f6-0e7c58c5afdc.webPlatform.png",
+            "sizes": "24x24",
+            "type": "image/png"
+        },
+        {
+            "src": "/assets/img/favicons/ced068d4-8914-b289-8b7e-2bd8efa2cb13.webPlatform.png",
+            "sizes": "50x50",
+            "type": "image/png"
+        },
+        {
+            "src": "/assets/img/favicons/bcddcd7e-4fd5-a1ef-4dd4-45477e3dc84a.webPlatform.png",
+            "sizes": "620x300",
+            "type": "image/png"
+        },
+        {
+            "src": "/assets/img/favicons/e48baa64-0988-4629-9739-c1a31433b26a.webPlatform.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/assets/img/favicons/220fb849-27e2-5c82-5fbd-75264cddcccc.webPlatform.png",
+            "sizes": "144x144",
+            "type": "image/png"
+        },
+        {
+            "src": "/assets/img/favicons/570af2ec-d161-0b4c-83c0-73a05350ae76.webPlatform.png",
+            "sizes": "96x96",
+            "type": "image/png"
+        },
+        {
+            "src": "/assets/img/favicons/a61e768e-af36-c421-ec71-e546a331fbb5.webPlatform.png",
+            "sizes": "72x72",
+            "type": "image/png"
+        },
+        {
+            "src": "/assets/img/favicons/4433d1df-73f0-28e0-5a18-d86800ecf68d.webPlatform.png",
+            "sizes": "36x36",
+            "type": "image/png"
+        },
+        {
+            "src": "/assets/img/favicons/a4408f9d-3077-26de-289f-e2a02e4ef2bc.webPlatform.png",
+            "sizes": "1024x1024",
+            "type": "image/png"
+        },
+        {
+            "src": "/assets/img/favicons/5fee91f2-8ba3-cc6e-0c40-0b05b02273a9.webPlatform.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        },
+        {
+            "src": "/assets/img/favicons/88326248-0089-9b6d-bdd9-7d98763eb3f9.webPlatform.png",
+            "sizes": "152x152",
+            "type": "image/png"
+        },
+        {
+            "src": "/assets/img/favicons/16a20e88-8d12-aa4a-53ca-75b09c8974b7.webPlatform.png",
+            "sizes": "120x120",
+            "type": "image/png"
+        },
+        {
+            "src": "/assets/img/favicons/91fdbcb5-68ea-1771-0a51-c21dc39b7331.webPlatform.png",
+            "sizes": "76x76",
+            "type": "image/png"
+        }
+    ]
+}

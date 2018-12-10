@@ -1,6 +1,6 @@
 <?php
 
-require '../dependencies/headers.php';
+header('Content-Type: application/json');
 
 $success = 0;
 

@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc assets/ts/app.ts --sourceMap --outDir assets/js --lib es2017,dom && npx webpack",
+    "build": "tsc assets/ts/app.ts --sourceMap --outDir assets/js --lib es2017,dom && npx webpack --devtool eval-source-map",
+    "build-deploy": "tsc assets/ts/app.ts --outDir assets/js --lib es2017,dom && npx webpack",
     "scss-dev-watch": "npx node-sass assets/scss/acs.scss assets/css/acs.min.css --source-map=true --output-style=compressed --watch",
     "scss-deploy": "npx node-sass assets/scss/acs.scss assets/css/acs.min.css --output-style=compressed"
   },

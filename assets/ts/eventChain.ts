@@ -1,4 +1,5 @@
 import * as distanceInWordsStrict from 'date-fns/distance_in_words_strict';
+import * as distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
 
 import { setACSLocalStorage, ACS } from './localStorage';
 import {
@@ -110,6 +111,12 @@ const settingListener = (): void => {
   });
 };
 
+const initiateRefreshInterval = () => {
+  if (typeof refreshInterval === 'undefined') {
+    refreshInterval = setInterval(refreshData, REFRESHER_INTERVAL);
+  }
+};
+
 let refreshInterval;
 
 const refreshData = (): void => {
@@ -124,8 +131,14 @@ const refreshData = (): void => {
     checkHouseAge(true);
   } else {
     console.log('Refresher triggered - update currently impossible.');
-    insertLastUpdate(ACS.lastUpdate);
+    insertUpdateInformation();
   }
+};
+
+export const hideIntroduction = () => {
+  document.getElementById('auction-craft-sniper').classList.add('visible');
+  document.getElementById('description').classList.remove('visible');
+  document.getElementById('house-unavailable-disclaimer').classList.remove('visible');
 };
 
 export const searchListener = () => {
@@ -133,29 +146,22 @@ export const searchListener = () => {
 
   if (value.length !== 2) {
     showHint('region-realm');
-    return false;
+    return;
   }
 
   if (ACS.professions.length === 0) {
     showHint('professions');
-    return false;
+    return;
   }
 
   console.group(`starting search for houseID ${ACS.houseID} with profession ${ACS.professions.toString()} at expansionLevel ${ACS.expansionLevel}`);
   console.time('search');
 
-  document.getElementById('auction-craft-sniper').classList.add('visible');
-  document.getElementById('description').classList.remove('visible');
-  document.getElementById('house-unavailable-disclaimer').classList.remove('visible');
-
+  hideIntroduction();
   toggleUserInputs();
   toggleSearchLoadingState();
   validateRegionRealm(value);
-
-  // initiate refresher, updating every 60 seconds
-  if (typeof refreshInterval === 'undefined') {
-    refreshInterval = setInterval(refreshData, REFRESHER_INTERVAL);
-  }
+  initiateRefreshInterval();
 };
 
 /**
@@ -203,8 +209,8 @@ const checkHouseAge = async (triggeredByRefresher: boolean = false) => {
     const json: AuctionCraftSniper.checkHouseAgeJSON = await data.json();
 
     if (json.lastUpdate !== 0) {
-      insertLastUpdate(json.lastUpdate);
       setACSLocalStorage({ lastUpdate: json.lastUpdate });
+      insertUpdateInformation();
     }
 
     switch (json.callback) {
@@ -308,7 +314,7 @@ const getAuctionHouseData = async () => {
   }
 };
 
-const getProfessionTables = async () => {
+export const getProfessionTables = async (isShorthanded: boolean = false) => {
   updateState('fetching results');
 
   const { houseID, expansionLevel, professions } = ACS;
@@ -324,9 +330,14 @@ const getProfessionTables = async () => {
   if (json.callback) {
     showHouseUnavailabilityError();
   } else {
-    fillProfessionTables(json);
+    fillProfessionTables(json, isShorthanded);
 
     toggleProgressBar(false);
+
+    if (isShorthanded) {
+      insertUpdateInformation();
+      initiateRefreshInterval();
+    }
   }
 };
 
@@ -382,7 +393,7 @@ const fillRecipeTR = (recipe: AuctionCraftSniper.innerProfessionDataJSON, TUJLin
 };
 
 const hideProfessionTabs = () => {
-  document.querySelectorAll('[data-profession-tab]').forEach((li: HTMLUListElement) => li.classList.remove('is-active', 'visible'));
+  document.querySelectorAll('#auction-craft-sniper li').forEach((li: HTMLUListElement) => li.classList.remove('is-active', 'visible'));
 };
 
 const hideProfessionTables = () => {
@@ -406,9 +417,10 @@ const emptyProfessionTables = () => {
 /**
  *
  * @param {AuctionCraftSniper.outerProfessionDataJSON} json
+ * @param {boolean} isShorthanded
  */
-const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON = {}) => {
-  console.group(`filling profession tables for ${ACS.professions.length} professions`);
+const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON = {}, isShorthanded: boolean = false) => {
+  console.group(`filling profession tables for ${ACS.professions.length} professions - ${isShorthanded ? 'isShorthanded' : '!isShorthanded'}`);
   console.time('fillProfessionTables');
 
   const TUJLink = getTUJBaseURL();
@@ -476,15 +488,23 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
     console.timeEnd(professionName);
   });
 
-  toggleUserInputs(false);
-  updateState('idling');
-  toggleSearchLoadingState();
+  if (!isShorthanded) {
+    toggleUserInputs(false);
+    updateState('idling');
+    toggleSearchLoadingState();
+  }
+
+  document.getElementById('general-tsm-export').classList.add('visible');
+  
   eval('$WowheadPower.init();');
 
   console.groupEnd();
   console.timeEnd('fillProfessionTables');
-  console.timeEnd('search');
-  console.groupEnd();
+
+  if (!isShorthanded) {
+    console.timeEnd('search');
+    console.groupEnd();
+  }
 };
 
 export const toggleLossyRecipes = function () {
@@ -582,12 +602,17 @@ export const formatCurrency = (value: number) => {
  *
  * @param {number} lastUpdate
  */
-const insertLastUpdate = (lastUpdate: number) => {
+const insertUpdateInformation = () => {
+  const dateFnSuffix = { addSuffix: true };
+
+  const nextUpdate = new Date(ACS.lastUpdate + ACS.houseUpdateInterval);
+  const lastUpdate = new Date(ACS.lastUpdate);
+
   const lastUpdateSpan = <HTMLSpanElement>document.getElementById('last-update');
-
   lastUpdateSpan.parentElement.classList.add('visible');
+  lastUpdateSpan.innerText = `${distanceInWordsStrict(new Date(), lastUpdate, dateFnSuffix)} (${lastUpdate.toLocaleDateString()} - ${lastUpdate.toLocaleTimeString()})`;
 
-  const date = new Date(lastUpdate);
-
-  lastUpdateSpan.innerText = `${distanceInWordsStrict(new Date(), lastUpdate, { addSuffix: true })} (${date.toLocaleDateString()} - ${date.toLocaleTimeString()})`;
+  const nextUpdateSpan = <HTMLSpanElement>document.getElementById('next-update');
+  nextUpdateSpan.parentElement.classList.add('visible');
+  nextUpdateSpan.innerText = `${distanceInWordsToNow(nextUpdate)} (${nextUpdate.toLocaleDateString()} - ${nextUpdate.toLocaleTimeString()})`;
 };

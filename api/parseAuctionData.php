@@ -1,6 +1,6 @@
 <?php
 
-require '../dependencies/headers.php';
+header('Content-Type: application/json');
 require '../dependencies/class.AuctionCraftSniper.php';
 
 $decodedPOST = json_decode(trim(file_get_contents('php://input')), true);

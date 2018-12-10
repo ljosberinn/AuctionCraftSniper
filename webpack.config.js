@@ -6,5 +6,5 @@ module.exports = {
     path: path.resolve(__dirname, './assets/js'),
     filename: 'bundle.min.js',
   },
-  devtool: 'eval-source-map',
+  // devtool: 'eval-source-map',
 };
