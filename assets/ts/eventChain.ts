@@ -30,7 +30,8 @@ import {
 } from './elementBuilder';
 
 // minutes to milliseconds
-const UPDATE_INTERVAL = 2700000; // 45 * 1000 * 60
+const UPDATE_THRESHOLD = 3300000; // 55 * 1000 * 60
+const REFRESHER_INTERVAL = 30000; // 0.5 * 1000 * 60
 
 /**
  *
@@ -113,7 +114,7 @@ const settingListener = (): void => {
 let refreshInterval;
 
 const refreshData = (): void => {
-  if (new Date().getTime() - ACS.lastUpdate > UPDATE_INTERVAL) {
+  if (new Date().getTime() - ACS.lastUpdate > UPDATE_THRESHOLD) {
     console.log('Refresher triggered - searching for data...');
     setACSLocalStorage({ currentTab: (<HTMLUListElement>document.querySelector('li.is-active')).dataset.professionTab });
     // searchListener();
@@ -155,7 +156,7 @@ export const searchListener = () => {
 
   // initiate refresher, updating every 60 seconds
   if (typeof refreshInterval === 'undefined') {
-    refreshInterval = setInterval(refreshData, 60000);
+    refreshInterval = setInterval(refreshData, REFRESHER_INTERVAL);
   }
 };
 
