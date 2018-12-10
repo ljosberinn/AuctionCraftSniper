@@ -48,6 +48,7 @@ export declare namespace AuctionCraftSniper {
     professions?: number[];
     expansionLevel?: number;
     lastUpdate?: number;
+    currentTab?: undefined | string;
     settings?: ACSSettingsObj;
   }
 

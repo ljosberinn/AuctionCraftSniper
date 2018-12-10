@@ -110,8 +110,9 @@ const settingListener = (): void => {
 let refreshInterval;
 
 const refreshData = (): void => {
-  if (ACS.lastUpdate - new Date().getTime() > 20 * 1000 * 60) {
+  if (new Date().getTime() - ACS.lastUpdate > 20 * 1000 * 60) {
     console.log('Refresher triggered - searching for data...');
+    setACSLocalStorage({ currentTab: (<HTMLUListElement>document.querySelector('li.is-active')).dataset.professionTab });
     searchListener();
   } else {
     console.log('Refresher triggered - update currently impossible.');
@@ -401,10 +402,16 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
     professionTabListElement.classList.add('visible');
 
     if (!subNavHasActiveIndicator) {
-      professionTabListElement.classList.add('is-active');
+      if (ACS.currentTab === undefined) {
+        ACS.currentTab = professionName;
+      }
 
-      professionTable.style.display = 'table';
-      subNavHasActiveIndicator = true;
+      if (ACS.currentTab === professionName) {
+        professionTabListElement.classList.add('is-active');
+
+        professionTable.style.display = 'table';
+        subNavHasActiveIndicator = true;
+      }
     }
 
     const [positiveTbody, negativeTbody] = [cloneOrigin.tbody.cloneNode(), <HTMLTableSectionElement>cloneOrigin.tbody.cloneNode()];
@@ -466,6 +473,8 @@ const subNavEventListener = function () {
     this.parentElement.querySelectorAll('li[data-profession-tab]').forEach((li: HTMLUListElement) => li.classList[li === this ? 'add' : 'remove']('is-active'));
 
     document.querySelectorAll('#auction-craft-sniper table').forEach((table: HTMLTableElement) => (table.style.display = table.id !== this.dataset.professionTab ? 'none' : 'table'));
+
+    setACSLocalStorage({ currentTab: this.dataset.professionTab });
   }
 };
 
