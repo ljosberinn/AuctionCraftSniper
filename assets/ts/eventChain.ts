@@ -116,6 +116,7 @@ const refreshData = (): void => {
     searchListener();
   } else {
     console.log('Refresher triggered - update currently impossible.');
+    insertLastUpdate(ACS.lastUpdate);
   }
 };
 
