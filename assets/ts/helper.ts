@@ -1,6 +1,8 @@
 import { AuctionCraftSniper } from './types';
 import { ACS } from './localStorage';
 
+const HINT_VISIBLE_DURATION = 3500; // 3 * 1000;
+
 /**
  * @returns {AuctionCraftSniper.cloneOriginObj}
  */
@@ -56,7 +58,7 @@ export const getWoWheadURL = (itemID: number): string => `https://wowhead.com/?i
 
 export const toggleSearchLoadingState = () => {
   document.getElementById('search').classList.toggle('is-loading');
-  toggleProgressBar(true);
+  toggleProgressBar();
 };
 
 export const showHint = (hintType: string): void => {
@@ -68,7 +70,7 @@ export const showHint = (hintType: string): void => {
 
   setTimeout(() => {
     classList.remove('visible');
-  }, 3500);
+  }, HINT_VISIBLE_DURATION);
 };
 
 /**
@@ -99,7 +101,7 @@ const createNotification = (notificationType: string, notificationContent: strin
 
   setTimeout(() => {
     notification.remove();
-  }, 3000);
+  }, HINT_VISIBLE_DURATION);
 };
 
 /**
@@ -151,7 +153,7 @@ export const clearLocalStorage = (): void => {
  *
  * @param {boolean} show
  */
-export const toggleProgressBar = (show: boolean): void => {
+export const toggleProgressBar = (show: boolean = true): void => {
   const progressBar = <HTMLProgressElement>document.getElementById('progress-bar');
 
   if (show) {

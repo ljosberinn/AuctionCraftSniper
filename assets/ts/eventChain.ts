@@ -123,7 +123,7 @@ const refreshData = (): void => {
     console.time('search');
     toggleUserInputs();
     toggleSearchLoadingState();
-    checkHouseAge();
+    checkHouseAge(true);
   } else {
     console.log('Refresher triggered - update currently impossible.');
     insertLastUpdate(ACS.lastUpdate);
@@ -186,7 +186,11 @@ const validateRegionRealm = async (value: string[]) => {
   }
 };
 
-const checkHouseAge = async () => {
+/**
+ *
+ * @param {boolean} triggeredByRefresher
+ */
+const checkHouseAge = async (triggeredByRefresher: boolean = false) => {
   const { houseID, expansionLevel } = ACS;
 
   if (houseID !== undefined) {
@@ -213,7 +217,18 @@ const checkHouseAge = async () => {
         }
         break;
       case 'getProfessionTables':
-        getProfessionTables();
+        // only fetch professionData if current data isnt already up to date
+        if (!triggeredByRefresher) {
+          getProfessionTables();
+        } else {
+          toggleUserInputs(false);
+          updateState('idling');
+          toggleSearchLoadingState();
+          toggleProgressBar(false);
+
+          console.timeEnd('search');
+          console.groupEnd();
+        }
         break;
       default:
         showHouseUnavailabilityError();
