@@ -26,7 +26,7 @@ import {
   createMaterialTD,
   createProductBuyoutTD,
   getCurrencyElements,
-  createLossyRecipeHintTR,
+  createRecipeHintTR,
   createWinMarginTD,
 } from './elementBuilder';
 
@@ -472,19 +472,27 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
       }
     }
 
-    const [positiveTbody, negativeTbody] = [cloneOrigin.tbody.cloneNode(), <HTMLTableSectionElement>cloneOrigin.tbody.cloneNode()];
+    const [positiveTbody, negativeTbody, unlistedTbody] = [
+      cloneOrigin.tbody.cloneNode(),
+      <HTMLTableSectionElement>cloneOrigin.tbody.cloneNode(),
+      <HTMLTableSectionElement>cloneOrigin.tbody.cloneNode(),
+    ];
     negativeTbody.classList.add('lossy-recipes');
+    unlistedTbody.classList.add('unlisted-recipes');
 
     sortByProfit(recipes).forEach(recipe => {
       const isBlacklisted = ACS.settings.blacklistedRecipes.includes(recipe.product.item);
 
+      // only prceed if user opts to not entirely hide blacklisted recipes OR recipe is not blacklisted
       if ((!ACS.settings.hideBlacklistedRecipes && isBlacklisted) || !isBlacklisted) {
         const tr = <HTMLTableRowElement>fillRecipeTR(recipe, TUJLink, isBlacklisted);
 
-        if (recipe.profit > 0 || ACS.settings.alwaysShowLossyRecipes) {
+        if (recipe.profit > 0 || (recipe.profit < 0 && ACS.settings.alwaysShowLossyRecipes) || (recipe.profit === 0 && ACS.settings.alwaysShowUnlistedRecipes)) {
           positiveTbody.appendChild(tr);
-        } else {
+        } else if (recipe.profit < 0) {
           negativeTbody.appendChild(tr);
+        } else {
+          unlistedTbody.appendChild(tr);
         }
       }
     });
@@ -494,12 +502,23 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
       positiveTbody.appendChild(createMissingProfitsHintTR());
     }
 
+    const appendix = [initiateTHead(), positiveTbody];
+
     // add hint in case at least some professions are lossy
     if (negativeTbody.hasChildNodes()) {
-      positiveTbody.appendChild(createLossyRecipeHintTR());
+      appendix.push(createRecipeHintTR('lossy-recipes'));
     }
 
-    [initiateTHead(), positiveTbody, negativeTbody].forEach(tbody => professionTable.appendChild(tbody));
+    appendix.push(negativeTbody);
+
+    // add hint in case some recipes are currently unlisted
+    if (unlistedTbody.hasChildNodes()) {
+      appendix.push(createRecipeHintTR('unlisted-recipes'));
+    }
+
+    appendix.push(unlistedTbody);
+
+    appendix.forEach(tbody => professionTable.appendChild(tbody));
 
     console.timeEnd(professionName);
   });
@@ -517,9 +536,7 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
 
   // when switching professions entirely and searching anew
   if (document.querySelector('li[data-profession-tab].is-active') === null) {
-    const tabToSelect = <HTMLUListElement>document.querySelector('li[data-profession-tab].visible');
-    //tabToSelect.classList.add('is-active');
-    tabToSelect.click();
+    (<HTMLUListElement>document.querySelector('li[data-profession-tab].visible')).click();
   }
 
   console.groupEnd();
@@ -531,19 +548,24 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
   }
 };
 
-export const toggleLossyRecipes = function () {
-  const target = <HTMLTableSectionElement> this.closest('tbody').nextElementSibling;
-  const isVisible = target.style.display === 'table-row-group';
+export const toggleTBody = function () {
+  const targetClass = this.classList[0].replace('-hint', '');
+
+  const target = <HTMLTableSectionElement> this.closest('table').querySelector(`.${targetClass}`);
+  const isCurrentlyVisible = target.style.display === 'table-row-group';
 
   let newText: string;
 
-  if (isVisible) {
-    target.style.display = 'none';
-    newText = 'show lossy recipes';
-  } else {
-    target.style.display = 'table-row-group';
-    newText = 'hide lossy recipes';
+  switch (targetClass) {
+    case 'lossy-recipes':
+      newText = `${isCurrentlyVisible ? 'show' : 'hide'} lossy recipes`;
+      break;
+    case 'unlisted-recipes':
+      newText = `${isCurrentlyVisible ? 'show' : 'hide'} unlisted recipes`;
+      break;
   }
+
+  target.style.display = isCurrentlyVisible ? 'none' : 'table-row-group';
 
   this.innerText = newText;
 };

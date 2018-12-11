@@ -11,6 +11,7 @@ export const ACS: AuctionCraftSniper.localStorageObj = {
   settings: {
     blacklistedRecipes: [],
     alwaysShowLossyRecipes: false,
+    alwaysShowUnlistedRecipes: false,
     fetchOnLoad: false,
     pushNotificationsAllowed: false,
     hideBlacklistedRecipes: false,

@@ -78,6 +78,11 @@ class AuctionCraftSniper
             'type'        => 'checkbox',
             'classes'     => 'is-checkradio',
         ],
+        'alwaysShowUnlistedRecipes'   => [
+            'description' => 'always show unlisted recipes',
+            'type'        => 'checkbox',
+            'classes'     => 'is-checkradio',
+        ],
         'hideBlacklistedRecipes'   => [
             'description' => 'hide blacklisted recipes entirely (requires unchecking of this setting to show blacklisted recipes again)',
             'type'        => 'checkbox',
@@ -330,7 +335,7 @@ class AuctionCraftSniper
      *
      * @return bool|PDOStatement
      */
-    private function getCurrentlyAvailableRecipes(array $professions = []) {
+    private function getRecipes(array $professions = []) {
 
         $storeHouseID = $this->connection->prepare('SET @houseID = :houseID');
         $storeHouseID->execute(['houseID' => $this->houseID]);
@@ -338,32 +343,31 @@ class AuctionCraftSniper
         $storeExpansionLevel = $this->connection->prepare('SET @expansionLevel = :expansionLevel');
         $storeExpansionLevel->execute(['expansionLevel' => $this->expansionLevel]);
 
-        $getCurrentlyAvailableRecipesQuery = 'SELECT
+        $getRecipesQuery = 'SELECT
             `auctionData`.`itemID`,
             `auctionData`.`buyout`,
             `itemNames`.`itemName`,
             `recipes`.`profession`
-            FROM `auctionData`
-            LEFT JOIN `recipes` ON `auctionData`.`itemID` = `recipes`.`id`
+            FROM `recipes`
+            LEFT JOIN `auctionData` ON `auctionData`.`itemID` = `recipes`.`id`
             LEFT JOIN `houseUpdateTracker` ON `houseUpdateTracker`.`houseID` = @houseID
             LEFT JOIN `itemNames` ON `itemNames`.`itemID` = `auctionData`.`itemID`
             WHERE `auctionData`.`houseID` = @houseID
-            AND `houseUpdateTracker`.`expansionLevel` = @expansionLevel  
-            AND `auctionData`.`expansionLevel` = @expansionLevel AND (
-           ';
+            AND `houseUpdateTracker`.`expansionLevel` = @expansionLevel
+            AND `auctionData`.`expansionLevel` = @expansionLevel AND (';
 
         $queryParams = [];
 
         $professionCount = count($professions);
 
         foreach ($professions as $index => $professionID) {
-            $getCurrentlyAvailableRecipesQuery  .= ' `recipes`.`profession` = :profession' . $index;
+            $getRecipesQuery  .= ' `recipes`.`profession` = :profession' . $index;
             $queryParams['profession' . $index] = $professionID;
 
-            $getCurrentlyAvailableRecipesQuery .= array_search($professionID, $professions, true) < $professionCount - 1 ? ' OR' : ')';
+            $getRecipesQuery .= array_search($professionID, $professions, true) < $professionCount - 1 ? ' OR' : ')';
         }
 
-        $getCurrentlyAvailableRecipes = $this->connection->prepare($getCurrentlyAvailableRecipesQuery);
+        $getCurrentlyAvailableRecipes = $this->connection->prepare($getRecipesQuery);
 
         $getCurrentlyAvailableRecipes->execute($queryParams);
 
@@ -382,9 +386,9 @@ class AuctionCraftSniper
 
         $professionTableData = [];
 
-        $getCurrentlyAvailableRecipes = $this->getCurrentlyAvailableRecipes($professions);
+        $recipes = $this->getRecipes($professions);
 
-        if ($getCurrentlyAvailableRecipes->rowCount() > 0) {
+        if ($recipes->rowCount() > 0) {
 
             $getConnectedRecipeRequirements = $this->connection->prepare('SELECT
                 `requiredItemID` as `itemID`,
@@ -403,7 +407,7 @@ class AuctionCraftSniper
 
             $calculationExemptionItemIDs = array_keys($this->calculationExemptionItemIDs);
 
-            foreach ($getCurrentlyAvailableRecipes->fetchAll() as $recipe) {
+            foreach ($recipes->fetchAll() as $recipe) {
 
                 $recipeData = [
                     'product'         => [
@@ -468,8 +472,11 @@ class AuctionCraftSniper
 
                 unset($recipeMaterial);
 
-                // avoid division by zero
-                if ($recipeData['materialCostSum'] !== 0) {
+                // reset profit for unlisted recipes
+                if($recipeData['product']['buyout'] === 0) {
+                    $recipeData['profit'] = 0;
+                } elseif($recipeData['materialCostSum'] !== 0) {
+                    // avoid division by zero & skip margin for unlisted items
                     $recipeData['margin'] = round(($recipeData['product']['buyout'] / $recipeData['materialCostSum'] - 1) * 100, 2);
                 }
 
@@ -811,9 +818,8 @@ class AuctionCraftSniper
         if (!empty($outerAuctionData)) {
 
             $this->setInnerHouseURL($outerAuctionData['files'][0]['url']);
-            $this->setHouseTimestamp($outerAuctionData['files'][0]['lastModified']);
 
-            // AH technically is older than 20 minutes, but API servers haven't updated yet
+            // AH technically is older than N minutes, but API servers haven't updated yet
             if ($outerAuctionData['files'][0]['lastModified'] <= $lastUpdateTimestamp) {
                 $houseRequiresUpdate = false;
             }
@@ -849,14 +855,18 @@ class AuctionCraftSniper
         $insertHouseData = $this->connection->prepare('INSERT INTO `auctionData` (`houseID`, `itemID`, `buyout`, `expansionLevel`) VALUES (:houseID, :itemID, :buyout, :expansionLevel)');
 
         foreach ($recipeIDs as $itemID => $buyout) {
-            if ((int)$buyout !== 0) {
-                $insertHouseData->execute([
-                    'houseID'        => $this->houseID,
-                    'itemID'         => $itemID,
-                    'buyout'         => $buyout,
-                    'expansionLevel' => $this->expansionLevel,
-                ]);
-            }
+            $insertHouseData->execute([
+                'houseID'        => $this->houseID,
+                'itemID'         => $itemID,
+                'buyout'         => $buyout,
+                'expansionLevel' => $this->expansionLevel,
+            ]);
+        }
+
+        $outerAuctionData = $this->getOuterAuctionData();
+
+        if (!empty($outerAuctionData)) {
+            $this->setHouseTimestamp($outerAuctionData['files'][0]['lastModified']);
         }
     }
 

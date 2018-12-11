@@ -45,11 +45,16 @@ a + .currency {
   max-width: none !important;
 }
 
-.lossy-recipes-hint {
-  text-align: center;
+.lossy-recipes-hint,
+.unlisted-recipes-hint {
   cursor: pointer;
 }
 
+#auction-craft-sniper {
+  margin-bottom: 1.5rem;
+}
+
+.unlisted-recipes,
 .lossy-recipes,
 #hint-invalid-region-realm,
 #settings-modal,
