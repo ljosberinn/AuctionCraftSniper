@@ -512,7 +512,8 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
 
   document.getElementById('general-tsm-export').classList.add('visible');
 
-  eval('$WowheadPower.init();');
+  // sentry #803194334
+  eval('"$WowheadPower" in window ? $WowheadPower.init(); : void 0;');
 
   console.groupEnd();
   console.timeEnd('fillProfessionTables');
