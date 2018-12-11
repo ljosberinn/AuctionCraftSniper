@@ -120,24 +120,29 @@ const initiateRefreshInterval = () => {
 let refreshInterval;
 
 const refreshData = (): void => {
-  if (new Date().getTime() - ACS.lastUpdate > ACS.houseUpdateInterval) {
-    console.log(`Refresher: updating houseID ${ACS.houseID}`);
+  // sentry #802811501 - deactivate refresher if user unmarked all professions
+  if (ACS.professions.length > 0) {
+    if (new Date().getTime() - ACS.lastUpdate > ACS.houseUpdateInterval) {
+      console.log(`Refresher: updating houseID ${ACS.houseID}`);
 
-    // sentry #802520384
-    const currentTab = <HTMLUListElement>document.querySelector('li.is-active');
-    if (typeof currentTab !== 'undefined') {
-      setACSLocalStorage({ currentTab: currentTab.dataset.professionTab });
+      // sentry #802520384
+      const currentTab = <HTMLUListElement>document.querySelector('li.is-active');
+      if (typeof currentTab !== 'undefined') {
+        setACSLocalStorage({ currentTab: currentTab.dataset.professionTab });
+      }
+
+      // since we're using the stored data, skip searchListener() & validateRegionRealm()
+      console.group(`Search: houseID ${ACS.houseID} | professsions ${ACS.professions.toString()} | expansionLevel ${ACS.expansionLevel}`);
+      console.time('search');
+      toggleUserInputs();
+      toggleSearchLoadingState();
+      checkHouseAge(true);
+    } else {
+      console.log('Refresher: update currently impossible.');
+      insertUpdateInformation();
     }
-
-    // since we're using the stored data, skip searchListener() & validateRegionRealm()
-    console.group(`Search: houseID ${ACS.houseID} | professsions ${ACS.professions.toString()} | expansionLevel ${ACS.expansionLevel}`);
-    console.time('search');
-    toggleUserInputs();
-    toggleSearchLoadingState();
-    checkHouseAge(true);
   } else {
-    console.log('Refresher: update currently impossible.');
-    insertUpdateInformation();
+    clearInterval(refreshInterval);
   }
 };
 
