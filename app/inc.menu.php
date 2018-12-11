@@ -21,7 +21,8 @@
 				</label>
             <?php } ?>
 			<p id="hint-invalid-professions" class="help has-text-danger">Missing profession selection.</p>
-		</div>
+            <p id="hint-missing-professions" class="help has-text-danger">Auto-refresh deactivated, professions missing. Please add professions and search once again.</p>
+        </div>
 	</div>
 
 	<div class="field column is-2 is-12-mobile">

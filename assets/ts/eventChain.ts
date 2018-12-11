@@ -142,6 +142,11 @@ const refreshData = (): void => {
       insertUpdateInformation();
     }
   } else {
+    const hintMissingProfessions = <HTMLParagraphElement>document.getElementById('hint-missing-professions');
+    hintMissingProfessions.classList.add('visible');
+    setTimeout(() => {
+      hintMissingProfessions.classList.remove('visible');
+    }, 15000);
     clearInterval(refreshInterval);
   }
 };
