@@ -3,9 +3,11 @@
 	<div class="field column control">
 		<input class="input" id="realm" type="text" list="realms" placeholder="e.g. EU-Blackmoore">
 		<datalist id="realms">
-            <?php foreach ($AuctionCraftSniper->getRealms() as $houseID => $realm) { ?>
-	            <option data-house-id="<?= $houseID ?>" value="<?= $realm ?>"></option>
-            <?php } ?>
+            <?php foreach ($AuctionCraftSniper->getRealms() as $houseID => $realms) {
+                foreach ($realms as $realm) { ?>
+					<option data-house-id="<?= $houseID ?>" value="<?= $realm ?>"></option>
+                <?php }
+            } ?>
 		</datalist>
 		<p id="hint-invalid-region-realm" class="help has-text-danger">Invalid region-realm pair.</p>
 		<p id="last-update-wrap" class="help has-text-info">Last update <span id="last-update"></span></p>
