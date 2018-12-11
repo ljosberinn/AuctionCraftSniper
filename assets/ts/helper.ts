@@ -98,7 +98,7 @@ const createNotification = (notificationType: string, notificationContent: strin
   document.body.appendChild(notification);
 
   if (ACS.settings.pushNotificationsAllowed) {
-    new Notification(notificationContent);
+    //new Notification(notificationContent);
   }
 
   setTimeout(() => {

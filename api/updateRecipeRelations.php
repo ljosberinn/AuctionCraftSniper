@@ -23,6 +23,12 @@ if ($expansionLevel > 0 && $professionID !== 4) {
         foreach ($AuctionCraftSniper->getWoWDBJSON('/item/' . $recipeID)['CreatedBySpellIDs'] as $spellID) {
             $spellData = $AuctionCraftSniper->getWoWDBJSON('/spell/' . $spellID);
 
+            $rank = (int)str_replace('Rank ', '', $spellData['Rank']);
+
+            if($rank === 0 || $rank === 3) {
+                continue;
+            }
+
             $spellDetails = [
                 'recipeID'         => $recipeID,
                 'requiredItemIDs'  => [],
@@ -31,7 +37,7 @@ if ($expansionLevel > 0 && $professionID !== 4) {
                 'baseBuyPrices'    => [],
                 'itemNames'        => [],
                 'producedQuantity' => 1,
-                'rank'             => (int)str_replace('Rank ', '', $spellData['Rank']),
+                'rank'             => $rank,
             ];
 
             foreach ($spellData['Reagents'] as $reagents) {
