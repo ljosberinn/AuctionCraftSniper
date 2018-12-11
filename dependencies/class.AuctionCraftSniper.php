@@ -587,10 +587,7 @@ class AuctionCraftSniper
             $realm->execute(['region' => $region]);
 
             foreach ($realm->fetchAll() as $dataset) {
-                if (!array_key_exists($dataset['houseID'], $this->realms)) {
-                    $this->realms[$dataset['houseID']] = [];
-                }
-                $this->realms[$dataset['houseID']][] = $region . '-' . $dataset['name'];
+                $this->realms[$region . '-' . $dataset['name']] = $dataset['houseID'];
             }
         }
     }
