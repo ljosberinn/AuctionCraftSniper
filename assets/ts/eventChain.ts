@@ -161,7 +161,6 @@ export const searchListener = () => {
   toggleUserInputs();
   toggleSearchLoadingState();
   validateRegionRealm(value);
-  initiateRefreshInterval();
 };
 
 /**
@@ -183,6 +182,7 @@ const validateRegionRealm = async (value: string[]) => {
 
   // only proceed when input is valid REGION-REALM pair and server responded with houseID
   if (json.houseID) {
+    initiateRefreshInterval();
     setACSLocalStorage({ houseID: json.houseID, houseUpdateInterval: json.updateInterval });
     checkHouseAge();
   } else {
@@ -495,7 +495,7 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
   }
 
   document.getElementById('general-tsm-export').classList.add('visible');
-  
+
   eval('$WowheadPower.init();');
 
   console.groupEnd();
