@@ -160,7 +160,7 @@ export const hideIntroduction = () => {
 export const searchListener = () => {
   const value = (<HTMLInputElement>document.getElementById('realm')).value.split('-');
 
-  if (value.length !== 2) {
+  if (value.length < 2) {
     showHint('region-realm');
     return;
   }
@@ -184,11 +184,11 @@ export const searchListener = () => {
  * @param {string} value
  */
 const validateRegionRealm = async (value: string[]) => {
-  const [region, realm] = value;
+  const [region, ...realm] = value;
 
   updateState('validating region & realm');
 
-  const data = await fetch(`api/validateRegionRealm.php?region=${region}&realm=${realm}`, {
+  const data = await fetch(`api/validateRegionRealm.php?region=${region}&realm=${realm.join('-')}`, {
     method: 'GET',
     credentials: 'same-origin',
     mode: 'same-origin',
