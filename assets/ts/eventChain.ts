@@ -515,6 +515,13 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
   // sentry #803194334
   eval('"$WowheadPower" in window ? $WowheadPower.init() : void 0;');
 
+  // when switching professions entirely and searching anew
+  if (document.querySelector('li[data-profession-tab].is-active') === null) {
+    const tabToSelect = <HTMLUListElement>document.querySelector('li[data-profession-tab].visible');
+    //tabToSelect.classList.add('is-active');
+    tabToSelect.click();
+  }
+
   console.groupEnd();
   console.timeEnd('fillProfessionTables');
 
