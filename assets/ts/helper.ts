@@ -139,7 +139,8 @@ export const showLocalStorage = (): void => {
   textarea.classList.add('textarea');
   textarea.rows = 10;
   textarea.id = 'localStorage-textarea';
-  textarea.innerHTML = JSON.stringify(JSON.parse(localStorage.ACS), null, 2).replace(/<br\s*[\/]?>/gi, '\n');
+  // sentry #802697179
+  textarea.innerHTML = localStorage.ACS ? JSON.stringify(JSON.parse(localStorage.ACS), null, 2).replace(/<br\s*[\/]?>/gi, '\n') : 'no data stored yet!';
 
   triggerElement.insertAdjacentElement('afterend', textarea);
 
