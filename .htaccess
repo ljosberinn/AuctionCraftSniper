@@ -304,6 +304,8 @@ AddDefaultCharset utf-8
     RewriteCond %{SCRIPT_FILENAME} -d [OR]
     RewriteCond %{SCRIPT_FILENAME} -f
     RewriteRule "(^|/)\." - [F]
+    RewriteCond %{HTTPS} !=on
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 </IfModule>
 
 # Block access to files that can expose sensitive information.
