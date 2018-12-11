@@ -121,16 +121,22 @@ let refreshInterval;
 
 const refreshData = (): void => {
   if (new Date().getTime() - ACS.lastUpdate > ACS.houseUpdateInterval) {
-    console.log('Refresher triggered - searching for data...');
-    setACSLocalStorage({ currentTab: (<HTMLUListElement>document.querySelector('li.is-active')).dataset.professionTab });
+    console.log(`Refresher: updating houseID ${ACS.houseID}`);
+
+    // sentry #802520384
+    const currentTab = <HTMLUListElement>document.querySelector('li.is-active');
+    if (typeof currentTab !== 'undefined') {
+      setACSLocalStorage({ currentTab: currentTab.dataset.professionTab });
+    }
+
     // since we're using the stored data, skip searchListener() & validateRegionRealm()
-    console.group(`starting search for houseID ${ACS.houseID} with profession ${ACS.professions.toString()} at expansionLevel ${ACS.expansionLevel}`);
+    console.group(`Search: houseID ${ACS.houseID} | professsions ${ACS.professions.toString()} | expansionLevel ${ACS.expansionLevel}`);
     console.time('search');
     toggleUserInputs();
     toggleSearchLoadingState();
     checkHouseAge(true);
   } else {
-    console.log('Refresher triggered - update currently impossible.');
+    console.log('Refresher: update currently impossible.');
     insertUpdateInformation();
   }
 };
