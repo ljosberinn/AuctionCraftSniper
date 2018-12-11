@@ -127,7 +127,7 @@ const refreshData = (): void => {
 
       // sentry #802520384
       const currentTab = <HTMLUListElement>document.querySelector('li.is-active');
-      if (typeof currentTab !== 'undefined') {
+      if (currentTab !== null) {
         setACSLocalStorage({ currentTab: currentTab.dataset.professionTab });
       }
 
@@ -198,7 +198,6 @@ const validateRegionRealm = async (value: string[]) => {
 
   // only proceed when input is valid REGION-REALM pair and server responded with houseID
   if (json.houseID) {
-    initiateRefreshInterval();
     setACSLocalStorage({ houseID: json.houseID, houseUpdateInterval: json.updateInterval });
     checkHouseAge();
   } else {
@@ -352,8 +351,9 @@ export const getProfessionTables = async (isShorthanded: boolean = false) => {
 
     if (isShorthanded) {
       insertUpdateInformation();
-      initiateRefreshInterval();
     }
+
+    initiateRefreshInterval();
   }
 };
 
@@ -622,14 +622,28 @@ export const formatCurrency = (value: number) => {
 const insertUpdateInformation = () => {
   const dateFnSuffix = { addSuffix: true };
 
+  const now = new Date();
+
   const nextUpdate = new Date(ACS.lastUpdate + ACS.houseUpdateInterval);
   const lastUpdate = new Date(ACS.lastUpdate);
 
   const lastUpdateSpan = <HTMLSpanElement>document.getElementById('last-update');
   lastUpdateSpan.parentElement.classList.add('visible');
-  lastUpdateSpan.innerText = `${distanceInWordsStrict(new Date(), lastUpdate, dateFnSuffix)} (${lastUpdate.toLocaleDateString()} - ${lastUpdate.toLocaleTimeString()})`;
+  lastUpdateSpan.innerText = `${distanceInWordsStrict(now, lastUpdate, dateFnSuffix)} (${lastUpdate.toLocaleDateString()} - ${lastUpdate.toLocaleTimeString()})`;
 
   const nextUpdateSpan = <HTMLSpanElement>document.getElementById('next-update');
   nextUpdateSpan.parentElement.classList.add('visible');
-  nextUpdateSpan.innerText = `${distanceInWordsToNow(nextUpdate)} (${nextUpdate.toLocaleDateString()} - ${nextUpdate.toLocaleTimeString()})`;
+
+  // next update was supposed to be in the past, but the API hasn't updated
+  let nextUpdateText;
+
+  if (nextUpdate.getTime() < now.getTime()) {
+    nextUpdateText = `supposedly ${distanceInWordsStrict(now, nextUpdate, dateFnSuffix)}`;
+  } else {
+    nextUpdateText = `in ${distanceInWordsToNow(nextUpdate)}`;
+  }
+
+  nextUpdateText += ` (${nextUpdate.toLocaleDateString()} - ${nextUpdate.toLocaleTimeString()})`;
+
+  nextUpdateSpan.innerText = nextUpdateText;
 };
