@@ -170,7 +170,7 @@ export const getCurrencyElements = (valueObj: AuctionCraftSniper.valueObj): Docu
     const [currency, value] = entry;
 
     const span = cloneOrigin.currencies[currency].cloneNode();
-    span.innerText = value.toString();
+    span.innerText = value.toLocaleString();
 
     fragment.appendChild(span);
   });
