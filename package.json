@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc assets/ts/app.ts --sourceMap --outDir assets/js --lib es2017,dom && npx webpack --devtool eval-source-map",
-    "build-deploy": "tsc assets/ts/app.ts --outDir assets/js --lib es2017,dom && npx webpack",
+    "build": "tsc && npx webpack",
+    "build-deploy": "tsc && npx webpack",
     "scss-dev-watch": "npx node-sass assets/scss/acs.scss assets/css/acs.min.css --source-map=true --output-style=compressed --watch",
     "scss-deploy": "npx node-sass assets/scss/acs.scss assets/css/acs.min.css --output-style=compressed"
   },
@@ -36,6 +36,7 @@
     "stylelint": "^9.6.0",
     "stylelint-config-recommended": "^2.1.0",
     "typescript-eslint-parser": "^19.0.2",
+    "uglifyjs-webpack-plugin": "^2.0.1",
     "webpack": "^4.20.2",
     "webpack-cli": "^3.1.2"
   },

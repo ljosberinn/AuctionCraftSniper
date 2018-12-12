@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "allowJs": true,
-    "moduleResolution": "node",
-    "outDir": "dist",
+    "target": "es3",
+    "downlevelIteration": true,
+    "lib": ["dom", "es2018", "dom.iterable"],
+    "outDir": "assets/js/",
     "sourceMap": true,
-    "lib": ["dom", "es2017"]
-  }
+    "importHelpers": true
+  },
+  "files": ["assets/ts/app.ts"]
 }
