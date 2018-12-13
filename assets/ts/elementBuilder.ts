@@ -44,8 +44,17 @@ export const createMissingProfitsHintTR = function (): HTMLTableRowElement {
  * @param {string} name
  * @returns {HTMLTableCellElement}
  */
-export const createProductNameTD = ({ item, name, producedQuantity }: AuctionCraftSniper.productJSON): HTMLTableCellElement => {
+export const createProductNameTD = ({ item, name, producedQuantity, buyout }: AuctionCraftSniper.productJSON): HTMLTableCellElement => {
   const td = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
+
+  if(buyout === 0) {
+    const strong = <HTMLElement>cloneOrigin.strong.cloneNode();
+
+    strong.classList.add('tag', 'is-info', 'has-text-dark');
+    strong.innerText = 'unlisted';
+
+    td.appendChild(strong);
+  }
 
   if (producedQuantity > 1) {
     const strong = <HTMLElement>cloneOrigin.strong.cloneNode();
@@ -150,7 +159,12 @@ export const createProductBuyoutTD = (recipe: AuctionCraftSniper.innerProfession
 
   tippy(a, { content: `TUJ - ${recipe.product.name}` });
 
-  a.appendChild(formatCurrency(recipe.product.buyout));
+  if(recipe.product.buyout !== 0) {
+    a.appendChild(formatCurrency(recipe.product.buyout));
+  } else {
+    a.innerText = 'visit TUJ for usual prices';
+  }
+
   productBuyoutTD.appendChild(a);
 
   return productBuyoutTD;
