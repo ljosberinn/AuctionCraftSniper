@@ -24,6 +24,7 @@
     "@babel/cli": "^7.1.2",
     "@babel/core": "^7.1.2",
     "@babel/preset-env": "^7.1.0",
+    "@sentry/webpack-plugin": "^1.6.2",
     "bulma": "^0.7.2",
     "bulmaswatch": "^0.7.2",
     "eslint": "^5.6.1",

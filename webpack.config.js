@@ -1,5 +1,6 @@
 const path = require('path');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const SentryWebpackPlugin = require('@sentry/webpack-plugin');
 
 module.exports = {
   entry: ['./assets/js/app.js', './node_modules/datalist-polyfill/datalist-polyfill.min.js'],
@@ -19,4 +20,12 @@ module.exports = {
       }),
     ],
   },
+  plugins: [
+    new SentryWebpackPlugin({
+      include: '.',
+      ignoreFile: '.sentrycliignore',
+      ignore: ['node_modules', 'webpack.config.js'],
+      configFile: 'sentry.properties',
+    }),
+  ],
 };

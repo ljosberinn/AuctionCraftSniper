@@ -5,7 +5,8 @@
     "lib": ["dom", "es2018", "dom.iterable"],
     "outDir": "assets/js/",
     "sourceMap": true,
-    "importHelpers": true
+    "importHelpers": true,
+    "sourceRoot": "/"
   },
   "files": ["assets/ts/app.ts"]
 }
