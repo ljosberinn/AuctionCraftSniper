@@ -1,5 +1,6 @@
 import { AuctionCraftSniper } from './types';
 import { searchListener, getProfessionTables, hideIntroduction } from './eventChain';
+import { showHint } from './helper';
 
 export const ACS: AuctionCraftSniper.localStorageObj = {
   houseID: 0,
@@ -63,6 +64,10 @@ export const getACSLocalStorage = (): void => {
     setSettingCheckboxes();
 
     if (ACS.settings.fetchOnLoad) {
+      if (ACS.professions.length === 0) {
+        showHint('professions');
+        return;
+      }
       // circumvent API potentially not answering although most recent data is up to date anyways
       if (new Date().getTime() + ACS.houseUpdateInterval > ACS.lastUpdate + ACS.houseUpdateInterval) {
         hideIntroduction();

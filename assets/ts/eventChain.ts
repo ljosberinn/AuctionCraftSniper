@@ -230,9 +230,9 @@ const checkHouseAge = async (triggeredByRefresher: boolean = false) => {
 
     switch (json.callback) {
       case 'waitForParseTimeout':
-      updateState('waiting for someone elses parse to finish - please stand by');
-      initiateRefreshInterval();
-      break;
+        updateState('waiting for someone elses parse to finish - please stand by');
+        initiateRefreshInterval();
+        break;
       case 'houseRequiresUpdate':
         getAuctionHouseData();
         if (ACS.settings.pushNotificationsAllowed) {

@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es3",
+    "target": "es5",
     "downlevelIteration": true,
     "lib": ["dom", "es2018", "dom.iterable"],
     "outDir": "assets/js/",
     "sourceMap": true,
     "importHelpers": true,
-    "sourceRoot": "/"
+    "module": "commonjs"
   },
   "files": ["assets/ts/app.ts"]
 }
