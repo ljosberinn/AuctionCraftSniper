@@ -1,6 +1,4 @@
-<div class="field visible" id="progress-bar-wrap">
-	<progress id="progress-bar" class="progress is-primary is-medium" max="100"></progress>
-</div>
+<progress id="progress-bar" class="progress is-primary is-medium" max="100"></progress>
 
 <div class="tabs is-boxed is-small">
 	<ul>

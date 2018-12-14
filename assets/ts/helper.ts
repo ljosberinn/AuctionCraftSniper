@@ -98,7 +98,7 @@ const createNotification = (notificationType: string, notificationContent: strin
   document.body.appendChild(notification);
 
   if (ACS.settings.pushNotificationsAllowed) {
-    //new Notification(notificationContent);
+    // new Notification(notificationContent);
   }
 
   setTimeout(() => {
@@ -160,10 +160,10 @@ export const toggleProgressBar = (show: boolean = true): void => {
   const progressBar = <HTMLProgressElement>document.getElementById('progress-bar');
 
   if (show) {
-    progressBar.parentElement.classList.add('visible');
+    progressBar.classList.add('visible');
   } else {
     progressBar.removeAttribute('value');
-    progressBar.parentElement.classList.remove('visible');
+    progressBar.classList.remove('visible');
   }
 };
 

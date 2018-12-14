@@ -60,7 +60,6 @@ a + .currency {
 #settings-modal,
 #auction-craft-sniper,
 #description,
-#progress-bar-wrap,
 #last-update-wrap,
 #house-unavailable-disclaimer,
 #general-tsm-export,
@@ -150,6 +149,7 @@ a.is-loading {
 
 #progress-bar {
   position: relative;
+  display: none;
 }
 
 #progress-bar:after {
@@ -228,6 +228,12 @@ a.button:hover,
 /* RESPONSIVENESS */
 
 @media (max-width: 768px) {
+  #progress-bar {
+    max-width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   .columns {
     padding-left: 1rem;
     padding-right: 1rem;
@@ -235,6 +241,35 @@ a.button:hover,
 
   .control.select, .control.select select {
     width: 100%;
+  }
+
+  #auction-craft-sniper table {
+    thead {
+      display: none;
+    }
+
+    td {
+      display: block;
+      padding: .25rem .5rem;
+      text-align: left !important;
+      border: 0;
+    }
+
+    td[data-recipe] {
+      width: auto;
+      font-style: italic;
+      background-image: none;
+    }
+
+    $content-before: 'Item: ' 'Material (hover for more info): ' 'Product: ' 'Profit: ' 'Margin: ' 'click here to black/white-list this recipe';
+
+    @each $content in $content-before {
+      $i: index($content-before, $content);
+
+      td:nth-of-type(#{$i}):before {
+        content: $content;
+      }
+    }
   }
 }
 
