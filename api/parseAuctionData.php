@@ -9,7 +9,15 @@ if(!isset($decodedPOST)) {
     header('Location: ../index.php');
 }
 
-const BYTE_LIMIT = 365;
+/* maximum length of one auction JSON
+ * realm: Culte de la Rive noire
+ * character name length: 12
+ * bid & buyout: 9.999.999 in copper
+ * remaining time: VERY_LONG
+ * itemID length: 6
+ * quantity: 200
+ */
+const BYTE_LIMIT = 387;
 const CHUNK_SIZE = 2568505;
 
 if (!isset($decodedPOST['step']) && empty($decodedPOST['itemIDs'])) {
