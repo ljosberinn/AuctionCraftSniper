@@ -249,6 +249,15 @@ a.button:hover,
 /* RESPONSIVENESS */
 
 @media (max-width: 768px) {
+
+  #professions div.control.has-text-centered {
+    display: flex;
+
+    label.checkbox {
+      flex-grow: 1;
+    }
+  }
+
   #progress-bar {
     max-width: 95%;
     margin-left: auto;
