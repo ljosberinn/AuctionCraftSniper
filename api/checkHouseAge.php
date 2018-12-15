@@ -27,9 +27,9 @@ if (isset($_GET['houseID'], $_GET['expansionLevel']) && is_numeric($_GET['houseI
             $fileMakeTime = filemtime($potentialCurrentJSON);
 
             // modify callback for the case someone else is already parsing right now; potentially even still downloading (US takes longer to load)
-            if ($fileMakeTime >= time() - 60) {
+            if ($fileMakeTime >= time() - 45) {
                 $response['callback'] = 'waitForParseTimeout';
-            } elseif ($fileMakeTime <= time() - 120) {
+            } elseif ($fileMakeTime <= time() - 90) {
                 // else unlink old file
                 unlink($potentialCurrentJSON);
             }
