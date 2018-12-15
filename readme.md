@@ -13,7 +13,7 @@ Please [add an issue](https://github.com/ljosberinn/auction-craft-sniper/issues)
 |  Reddit | [careseite](https://reddit.com/u/careseite) |
 | GitHub Repo | [Issue System](https://github.com/ljosberinn/auction-craft-sniper/issues) |
  
-## Support the developement time
+## Support the development time
 If you want to support the development: [![PayPal link](https://img.shields.io/badge/PayPal-donate-blue.svg)](https://www.paypal.me/GerritAlex)
 
 ## Thanks to

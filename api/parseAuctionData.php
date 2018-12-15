@@ -5,7 +5,7 @@ require '../dependencies/class.AuctionCraftSniper.php';
 
 $decodedPOST = json_decode(trim(file_get_contents('php://input')), true);
 
-if(!isset($decodedPOST)) {
+if (!isset($decodedPOST)) {
     header('Location: ../index.php');
 }
 
@@ -18,7 +18,7 @@ if(!isset($decodedPOST)) {
  * quantity: 200
  */
 const BYTE_LIMIT = 387;
-const CHUNK_SIZE = 2568505;
+const CHUNK_SIZE = 2087091; // 5393 * BYTE_LIMIT iterations per second
 
 if (!isset($decodedPOST['step']) && empty($decodedPOST['itemIDs'])) {
 
@@ -30,7 +30,7 @@ if (!isset($decodedPOST['step']) && empty($decodedPOST['itemIDs'])) {
     $calculationExemption = $AuctionCraftSniper->getCalculationExemptionItemIDs();
 
     foreach (array_merge($AuctionCraftSniper->getRecipeIDs(), $AuctionCraftSniper->getMaterialIDs()) as $id) {
-        if (!in_array($id, $calculationExemption)) {
+        if (!array_key_exists($id, $calculationExemption)) {
             $itemIDs[$id] = 0;
         }
     }
@@ -56,21 +56,20 @@ if ($fileName === '0.json') {
     die;
 }
 
+$fileSize         = filesize($fileName);
+$auctionEndString = ',{"auc"';
+
 if (file_exists($fileName) && $stream = fopen($fileName, 'rb')) {
 
     if (!isset($decodedPOST['step'])) {
-        $first200Bytes = stream_get_contents($stream, 200, 0);
-        $auctionsStart = strpos($first200Bytes, '"auctions": [') + 16;
+        $first500Bytes = stream_get_contents($stream, 500, 0);
+        $auctionsStart = strpos($first500Bytes, '"auctions": [') + 16;
 
         $thisChunksEnd = CHUNK_SIZE;
     } else {
         $thisChunksEnd = CHUNK_SIZE * ($step + 1);
-        $auctionsStart = $thisChunksEnd - CHUNK_SIZE;
+        $auctionsStart = $thisChunksEnd - CHUNK_SIZE - BYTE_LIMIT;
     }
-
-    $fileSize = filesize($fileName);
-
-    $auctionEndString = ',{"auc"';
 
     // prevent fetching more bytes than available
     if ($thisChunksEnd > $fileSize) {
@@ -78,8 +77,6 @@ if (file_exists($fileName) && $stream = fopen($fileName, 'rb')) {
     }
 
     $leftovers = '';
-
-    $itemKeys = array_keys($itemIDs);
 
     for ($bytes = $auctionsStart; $bytes <= $thisChunksEnd; $bytes += BYTE_LIMIT) {
 
@@ -102,7 +99,7 @@ if (file_exists($fileName) && $stream = fopen($fileName, 'rb')) {
 
         $data = json_decode(substr($data, 0, $auctionEnd), true);
 
-        if (in_array($data['item'], $itemKeys)) {
+        if ($data !== NULL && isset($itemIDs[$data['item']])) {
             $thisPPU = (int)round($data['buyout'] / $data['quantity']);
 
             $previousPPU = (int)$itemIDs[$data['item']];
@@ -113,15 +110,40 @@ if (file_exists($fileName) && $stream = fopen($fileName, 'rb')) {
         }
     }
 
+
     fclose($stream);
+
+    $auctionEndString = ',{"auc"';
+
+    while (strlen($leftovers) > 0) {
+        $auctionEnd = strpos($leftovers, $auctionEndString);
+
+        $currentAuction = substr($leftovers, 0, $auctionEnd);
+
+        $leftovers = substr($leftovers, $auctionEnd + 1);
+
+        $data = json_decode($currentAuction, true);
+
+        if ($data !== NULL && isset($itemIDs[$data['item']])) {
+            $thisPPU = (int)round($data['buyout'] / $data['quantity']);
+
+            $previousPPU = (int)$itemIDs[$data['item']];
+
+            if ($previousPPU === 0 || ($thisPPU < $previousPPU && $thisPPU !== 0)) {
+                $itemIDs[$data['item']] = $thisPPU;
+            }
+        }
+    }
 
     $response = [
         'itemIDs'        => $itemIDs,
         'expansionLevel' => $expansionLevel,
         'step'           => $step + 1,
-        'reqSteps'       => (int) ceil($fileSize / CHUNK_SIZE),
+        'reqSteps'       => (int)ceil($fileSize / CHUNK_SIZE),
         'percentDone'    => round(($thisChunksEnd / $fileSize) * 100, 2),
     ];
+
+    ini_set('serialize_precision', 2);
 
     if ($response['step'] === $response['reqSteps']) {
         $AuctionCraftSniper = new AuctionCraftSniper();
