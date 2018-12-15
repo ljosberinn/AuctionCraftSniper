@@ -986,6 +986,9 @@ class AuctionCraftSniper
         return $expansionLevel;
     }
 
+    /**
+     * @param string $data [current auction JSON snipped that hopefully is an array]
+     */
     public function validateAuctionRelevance(string $data = '') {
         global $itemIDs;
 

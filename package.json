@@ -7,7 +7,8 @@
     "build": "tsc && npx webpack",
     "build-deploy": "tsc && npx webpack",
     "scss-dev-watch": "npx node-sass assets/scss/acs.scss assets/css/acs.min.css --source-map=true --output-style=compressed --watch",
-    "scss-deploy": "npx node-sass assets/scss/acs.scss assets/css/acs.min.css --output-style=compressed"
+    "scss-deploy": "npx node-sass assets/scss/acs.scss assets/css/acs.min.css --output-style=compressed",
+    "sentry-release": "npx sentry-cli login && npx sentry-cli releases new 'RELEASE_TOKEN' && npx sentry-cli releases set-commits 'RELEASE_TOKEN' --commit 'auction-craft-sniper@GIT_SHA && npx sentry-cli releases finalize 'RELEASE_TOKEN'"
   },
   "repository": {
     "type": "git",

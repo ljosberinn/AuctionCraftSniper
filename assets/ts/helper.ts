@@ -48,7 +48,10 @@ export const sortByProfit = (innerProfessionData: AuctionCraftSniper.innerProfes
 export const getTUJBaseURL = (): string => {
   const [region, realm] = (<HTMLInputElement>document.getElementById('realm')).value.split('-');
 
-  return `https://theunderminejournal.com/#${region}/${realm}/item/`;
+  return `https://theunderminejournal.com/#${region.toLowerCase()}/${realm
+    .split(' ')
+    .join('-')
+    .toLowerCase()}/item/`;
 };
 
 /**
