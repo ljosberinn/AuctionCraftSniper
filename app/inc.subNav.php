@@ -2,10 +2,12 @@
 
 <div class="tabs is-boxed is-small">
 	<ul>
-        <?php foreach ($professions as $id => $name) { ?>
-			<li data-profession-tab="<?= lcfirst($name) ?>">
-				<a>
-					<i class="professions-sprite <?= lcfirst($name) ?> icon-disabled"></i>
+        <?php foreach ($professions as $id => $name) {
+        	$lowercased = lcfirst($name);
+        	?>
+			<li data-profession-tab="<?= $lowercased ?>">
+				<a href="#<?= $lowercased ?>">
+					<i class="professions-sprite <?= $lowercased ?> icon-disabled"></i>
 					<span><?= $name ?></span>
 				</a>
 			</li>
