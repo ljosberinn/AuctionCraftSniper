@@ -21,17 +21,11 @@ export declare namespace AuctionCraftSniper {
 
   interface parseAuctionDataPayload {
     itemIDs?: object;
-    step?: number;
     houseID: number;
     expansionLevel: number;
   }
 
   interface parseAuctionDataResponseJSON {
-    itemIDs: number[];
-    percentDone: number;
-    reqSteps: number;
-    step: number;
-
     err?: string;
     callback?: string;
   }

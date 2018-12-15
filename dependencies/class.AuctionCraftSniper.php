@@ -985,4 +985,21 @@ class AuctionCraftSniper
 
         return $expansionLevel;
     }
+
+    public function validateAuctionRelevance(string $data = '') {
+        global $itemIDs;
+
+        $auction = json_decode($data, true);
+
+        if ($auction !== NULL && isset($itemIDs[$auction['item']])) {
+
+            $thisPPU = (int)round($auction['buyout'] / $auction['quantity']);
+
+            $previousPPU = (int)$itemIDs[$auction['item']];
+
+            if ($previousPPU === 0 || ($thisPPU < $previousPPU && $thisPPU !== 0)) {
+                $itemIDs[$auction['item']] = $thisPPU;
+            }
+        }
+    }
 }

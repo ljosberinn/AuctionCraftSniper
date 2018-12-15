@@ -282,10 +282,6 @@ const parseAuctionData = async (step = 0, itemIDs = {}) => {
     expansionLevel: ACS.expansionLevel,
   };
 
-  if (step > 0) {
-    payload.step = step;
-  }
-
   updateState('parsing data');
 
   const data = await fetch('api/parseAuctionData.php', {
@@ -297,24 +293,19 @@ const parseAuctionData = async (step = 0, itemIDs = {}) => {
 
   const json: AuctionCraftSniper.parseAuctionDataResponseJSON = await data.json();
 
-  const progressBar = <HTMLProgressElement>document.getElementById('progress-bar');
-
   if (json.err) {
     showHouseUnavailabilityError();
     throw new Error(json.err);
-  } else {
-    progressBar.value = Math.round(json.percentDone);
   }
 
-  if (json.step < json.reqSteps) {
-    parseAuctionData(json.step, json.itemIDs);
-  } else if (json.reqSteps === json.step && json.callback === 'getProfessionTables') {
+  if(json.callback === 'getProfessionTables') {
+    (<HTMLProgressElement>document.getElementById('progress-bar')).value = 100;
     getProfessionTables();
   }
 };
 
 const getAuctionHouseData = async () => {
-  updateState('retrieving data from Blizzard - this can take up to a minute, please be patient!');
+  updateState('retrieving data from Blizzard - this can take up to a minute, please stand by');
 
   const data = await fetch(`api/getAuctionHouseData.php?houseID=${ACS.houseID}`, {
     method: 'GET',

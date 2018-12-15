@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "@sentry/browser": "^4.3.4",
+    "@sentry/cli": "^1.37.1",
     "bulma-checkradio": "^2.1.0",
     "datalist-polyfill": "^1.22.2",
     "date-fns": "^1.29.0",
