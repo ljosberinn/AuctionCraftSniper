@@ -136,7 +136,7 @@ const refreshData = (): void => {
       console.time('search');
       toggleUserInputs();
       toggleSearchLoadingState();
-      checkHouseAge(true);
+      checkHouseAge({ triggeredByRefresher: true, retry: 0 });
     } else {
       console.log('Refresher: update currently impossible.');
       insertUpdateInformation();
@@ -176,52 +176,85 @@ export const searchListener = () => {
   hideIntroduction();
   toggleUserInputs();
   toggleSearchLoadingState();
-  validateRegionRealm(value);
+  validateRegionRealm({ value, retry: 0 });
 };
 
 /**
  *
  * @param {string} value
+ * @param {number} retry
  */
-const validateRegionRealm = async (value: string[]) => {
-  const [region, ...realm] = value;
+const validateRegionRealm = async (args: AuctionCraftSniper.realmRegionParams = { value: [], retry: 0 }) => {
+  const [region, ...realm] = args.value;
 
   updateState('validating region & realm');
 
-  const data = await fetch(`api/validateRegionRealm.php?region=${region}&realm=${realm.join('-')}`, {
-    method: 'GET',
-    credentials: 'same-origin',
-    mode: 'same-origin',
-  });
+  let json: AuctionCraftSniper.validateRegionRealmJSON = { houseID: 0, updateInterval: 0 };
 
-  const json: AuctionCraftSniper.validateRegionRealmJSON = await data.json();
+  try {
+    const data = await fetch(`api/validateRegionRealm.php?region=${region}&realm=${realm.join('-')}`, {
+      method: 'GET',
+      credentials: 'same-origin',
+      mode: 'same-origin',
+    });
+
+    json = await data.json();
+  } catch (err) {
+    console.error(err);
+
+    if (args.retry <= 2) {
+      retryOnError(validateRegionRealm, args);
+    }
+  }
 
   // only proceed when input is valid REGION-REALM pair and server responded with houseID
-  if (json.houseID) {
+  if (json.houseID > 0) {
     setACSLocalStorage({ houseID: json.houseID, houseUpdateInterval: json.updateInterval });
     checkHouseAge();
-  } else {
+  } else if (args.retry > 2) {
     showHouseUnavailabilityError();
   }
+};
+
+const retryOnError = (callbackFn, params) => {
+  clearInterval(refreshInterval);
+  params.retry += 1;
+
+  updateState(`retrying ${params.retry}/3`);
+
+  setTimeout(() => {
+    callbackFn(...params);
+  }, params.retry * 5000);
 };
 
 /**
  *
  * @param {boolean} triggeredByRefresher
  */
-const checkHouseAge = async (triggeredByRefresher: boolean = false) => {
+const checkHouseAge = async (args: AuctionCraftSniper.checkHouseAgeArgs = { triggeredByRefresher: false, retry: 0 }) => {
   const { houseID, expansionLevel } = ACS;
+  const { retry, triggeredByRefresher } = args;
 
   if (houseID !== undefined) {
     updateState('validating data age');
 
-    const data = await fetch(`api/checkHouseAge.php?houseID=${houseID}&expansionLevel=${expansionLevel}`, {
-      method: 'GET',
-      credentials: 'same-origin',
-      mode: 'same-origin',
-    });
+    let json: AuctionCraftSniper.checkHouseAgeJSON = { callback: '', lastUpdate: 0 };
 
-    const json: AuctionCraftSniper.checkHouseAgeJSON = await data.json();
+    try {
+      const data = await fetch(`api/checkHouseAge.php?houseID=${houseID}&expansionLevel=${expansionLevel}`, {
+        method: 'GET',
+        credentials: 'same-origin',
+        mode: 'same-origin',
+      });
+
+      json = await data.json();
+    } catch (err) {
+      console.error(err);
+
+      if (retry <= 2) {
+        retryOnError(checkHouseAge, { triggeredByRefresher, retry });
+      }
+    }
 
     if (json.lastUpdate !== 0) {
       setACSLocalStorage({ lastUpdate: json.lastUpdate });
@@ -254,7 +287,9 @@ const checkHouseAge = async (triggeredByRefresher: boolean = false) => {
         }
         break;
       default:
-        showHouseUnavailabilityError();
+        if (retry > 2) {
+          showHouseUnavailabilityError();
+        }
         break;
     }
   } else {
@@ -268,37 +303,41 @@ const showHouseUnavailabilityError = (): void => {
   toggleSearchLoadingState();
   document.getElementById('auction-craft-sniper').classList.remove('visible');
   document.getElementById('house-unavailable-disclaimer').classList.add('visible');
+  console.timeEnd('search');
 };
 
 /**
  *
- * @param {number} step
- * @param {object} itemIDs
  */
-const parseAuctionData = async (step = 0, itemIDs = {}) => {
+const parseAuctionData = async (args = { retry: 0 }) => {
   const payload: AuctionCraftSniper.parseAuctionDataPayload = {
     houseID: ACS.houseID,
-    itemIDs,
     expansionLevel: ACS.expansionLevel,
   };
 
   updateState('parsing data');
 
-  const data = await fetch('api/parseAuctionData.php', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-    mode: 'same-origin',
-    credentials: 'same-origin',
-  });
+  let json: AuctionCraftSniper.parseAuctionDataResponseJSON = {};
 
-  const json: AuctionCraftSniper.parseAuctionDataResponseJSON = await data.json();
+  try {
+    const data = await fetch('api/parseAuctionData.php', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      mode: 'same-origin',
+      credentials: 'same-origin',
+    });
 
-  if (json.err) {
-    showHouseUnavailabilityError();
-    throw new Error(json.err);
+    json = await data.json();
+  } catch (err) {
+    console.error(err);
+    retryOnError(parseAuctionData, args);
   }
 
-  if(json.callback === 'getProfessionTables') {
+  if (json.err || args.retry > 2) {
+    showHouseUnavailabilityError();
+  }
+
+  if (json.callback === 'getProfessionTables') {
     (<HTMLProgressElement>document.getElementById('progress-bar')).value = 100;
     getProfessionTables();
   }
@@ -317,7 +356,7 @@ const getAuctionHouseData = async () => {
 
   switch (json.callback) {
     case 'parseAuctionData':
-      parseAuctionData();
+      parseAuctionData({ retry: 0 });
       break;
     default:
       showHouseUnavailabilityError();

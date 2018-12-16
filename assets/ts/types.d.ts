@@ -20,7 +20,6 @@ export declare namespace AuctionCraftSniper {
   }
 
   interface parseAuctionDataPayload {
-    itemIDs?: object;
     houseID: number;
     expansionLevel: number;
   }
@@ -124,5 +123,15 @@ export declare namespace AuctionCraftSniper {
   interface validateRegionRealmJSON {
     houseID: number;
     updateInterval: number;
+  }
+
+  interface realmRegionParams {
+    value: string[];
+    retry: number;
+  }
+
+  interface checkHouseAgeArgs {
+    triggeredByRefresher: boolean;
+    retry: number;
   }
 }

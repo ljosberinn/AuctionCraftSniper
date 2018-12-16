@@ -9,7 +9,7 @@ module.exports = {
     path: path.resolve(__dirname, './assets/js'),
     filename: 'bundle.min.js',
   },
-  devtool: 'hidden-source-map',
+  devtool: 'source-map',
   optimization: {
     minimizer: [
       new UglifyJsPlugin({
