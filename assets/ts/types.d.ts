@@ -46,6 +46,7 @@ export declare namespace AuctionCraftSniper {
     houseUpdateInterval?: number;
     currentTab?: undefined | string;
     settings?: ACSSettingsObj;
+    hasLocalStorage?: boolean;
   }
 
   interface materialJSON {

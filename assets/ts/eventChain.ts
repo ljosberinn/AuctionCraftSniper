@@ -200,8 +200,6 @@ const validateRegionRealm = async (args: AuctionCraftSniper.realmRegionParams = 
 
     json = await data.json();
   } catch (err) {
-    console.error(err);
-
     if (args.retry <= 2) {
       retryOnError(validateRegionRealm, args);
     }
@@ -233,7 +231,6 @@ const retryOnError = (callbackFn, params) => {
  */
 const checkHouseAge = async (args: AuctionCraftSniper.checkHouseAgeArgs = { triggeredByRefresher: false, retry: 0 }) => {
   const { houseID, expansionLevel } = ACS;
-  const { retry, triggeredByRefresher } = args;
 
   if (houseID !== undefined) {
     updateState('validating data age');
@@ -249,10 +246,8 @@ const checkHouseAge = async (args: AuctionCraftSniper.checkHouseAgeArgs = { trig
 
       json = await data.json();
     } catch (err) {
-      console.error(err);
-
-      if (retry <= 2) {
-        retryOnError(checkHouseAge, { triggeredByRefresher, retry });
+      if (args.retry <= 2) {
+        retryOnError(checkHouseAge, args);
       }
     }
 
@@ -274,8 +269,8 @@ const checkHouseAge = async (args: AuctionCraftSniper.checkHouseAgeArgs = { trig
         break;
       case 'getProfessionTables':
         // only fetch professionData if current data isnt already up to date
-        if (!triggeredByRefresher) {
-          getProfessionTables();
+        if (!args.triggeredByRefresher) {
+          getProfessionTables({ triggeredByRefresher: false, retry: 0 });
         } else {
           toggleUserInputs(false);
           updateState('idling');
@@ -287,7 +282,7 @@ const checkHouseAge = async (args: AuctionCraftSniper.checkHouseAgeArgs = { trig
         }
         break;
       default:
-        if (retry > 2) {
+        if (args.retry > 2) {
           showHouseUnavailabilityError();
         }
         break;
@@ -329,8 +324,9 @@ const parseAuctionData = async (args = { retry: 0 }) => {
 
     json = await data.json();
   } catch (err) {
-    console.error(err);
-    retryOnError(parseAuctionData, args);
+    if (args.retry <= 2) {
+      retryOnError(parseAuctionData, args);
+    }
   }
 
   if (json.err || args.retry > 2) {
@@ -343,47 +339,66 @@ const parseAuctionData = async (args = { retry: 0 }) => {
   }
 };
 
-const getAuctionHouseData = async () => {
+const getAuctionHouseData = async (args = { retry: 0 }) => {
   updateState('retrieving data from Blizzard - this can take up to a minute, please stand by');
 
-  const data = await fetch(`api/getAuctionHouseData.php?houseID=${ACS.houseID}`, {
-    method: 'GET',
-    credentials: 'same-origin',
-    mode: 'same-origin',
-  });
+  let json = { callback: '' };
 
-  const json = await data.json();
+  try {
+    const data = await fetch(`api/getAuctionHouseData.php?houseID=${ACS.houseID}`, {
+      method: 'GET',
+      credentials: 'same-origin',
+      mode: 'same-origin',
+    });
+
+    json = await data.json();
+  } catch (err) {
+    if (args.retry <= 2) {
+      retryOnError(getAuctionHouseData, { args });
+    }
+  }
 
   switch (json.callback) {
     case 'parseAuctionData':
       parseAuctionData({ retry: 0 });
       break;
     default:
-      showHouseUnavailabilityError();
+      if (args.retry > 2) {
+        showHouseUnavailabilityError();
+      }
   }
 };
 
-export const getProfessionTables = async (isShorthanded: boolean = false) => {
+export const getProfessionTables = async (args = { triggeredByRefresher: false, retry: 0 }) => {
   updateState('fetching results');
 
   const { houseID, expansionLevel, professions } = ACS;
 
-  const data = await fetch(`api/getProfessionTables.php?houseID=${houseID}&expansionLevel=${expansionLevel}&professions=${professions.toString()}`, {
-    method: 'GET',
-    credentials: 'same-origin',
-    mode: 'same-origin',
-  });
+  let json: AuctionCraftSniper.outerProfessionDataJSON = { callback: 'throwHouseUnavailabilityError' };
 
-  const json: AuctionCraftSniper.outerProfessionDataJSON = await data.json();
+  try {
+    const data = await fetch(`api/getProfessionTables.php?houseID=${houseID}&expansionLevel=${expansionLevel}&professions=${professions.toString()}`, {
+      method: 'GET',
+      credentials: 'same-origin',
+      mode: 'same-origin',
+    });
+
+    json = await data.json();
+  } catch (err) {
+    if (args.retry <= 2) {
+      retryOnError(getProfessionTables, args);
+      return;
+    }
+  }
 
   if (json.callback) {
     showHouseUnavailabilityError();
   } else {
-    fillProfessionTables(json, isShorthanded);
+    fillProfessionTables(json, args.triggeredByRefresher);
 
     toggleProgressBar(false);
 
-    if (isShorthanded) {
+    if (args.triggeredByRefresher) {
       insertUpdateInformation();
     }
 
@@ -442,13 +457,9 @@ const fillRecipeTR = (recipe: AuctionCraftSniper.innerProfessionDataJSON, TUJLin
   return tr;
 };
 
-const hideProfessionTabs = () => {
-  document.querySelectorAll('#auction-craft-sniper li').forEach((li: HTMLUListElement) => li.classList.remove('is-active', 'visible'));
-};
+const hideProfessionTabs = () => document.querySelectorAll('#auction-craft-sniper li').forEach((li: HTMLUListElement) => li.classList.remove('is-active', 'visible'));
 
-const hideProfessionTables = () => {
-  document.querySelectorAll('#auction-craft-sniper table').forEach((table: HTMLTableElement) => (table.style.display = 'none'));
-};
+const hideProfessionTables = () => document.querySelectorAll('#auction-craft-sniper table').forEach((table: HTMLTableElement) => (table.style.display = 'none'));
 
 /**
  *

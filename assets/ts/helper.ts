@@ -61,10 +61,7 @@ export const getTUJBaseURL = (): string => {
  */
 export const getWoWheadURL = (itemID: number): string => `https://wowhead.com/?item=${itemID}`;
 
-export const toggleSearchLoadingState = () => {
-  document.getElementById('search').classList.toggle('is-loading');
-  toggleProgressBar();
-};
+export const toggleSearchLoadingState = () => document.getElementById('search').classList.toggle('is-loading') && toggleProgressBar();
 
 export const showHint = (hintType: string): void => {
   const target = document.getElementById(`hint-invalid-${hintType}`);

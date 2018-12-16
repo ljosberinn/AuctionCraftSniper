@@ -2,6 +2,37 @@ import { AuctionCraftSniper } from './types';
 import { searchListener, getProfessionTables, hideIntroduction } from './eventChain';
 import { showHint } from './helper';
 
+/**
+ *
+ * @param {string} type
+ */
+const storageAvailable = (type: string): boolean => {
+  // https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API#Testing_for_availability
+  try {
+    var storage = window[type];
+
+    const x = '__storage_test__';
+    storage.setItem(x, x);
+    storage.removeItem(x);
+    return true;
+  } catch (err) {
+    return (
+      err instanceof DOMException
+      // everything except Firefox
+      && (err.code === 22
+        // Firefox
+        || err.code === 1014
+        // test name field too, because code might not be present
+        // everything except Firefox
+        || err.name === 'QuotaExceededError'
+        // Firefox
+        || err.name === 'NS_ERROR_DOM_QUOTA_REACHED')
+      // acknowledge QuotaExceededError only if there's something already stored
+      && storage.length !== 0
+    );
+  }
+};
+
 export const ACS: AuctionCraftSniper.localStorageObj = {
   houseID: 0,
   professions: [],
@@ -17,6 +48,7 @@ export const ACS: AuctionCraftSniper.localStorageObj = {
     pushNotificationsAllowed: false,
     hideBlacklistedRecipes: false,
   },
+  hasLocalStorage: storageAvailable('localStorage'),
 };
 
 /**
@@ -39,7 +71,9 @@ export const setACSLocalStorage = (data: AuctionCraftSniper.localStorageObj): vo
     }
   });
 
-  localStorage.ACS = JSON.stringify(ACS);
+  if (ACS.hasLocalStorage) {
+    localStorage.ACS = JSON.stringify(ACS);
+  }
 };
 
 export const getACSLocalStorage = (): void => {
@@ -71,7 +105,7 @@ export const getACSLocalStorage = (): void => {
       // circumvent API potentially not answering although most recent data is up to date anyways
       if (new Date().getTime() + ACS.houseUpdateInterval > ACS.lastUpdate + ACS.houseUpdateInterval) {
         hideIntroduction();
-        getProfessionTables(true);
+        getProfessionTables({ triggeredByRefresher: true, retry: 0 });
         return;
       }
 

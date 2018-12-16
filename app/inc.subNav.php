@@ -6,7 +6,7 @@
         	$lowercased = lcfirst($name);
         	?>
 			<li data-profession-tab="<?= $lowercased ?>">
-				<a href="#<?= $lowercased ?>">
+				<a href="#auction-craft-sniper">
 					<i class="professions-sprite <?= $lowercased ?> icon-disabled"></i>
 					<span><?= $name ?></span>
 				</a>
