@@ -1,5 +1,6 @@
 import * as distanceInWordsStrict from 'date-fns/distance_in_words_strict';
 import * as distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
+import * as Tablesort from 'tablesort';
 
 import { setACSLocalStorage, ACS } from './localStorage';
 import {
@@ -30,8 +31,35 @@ import {
   createWinMarginTD,
 } from './elementBuilder';
 
+(function () {
+  var cleanNumber = function (i) {
+    return i.replace(/[^\-?0-9.]/g, '');
+  },
+
+    compareNumber = function (a, b) {
+      a = parseFloat(a);
+      b = parseFloat(b);
+
+      a = isNaN(a) ? 0 : a;
+      b = isNaN(b) ? 0 : b;
+
+      return a - b;
+    };
+
+  Tablesort.extend('number', function (item) {
+    return item.match(/^[-+]?[£\x24Û¢´€]?\d+\s*([,\.]\d{0,2})/) || // Prefixed currency
+      item.match(/^[-+]?\d+\s*([,\.]\d{0,2})?[£\x24Û¢´€]/) || // Suffixed currency
+      item.match(/^[-+]?(\d)*-?([,\.]){0,1}-?(\d)+([E,e][\-+][\d]+)?%?$/); // Number
+  }, function (a, b) {
+    a = cleanNumber(a);
+    b = cleanNumber(b);
+
+    return compareNumber(b, a);
+  });
+}());
+
 // minutes to milliseconds
-const REFRESHER_INTERVAL = 30000; // 0.5 * 1000 * 60
+const REFRESHER_INTERVAL = 60000; // 1 * 1000 * 60
 
 /**
  *
@@ -111,9 +139,20 @@ const settingListener = (): void => {
   });
 };
 
-const initiateRefreshInterval = () => {
+const killRefreshInterval = () => {
+  if (typeof refreshInterval === 'number') {
+    clearInterval(refreshInterval);
+    refreshInterval = void 0;
+  }
+};
+
+/**
+ *
+ * @param {number} interval
+ */
+const initiateRefreshInterval = (interval: number = REFRESHER_INTERVAL) => {
   if (typeof refreshInterval === 'undefined') {
-    refreshInterval = setInterval(refreshData, REFRESHER_INTERVAL);
+    refreshInterval = setInterval(refreshData, interval);
   }
 };
 
@@ -137,18 +176,22 @@ const refreshData = (): void => {
       toggleUserInputs();
       toggleSearchLoadingState();
       checkHouseAge({ triggeredByRefresher: true, retry: 0 });
-    } else {
-      console.log('Refresher: update currently impossible.');
-      insertUpdateInformation();
+      return;
     }
-  } else {
-    const hintMissingProfessions = <HTMLParagraphElement>document.getElementById('hint-missing-professions');
-    hintMissingProfessions.classList.add('visible');
-    setTimeout(() => {
-      hintMissingProfessions.classList.remove('visible');
-    }, 15000);
-    clearInterval(refreshInterval);
+
+    insertUpdateInformation();
+
+    return;
   }
+
+  const hintMissingProfessions = <HTMLParagraphElement>document.getElementById('hint-missing-professions');
+  hintMissingProfessions.classList.add('visible');
+
+  setTimeout(() => {
+    hintMissingProfessions.classList.remove('visible');
+  }, 15000);
+
+  killRefreshInterval();
 };
 
 export const hideIntroduction = () => {
@@ -202,6 +245,7 @@ const validateRegionRealm = async (args: AuctionCraftSniper.realmRegionParams = 
   } catch (err) {
     if (args.retry <= 2) {
       retryOnError(validateRegionRealm, args);
+      return;
     }
   }
 
@@ -209,13 +253,15 @@ const validateRegionRealm = async (args: AuctionCraftSniper.realmRegionParams = 
   if (json.houseID > 0) {
     setACSLocalStorage({ houseID: json.houseID, houseUpdateInterval: json.updateInterval });
     checkHouseAge();
-  } else if (args.retry > 2) {
+    return;
+  }
+
+  if (args.retry > 2) {
     showHouseUnavailabilityError();
   }
 };
 
 const retryOnError = (callbackFn, params) => {
-  clearInterval(refreshInterval);
   params.retry += 1;
 
   updateState(`retrying ${params.retry}/3`);
@@ -227,69 +273,85 @@ const retryOnError = (callbackFn, params) => {
 
 /**
  *
- * @param {boolean} triggeredByRefresher
+ * @param {AuctionCraftSniper.checkHouseAgeArgs} args
+ * @param {AuctionCraftSniper.checkHouseAgeJSON} json
+ */
+const handleHouseAgeResponse = (args: AuctionCraftSniper.checkHouseAgeArgs, json: AuctionCraftSniper.checkHouseAgeJSON): void => {
+  switch (json.callback) {
+    case 'waitForParseTimeout':
+      updateState('waiting for someone elses parse to finish - please stand by');
+      // kill usual interval to restart with a smaller interval (5s)
+      killRefreshInterval();
+      initiateRefreshInterval(5000);
+      break;
+    case 'houseRequiresUpdate':
+      // kill here since its not supposed to re-fetch whilst downloading
+      killRefreshInterval();
+      getAuctionHouseData();
+      if (ACS.settings.pushNotificationsAllowed) {
+        // eventual Push notification implementation
+      }
+      break;
+    case 'getProfessionTables':
+      /* fetch data if:
+       * - new data should be there via refresherInterval
+       * - theres no table currently visible
+       */
+      if (args.triggeredByRefresher || document.querySelectorAll('table td').length === 0) {
+        args.retry = 0;
+        getProfessionTables(args);
+        return;
+      }
+
+      toggleUserInputs(false);
+      updateState('idling');
+      toggleSearchLoadingState();
+      toggleProgressBar(false);
+
+      console.timeEnd('search');
+      console.groupEnd();
+      break;
+    default:
+      if (args.retry > 2) {
+        showHouseUnavailabilityError();
+      }
+      break;
+  }
+};
+
+/**
+ *
+ * @param {object} args
  */
 const checkHouseAge = async (args: AuctionCraftSniper.checkHouseAgeArgs = { triggeredByRefresher: false, retry: 0 }) => {
   const { houseID, expansionLevel } = ACS;
 
-  if (houseID !== undefined) {
-    updateState('validating data age');
+  updateState('validating data age');
 
-    let json: AuctionCraftSniper.checkHouseAgeJSON = { callback: '', lastUpdate: 0 };
+  let json: AuctionCraftSniper.checkHouseAgeJSON = { callback: '', lastUpdate: 0 };
 
-    try {
-      const data = await fetch(`api/checkHouseAge.php?houseID=${houseID}&expansionLevel=${expansionLevel}`, {
-        method: 'GET',
-        credentials: 'same-origin',
-        mode: 'same-origin',
-      });
+  try {
+    const data = await fetch(`api/checkHouseAge.php?houseID=${houseID}&expansionLevel=${expansionLevel}`, {
+      method: 'GET',
+      credentials: 'same-origin',
+      mode: 'same-origin',
+    });
 
-      json = await data.json();
-    } catch (err) {
-      if (args.retry <= 2) {
-        retryOnError(checkHouseAge, args);
-      }
+    json = await data.json();
+  } catch (err) {
+    // kill refresher to prevent another fetch whilst in catch-loop in here or further down
+    killRefreshInterval();
+    if (args.retry <= 2) {
+      retryOnError(checkHouseAge, args);
     }
-
-    if (json.lastUpdate !== 0) {
-      setACSLocalStorage({ lastUpdate: json.lastUpdate });
-      insertUpdateInformation();
-    }
-
-    switch (json.callback) {
-      case 'waitForParseTimeout':
-        updateState('waiting for someone elses parse to finish - please stand by');
-        initiateRefreshInterval();
-        break;
-      case 'houseRequiresUpdate':
-        getAuctionHouseData();
-        if (ACS.settings.pushNotificationsAllowed) {
-          // eventual Push notification implementation
-        }
-        break;
-      case 'getProfessionTables':
-        // only fetch professionData if current data isnt already up to date
-        if (!args.triggeredByRefresher) {
-          getProfessionTables({ triggeredByRefresher: false, retry: 0 });
-        } else {
-          toggleUserInputs(false);
-          updateState('idling');
-          toggleSearchLoadingState();
-          toggleProgressBar(false);
-
-          console.timeEnd('search');
-          console.groupEnd();
-        }
-        break;
-      default:
-        if (args.retry > 2) {
-          showHouseUnavailabilityError();
-        }
-        break;
-    }
-  } else {
-    console.warn(`Insufficient params - professions: house: ${houseID}`);
   }
+
+  if (json.lastUpdate !== 0) {
+    setACSLocalStorage({ lastUpdate: json.lastUpdate });
+    insertUpdateInformation();
+  }
+
+  handleHouseAgeResponse(args, json);
 };
 
 const showHouseUnavailabilityError = (): void => {
@@ -372,6 +434,11 @@ const getAuctionHouseData = async (args = { retry: 0 }) => {
 export const getProfessionTables = async (args = { triggeredByRefresher: false, retry: 0 }) => {
   updateState('fetching results');
 
+  /*  kill interval to prevent collision if errors occur and fetching is delayed by retrying
+   *  or kill shorter interval during waitForParseTimeout callback
+   */
+  killRefreshInterval();
+
   const { houseID, expansionLevel, professions } = ACS;
 
   let json: AuctionCraftSniper.outerProfessionDataJSON = { callback: 'throwHouseUnavailabilityError' };
@@ -391,18 +458,21 @@ export const getProfessionTables = async (args = { triggeredByRefresher: false, 
     }
   }
 
+  /* if (args.triggeredByRefresher) {
+    initiateRefreshInterval(REFRESHER_INTERVAL, 'getProfessionTables');
+  } */
+
   if (json.callback) {
     showHouseUnavailabilityError();
-  } else {
-    fillProfessionTables(json, args.triggeredByRefresher);
+    return;
+  }
 
-    toggleProgressBar(false);
+  manageProfessionTables(json, args.triggeredByRefresher);
 
-    if (args.triggeredByRefresher) {
-      insertUpdateInformation();
-    }
+  toggleProgressBar(false);
 
-    initiateRefreshInterval();
+  if (args.triggeredByRefresher) {
+    insertUpdateInformation();
   }
 };
 
@@ -478,19 +548,12 @@ const emptyProfessionTables = () => {
 /**
  *
  * @param {AuctionCraftSniper.outerProfessionDataJSON} json
- * @param {boolean} isShorthanded
  */
-const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON = {}, isShorthanded: boolean = false) => {
-  console.group(`filling profession tables for ${ACS.professions.length} professions - ${isShorthanded ? 'isShorthanded' : '!isShorthanded'}`);
-  console.time('fillProfessionTables');
-
+const fillProfessionTable = (json: AuctionCraftSniper.outerProfessionDataJSON = {}): void => {
   const TUJLink = getTUJBaseURL();
+  console.time('fillProfessionTable');
 
   let subNavHasActiveIndicator = false;
-
-  hideProfessionTabs();
-  hideProfessionTables();
-  emptyProfessionTables();
 
   Object.entries(json).forEach(entry => {
     let professionName: string;
@@ -546,33 +609,47 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
     if (!positiveTbody.hasChildNodes()) {
       positiveTbody.appendChild(createMissingProfitsHintTR());
     }
-
     const appendix = [initiateTHead(), positiveTbody];
 
     // add hint in case at least some professions are lossy
     if (negativeTbody.hasChildNodes()) {
       appendix.push(createRecipeHintTR('lossy-recipes'));
     }
-
     appendix.push(negativeTbody);
 
     // add hint in case some recipes are currently unlisted
     if (unlistedTbody.hasChildNodes()) {
       appendix.push(createRecipeHintTR('unlisted-recipes'));
     }
-
     appendix.push(unlistedTbody);
 
-    appendix.forEach(tbody => professionTable.appendChild(tbody));
+    const tbodiesFragment = document.createDocumentFragment();
+    appendix.forEach(tbody => tbodiesFragment.appendChild(tbody));
+
+    professionTable.appendChild(tbodiesFragment);
+
+    Tablesort(professionTable);
 
     console.timeEnd(professionName);
   });
 
-  if (!isShorthanded) {
-    toggleUserInputs(false);
-    updateState('idling');
-    toggleSearchLoadingState();
-  }
+  console.timeEnd('fillProfessionTable');
+};
+
+/**
+ *
+ * @param {AuctionCraftSniper.outerProfessionDataJSON} json
+ * @param {boolean} isShorthanded
+ */
+const manageProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON = {}, isShorthanded: boolean = false) => {
+  console.group(`filling profession tables for ${ACS.professions.length} professions - ${isShorthanded ? 'isShorthanded' : '!isShorthanded'}`);
+  console.time('manageProfessionTables');
+
+  hideProfessionTabs();
+  hideProfessionTables();
+  emptyProfessionTables();
+
+  fillProfessionTable(json);
 
   document.getElementById('general-tsm-export').classList.add('visible');
 
@@ -584,13 +661,19 @@ const fillProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON =
     (<HTMLUListElement>document.querySelector('li[data-profession-tab].visible')).click();
   }
 
+  initiateRefreshInterval();
+
   console.groupEnd();
-  console.timeEnd('fillProfessionTables');
 
   if (!isShorthanded) {
+    toggleUserInputs(false);
+    updateState('idling');
+    toggleSearchLoadingState();
     console.timeEnd('search');
     console.groupEnd();
   }
+
+  console.timeEnd('manageProfessionTables');
 };
 
 export const toggleTBody = function () {
@@ -625,9 +708,7 @@ const subNavEventListener = function () {
   }
 };
 
-const toggleSettingsModal = () => {
-  document.getElementById('settings-modal').classList.toggle('visible');
-};
+const toggleSettingsModal = () => document.getElementById('settings-modal').classList.toggle('visible');
 
 export const addEventListeners = () => {
   document.querySelectorAll('#professions input[type="checkbox"]').forEach((checkbox: HTMLInputElement) => checkbox.addEventListener('click', professionsEventListener));

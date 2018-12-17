@@ -72,7 +72,23 @@ export const setACSLocalStorage = (data: AuctionCraftSniper.localStorageObj): vo
   });
 
   if (ACS.hasLocalStorage) {
-    localStorage.ACS = JSON.stringify(ACS);
+    // sentry #812161570
+    try {
+      localStorage.ACS = JSON.stringify(ACS);
+    } catch (err) {
+      if (err.name === 'NS_ERROR_FILE_CORRUPTED') {
+        try {
+          localStorage.clear();
+          localStorage.ACS = JSON.stringify(ACS);
+        } catch (err2) {
+          if (err2.name === 'NS_ERROR_FILE_CORRUPTED') {
+            alert(
+              'Sorry, it looks like your browser storage has been corrupted. Please clear your storage by going to Settings -> Privacy & Security -> section Cookies -> remove all cookies & restart your browser. This will remove the corrupted browser storage across all sites. Then try again.',
+            );
+          }
+        }
+      }
+    }
   }
 };
 
@@ -119,7 +135,13 @@ const setSettingCheckboxes = (): void => {
     const [settingName, value] = entry;
 
     if (typeof value !== 'object') {
-      (<HTMLInputElement>document.getElementById(settingName)).checked = value;
+      const checkbox = <HTMLInputElement>document.getElementById(settingName);
+
+      if (checkbox !== null) {
+        checkbox.checked = value;
+      } else {
+        console.warn(`invalid settingName: ${settingName}`);
+      }
     }
   });
 };

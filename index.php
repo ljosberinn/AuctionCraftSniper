@@ -1,5 +1,6 @@
 <?php
 
+#header('Location: https://gerritalex.de', 301);
 ob_start(function ($buffer) {
 
     $search = [
@@ -27,7 +28,7 @@ $professions        = $AuctionCraftSniper->getProfessions();
 ?>
 
 <!DOCTYPE html>
-<html lang="en" prefix="og: http://ogp.me/ns#" itemscope itemtype="http://schema.org/WebPage">
+<html lang="en" prefix="og: http://ogp.me/ns#" itemscope itemtype="https://schema.org/WebPage">
 <head>
     <?php require_once 'app/inc.head.php' ?>
 </head>

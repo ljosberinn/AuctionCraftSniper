@@ -92,6 +92,7 @@ export const createProductNameTD = ({
 export const createProfitTD = (profit: number = 0): HTMLTableCellElement => {
   const td = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
   td.classList.add('has-text-right');
+  td.dataset.sort = `${profit}`;
   td.appendChild(formatCurrency(profit));
 
   return td;
@@ -143,10 +144,10 @@ export const createMaterialTD = (recipe: AuctionCraftSniper.innerProfessionDataJ
     tbody.appendChild(tr);
   });
 
+  materialInfoTD.dataset.sort = `${recipe.materialCostSum}`;
   materialInfoTD.appendChild(formatCurrency(recipe.materialCostSum));
 
-  tippyTable.appendChild(thead);
-  tippyTable.appendChild(tbody);
+  [thead, tbody].forEach(sectionElement => tippyTable.appendChild(sectionElement));
   tippy(materialInfoTD, { content: tippyTable });
 
   return materialInfoTD;
@@ -173,6 +174,7 @@ export const createProductBuyoutTD = (recipe: AuctionCraftSniper.innerProfession
     a.innerText = 'visit TUJ for usual prices';
   }
 
+  productBuyoutTD.dataset.sort = `${recipe.product.buyout}`;
   productBuyoutTD.appendChild(a);
 
   return productBuyoutTD;
@@ -242,6 +244,7 @@ export const createWinMarginTD = (margin: number): HTMLTableCellElement => {
   const td = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
   td.classList.add('has-text-right');
   td.innerText = `${margin}%`;
+  td.dataset.sort = `${margin}`;
 
   return td;
 };
@@ -268,6 +271,7 @@ const createTSMTD = (target: string = ''): HTMLTableCellElement => {
  */
 export const createRecipeHintTR = (className: string): HTMLTableRowElement => {
   const hintTR = <HTMLTableRowElement>cloneOrigin.tr.cloneNode();
+  hintTR.dataset.sortMethod = 'none';
 
   const hintTD = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
   hintTD.classList.add(`${className}-hint`, 'has-text-centered');
@@ -294,6 +298,10 @@ export const initiateTHead = (): HTMLTableSectionElement => {
   T_HEAD_TEXTS.forEach(thText => {
     const th = <HTMLTableHeaderCellElement>cloneOrigin.th.cloneNode();
     th.innerHTML = thText;
+
+    if (T_HEAD_TEXTS.indexOf(thText) !== 0) {
+      th.dataset.sortMethod = 'number';
+    }
 
     theadRow.appendChild(th);
   });

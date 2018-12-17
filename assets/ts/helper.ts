@@ -161,10 +161,11 @@ export const toggleProgressBar = (show: boolean = true): void => {
 
   if (show) {
     progressBar.classList.add('visible');
-  } else {
-    progressBar.removeAttribute('value');
-    progressBar.classList.remove('visible');
+    return;
   }
+
+  progressBar.removeAttribute('value');
+  progressBar.classList.remove('visible');
 };
 
 /**

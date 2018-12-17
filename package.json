@@ -8,7 +8,7 @@
     "build-deploy": "tsc && npx webpack",
     "scss-dev-watch": "npx node-sass assets/scss/acs.scss assets/css/acs.min.css --source-map=true --output-style=compressed --watch",
     "scss-deploy": "npx node-sass assets/scss/acs.scss assets/css/acs.min.css --output-style=compressed",
-    "sentry-release": "npx sentry-cli login && npx sentry-cli releases new 'RELEASE_TOKEN' && npx sentry-cli releases set-commits 'RELEASE_TOKEN' --commit 'auction-craft-sniper@GIT_SHA && npx sentry-cli releases finalize 'RELEASE_TOKEN'"
+    "sentry-release": "npx sentry-cli login && npx sentry-cli releases new \"c14de071d23f8a6f7dcd327afbb487831555be68\" && npx sentry-cli releases set-commits \"c14de071d23f8a6f7dcd327afbb487831555be68\" --commit \"ljosberinn/AuctionCraftSniper@c14de071d23f8a6f7dcd327afbb487831555be68\" && npx sentry-cli releases finalize \"c14de071d23f8a6f7dcd327afbb487831555be68\""
   },
   "repository": {
     "type": "git",
@@ -48,6 +48,7 @@
     "bulma-checkradio": "^2.1.0",
     "datalist-polyfill": "^1.22.2",
     "date-fns": "^1.29.0",
+    "tablesort": "^5.1.0",
     "tippy.js": "^3.2.0",
     "typescript": "^3.1.1"
   }
