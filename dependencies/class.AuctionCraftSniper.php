@@ -59,62 +59,6 @@ class AuctionCraftSniper
     private $calculationExemptionItemIDs = [];
 
     /**
-     * @var array [contains strings of avaiable settings]
-     */
-    private $activeSettings = [
-        // checkbox
-        'fetchOnLoad'              => [
-            'description' => 'automatically fetch data on page load (last selected realm will be used)',
-            'type'        => 'checkbox',
-            'classes'     => 'is-checkradio',
-        ],
-        'pushNotificationsAllowed' => [
-            'description' => 'send push notifications when new auction house data is available',
-            'type'        => 'checkbox',
-            'classes'     => 'is-checkradio',
-        ],
-        'alwaysShowLossyRecipes'   => [
-            'description' => 'always show lossy recipes',
-            'type'        => 'checkbox',
-            'classes'     => 'is-checkradio',
-        ],
-        'alwaysShowUnlistedRecipes'   => [
-            'description' => 'always show unlisted recipes',
-            'type'        => 'checkbox',
-            'classes'     => 'is-checkradio',
-        ],
-        'hideBlacklistedRecipes'   => [
-            'description' => 'hide blacklisted recipes entirely (requires unchecking of this setting to show blacklisted recipes again)',
-            'type'        => 'checkbox',
-            'classes'     => 'is-checkradio',
-        ],
-        // input
-        'marginThresholdPercent'   => [
-            'description' => '<span class="has-text-warning">COMING SOON</span> define a custom <strong>percentage</strong> threshold of recipes to show',
-            'type'        => 'number',
-            'classes'     => 'input',
-        ],
-        'marginThresholdValue'     => [
-            'description' => '<span class="has-text-warning">COMING SOON</span> define a custom <strong>absolute value</strong> threshold of recipes to show',
-            'type'        => 'number',
-            'classes'     => 'input',
-        ],
-        // button
-        'showLocalStorage'         => [
-            'description' => 'show locally stored data',
-            'type'        => 'button',
-            'classes'     => 'is-info',
-            'icon'        => 'info',
-        ],
-        'clearLocalStorage'        => [
-            'description' => 'clear locally stored data',
-            'type'        => 'button',
-            'classes'     => 'is-danger',
-            'icon'        => 'nuke',
-        ],
-    ];
-
-    /**
      * @method __construct
      */
     public function __construct() {
@@ -131,11 +75,6 @@ class AuctionCraftSniper
 
     /* ---------------------------------------------------------------------------------------------------- */
     // GETTER //
-
-    public function getAvailableSettings()
-    : array {
-        return $this->activeSettings;
-    }
 
     /**
      * @method getInnerAuctionData [clones remote auction house json locally]

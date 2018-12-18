@@ -4,17 +4,7 @@ import * as Tablesort from 'tablesort';
 
 import { setACSLocalStorage, ACS } from './localStorage';
 import {
-  updateState,
-  sortByProfit,
-  getTUJBaseURL,
-  cloneOrigin,
-  toggleSearchLoadingState,
-  showHint,
-  copyOnClick,
-  showLocalStorage,
-  clearLocalStorage,
-  toggleProgressBar,
-  toggleUserInputs,
+  updateState, sortByProfit, getTUJBaseURL, cloneOrigin, toggleSearchLoadingState, showHint, copyOnClick, showLocalStorage, clearLocalStorage, toggleUserInputs,
 } from './helper';
 import { AuctionCraftSniper } from './types';
 
@@ -31,43 +21,49 @@ import {
   createWinMarginTD,
 } from './elementBuilder';
 
+// extension of Tablesort since it's currently impossible to import it via modules
 (function () {
-  var cleanNumber = function (i) {
-    return i.replace(/[^\-?0-9.]/g, '');
-  },
+  const cleanNumber = i => i.replace(/[^\-?0-9.]/g, '');
 
-    compareNumber = function (a, b) {
-      a = parseFloat(a);
-      b = parseFloat(b);
+  const compareNumber = (a, b) => {
+    a = parseFloat(a);
+    b = parseFloat(b);
 
-      a = isNaN(a) ? 0 : a;
-      b = isNaN(b) ? 0 : b;
+    a = isNaN(a) ? 0 : a;
+    b = isNaN(b) ? 0 : b;
 
-      return a - b;
-    };
+    return a - b;
+  };
 
-  Tablesort.extend('number', function (item) {
-    return item.match(/^[-+]?[£\x24Û¢´€]?\d+\s*([,\.]\d{0,2})/) || // Prefixed currency
-      item.match(/^[-+]?\d+\s*([,\.]\d{0,2})?[£\x24Û¢´€]/) || // Suffixed currency
-      item.match(/^[-+]?(\d)*-?([,\.]){0,1}-?(\d)+([E,e][\-+][\d]+)?%?$/); // Number
-  }, function (a, b) {
-    a = cleanNumber(a);
-    b = cleanNumber(b);
+  Tablesort.extend(
+    'number',
+    item => item.match(/^[-+]?[£\x24Û¢´€]?\d+\s*([,\.]\d{0,2})/) // Prefixed currency
+      || item.match(/^[-+]?\d+\s*([,\.]\d{0,2})?[£\x24Û¢´€]/) // Suffixed currency
+      || item.match(/^[-+]?(\d)*-?([,\.]){0,1}-?(\d)+([E,e][\-+][\d]+)?%?$/), // Number
 
-    return compareNumber(b, a);
-  });
+    (a, b) => {
+      a = cleanNumber(a);
+      b = cleanNumber(b);
+
+      return compareNumber(b, a);
+    },
+  );
 }());
 
-// minutes to milliseconds
+/**
+ * @var {number} REFRESHER_INTERVAL
+ * @description  [the interval in which the automatic check for updates will be made]
+ */
 const REFRESHER_INTERVAL = 60000; // 1 * 1000 * 60
 
 /**
  *
  * @param {any} queryElement
  * @param {string} selector
+ *
  * @returns {string}
  */
-const buildTSMString = (queryElement: any, selector: string): string => {
+const buildTSMString = (queryElement: HTMLElement | Document, selector: string): string => {
   let exportString = '';
 
   queryElement.querySelectorAll(selector).forEach((td: HTMLTableCellElement) => (exportString += `i:${parseInt(td.dataset.recipe)},`));
@@ -93,8 +89,6 @@ export const TSMListener = (el: HTMLTableCellElement, target: string): void => {
  * @param {Event} e
  */
 const professionsEventListener = function (e: Event): void {
-  e.stopPropagation();
-
   const { value, checked } = <HTMLInputElement> this;
   const index = ACS.professions.indexOf(parseInt(value));
 
@@ -217,6 +211,7 @@ export const searchListener = () => {
   console.time('search');
 
   hideIntroduction();
+
   toggleUserInputs();
   toggleSearchLoadingState();
   validateRegionRealm({ value, retry: 0 });
@@ -224,8 +219,7 @@ export const searchListener = () => {
 
 /**
  *
- * @param {string} value
- * @param {number} retry
+ * @param { AuctionCraftSniper.realmRegionParams} args
  */
 const validateRegionRealm = async (args: AuctionCraftSniper.realmRegionParams = { value: [], retry: 0 }) => {
   const [region, ...realm] = args.value;
@@ -306,7 +300,6 @@ const handleHouseAgeResponse = (args: AuctionCraftSniper.checkHouseAgeArgs, json
       toggleUserInputs(false);
       updateState('idling');
       toggleSearchLoadingState();
-      toggleProgressBar(false);
 
       console.timeEnd('search');
       console.groupEnd();
@@ -356,8 +349,10 @@ const checkHouseAge = async (args: AuctionCraftSniper.checkHouseAgeArgs = { trig
 
 const showHouseUnavailabilityError = (): void => {
   console.warn('house unavailable');
+
   toggleUserInputs(false);
   toggleSearchLoadingState();
+
   document.getElementById('auction-craft-sniper').classList.remove('visible');
   document.getElementById('house-unavailable-disclaimer').classList.add('visible');
   console.timeEnd('search');
@@ -458,22 +453,12 @@ export const getProfessionTables = async (args = { triggeredByRefresher: false, 
     }
   }
 
-  /* if (args.triggeredByRefresher) {
-    initiateRefreshInterval(REFRESHER_INTERVAL, 'getProfessionTables');
-  } */
-
   if (json.callback) {
     showHouseUnavailabilityError();
     return;
   }
 
   manageProfessionTables(json, args.triggeredByRefresher);
-
-  toggleProgressBar(false);
-
-  if (args.triggeredByRefresher) {
-    insertUpdateInformation();
-  }
 };
 
 export const toggleBlacklistEntry = function () {
@@ -665,10 +650,11 @@ const manageProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON
 
   console.groupEnd();
 
+  toggleUserInputs(false);
+  toggleSearchLoadingState();
+
   if (!isShorthanded) {
-    toggleUserInputs(false);
     updateState('idling');
-    toggleSearchLoadingState();
     console.timeEnd('search');
     console.groupEnd();
   }

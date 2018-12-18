@@ -61,7 +61,10 @@ export const getTUJBaseURL = (): string => {
  */
 export const getWoWheadURL = (itemID: number): string => `https://wowhead.com/?item=${itemID}`;
 
-export const toggleSearchLoadingState = () => document.getElementById('search').classList.toggle('is-loading') && toggleProgressBar();
+export const toggleSearchLoadingState = () => {
+  document.getElementById('search').classList.toggle('is-loading');
+  toggleProgressBar();
+};
 
 export const showHint = (hintType: string): void => {
   const target = document.getElementById(`hint-invalid-${hintType}`);
@@ -152,20 +155,11 @@ export const clearLocalStorage = (): void => {
   createNotification('is-info', 'All your data has been removed.');
 };
 
-/**
- *
- * @param {boolean} show
- */
-export const toggleProgressBar = (show: boolean = true): void => {
+export const toggleProgressBar = (): void => {
   const progressBar = <HTMLProgressElement>document.getElementById('progress-bar');
 
-  if (show) {
-    progressBar.classList.add('visible');
-    return;
-  }
-
   progressBar.removeAttribute('value');
-  progressBar.classList.remove('visible');
+  progressBar.classList.toggle('visible');
 };
 
 /**

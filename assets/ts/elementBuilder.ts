@@ -54,6 +54,7 @@ export const createProductNameTD = ({
   item, name, producedQuantity, buyout,
 }: AuctionCraftSniper.productJSON): HTMLTableCellElement => {
   const td = <HTMLTableCellElement>cloneOrigin.td.cloneNode();
+  td.dataset.sort = name;
 
   if (buyout === 0) {
     const strong = <HTMLElement>cloneOrigin.strong.cloneNode();

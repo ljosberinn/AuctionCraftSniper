@@ -1,6 +1,6 @@
 import { AuctionCraftSniper } from './types';
 import { searchListener, getProfessionTables, hideIntroduction } from './eventChain';
-import { showHint } from './helper';
+import { showHint, toggleUserInputs, toggleSearchLoadingState } from './helper';
 
 /**
  *
@@ -121,6 +121,8 @@ export const getACSLocalStorage = (): void => {
       // circumvent API potentially not answering although most recent data is up to date anyways
       if (new Date().getTime() + ACS.houseUpdateInterval > ACS.lastUpdate + ACS.houseUpdateInterval) {
         hideIntroduction();
+        toggleUserInputs(false);
+        toggleSearchLoadingState();
         getProfessionTables({ triggeredByRefresher: true, retry: 0 });
         return;
       }
