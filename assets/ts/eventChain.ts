@@ -146,16 +146,18 @@ const killRefreshInterval = () => {
  */
 const initiateRefreshInterval = (interval: number = REFRESHER_INTERVAL) => {
   if (typeof refreshInterval === 'undefined') {
-    refreshInterval = setInterval(refreshData, interval);
+    refreshInterval = setInterval(() => {
+      refreshData(interval);
+    }, interval);
   }
 };
 
 let refreshInterval;
 
-const refreshData = (): void => {
+const refreshData = (interval: number = REFRESHER_INTERVAL): void => {
   // sentry #802811501 - deactivate refresher if user unmarked all professions
   if (ACS.professions.length > 0) {
-    if (new Date().getTime() - ACS.lastUpdate > ACS.houseUpdateInterval) {
+    if (new Date().getTime() - ACS.lastUpdate > ACS.houseUpdateInterval || interval !== REFRESHER_INTERVAL) {
       console.log(`Refresher: updating houseID ${ACS.houseID}`);
 
       // sentry #802520384
