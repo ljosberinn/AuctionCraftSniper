@@ -40,6 +40,7 @@ module.exports = {
         'assets/js/helper.js.map',
         'assets/js/localStorage.js',
         'assets/js/localStorage.js.map',
+        'assets/css/acs.min.css.map',
       ],
       configFile: 'sentry.properties',
     }),

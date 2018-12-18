@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc && npx webpack",
-    "build-deploy": "tsc && npx webpack",
     "scss-dev-watch": "npx node-sass assets/scss/acs.scss assets/css/acs.min.css --source-map=true --output-style=compressed --watch",
     "scss-deploy": "npx node-sass assets/scss/acs.scss assets/css/acs.min.css --output-style=compressed",
     "sentry-release": "npx sentry-cli login && npx sentry-cli releases new \"c14de071d23f8a6f7dcd327afbb487831555be68\" && npx sentry-cli releases set-commits \"c14de071d23f8a6f7dcd327afbb487831555be68\" --commit \"ljosberinn/AuctionCraftSniper@c14de071d23f8a6f7dcd327afbb487831555be68\" && npx sentry-cli releases finalize \"c14de071d23f8a6f7dcd327afbb487831555be68\""

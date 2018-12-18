@@ -291,7 +291,7 @@ const handleHouseAgeResponse = (args: AuctionCraftSniper.checkHouseAgeArgs, json
        * - new data should be there via refresherInterval
        * - theres no table currently visible
        */
-      if (args.triggeredByRefresher || document.querySelectorAll('table td').length === 0) {
+      if (args.triggeredByRefresher || document.querySelectorAll('table thead').length !== ACS.professions.length) {
         args.retry = 0;
         getProfessionTables(args);
         return;
