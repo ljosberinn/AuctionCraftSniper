@@ -316,7 +316,7 @@ const hasProfessionSelectionChanged = (): boolean => {
     const isChecked = (<HTMLInputElement>professionCheckboxes[i]).checked;
     const isVisible = tabs[i].classList.contains('visible');
 
-    if (!selectionIsChanged && (isChecked && !isVisible) || (!isChecked && isVisible)) {
+    if ((!selectionIsChanged && (isChecked && !isVisible)) || (!isChecked && isVisible)) {
       selectionIsChanged = true;
     }
   }
@@ -326,7 +326,7 @@ const hasProfessionSelectionChanged = (): boolean => {
 
 /**
  *
- * @param {object} args
+ * @param {AuctionCraftSniper.checkHouseAgeArgs} args
  */
 const checkHouseAge = async (args: AuctionCraftSniper.checkHouseAgeArgs = { triggeredByRefresher: false, retry: 0 }) => {
   const { houseID, expansionLevel } = ACS;
@@ -368,7 +368,7 @@ const showHouseUnavailabilityError = (): void => {
 };
 
 /**
- *
+ * @param args
  */
 const parseAuctionData = async (args = { retry: 0 }) => {
   const payload: AuctionCraftSniper.parseAuctionDataPayload = {
@@ -405,6 +405,9 @@ const parseAuctionData = async (args = { retry: 0 }) => {
   }
 };
 
+/**
+ * @param args
+ */
 const getAuctionHouseData = async (args = { retry: 0 }) => {
   updateState('retrieving data from Blizzard - this can take up to a minute, please stand by');
 
@@ -435,6 +438,9 @@ const getAuctionHouseData = async (args = { retry: 0 }) => {
   }
 };
 
+/**
+ * @param args
+ */
 export const getProfessionTables = async (args = { triggeredByRefresher: false, retry: 0 }) => {
   updateState('fetching results');
 

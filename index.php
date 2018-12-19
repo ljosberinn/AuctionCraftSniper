@@ -1,6 +1,6 @@
 <?php
 
-#header('Location: https://gerritalex.de', 301);
+header('Location: https://gerritalex.de', 301);
 ob_start(function ($buffer) {
 
     $search = [

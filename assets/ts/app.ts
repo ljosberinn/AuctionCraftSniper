@@ -4,7 +4,7 @@ import { addEventListeners } from './eventChain';
 
 init({
   dsn: 'https://a14f918eaf6544eea696ad35340f68a5@sentry.io/1329859',
-  release: 'AuctionCraftSniper@c14de071d23f8a6f7dcd327afbb487831555be68',
+  release: 'AuctionCraftSniper@4f1318b2e7239df41e6b9ff37f99ddad57d038f1',
 });
 
 (() => {
