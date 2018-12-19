@@ -167,8 +167,6 @@ const refreshData = (interval: number = REFRESHER_INTERVAL): void => {
       }
 
       // since we're using the stored data, skip searchListener() & validateRegionRealm()
-      console.group(`Search: houseID ${ACS.houseID} | professsions ${ACS.professions.toString()} | expansionLevel ${ACS.expansionLevel}`);
-      console.time('search');
       toggleUserInputs();
       toggleSearchLoadingState();
       checkHouseAge({ triggeredByRefresher: true, retry: 0 });
@@ -208,9 +206,6 @@ export const searchListener = () => {
     showHint('professions');
     return;
   }
-
-  console.group(`starting search for houseID ${ACS.houseID} with profession ${ACS.professions.toString()} at expansionLevel ${ACS.expansionLevel}`);
-  console.time('search');
 
   hideIntroduction();
 
@@ -291,9 +286,9 @@ const handleHouseAgeResponse = (args: AuctionCraftSniper.checkHouseAgeArgs, json
     case 'getProfessionTables':
       /* fetch data if:
        * - new data should be there via refresherInterval
-       * - theres no table currently visible
+       * - or profession selection has changed
        */
-      if (args.triggeredByRefresher || document.querySelectorAll('table thead').length !== ACS.professions.length) {
+      if (args.triggeredByRefresher || hasProfessionSelectionChanged()) {
         args.retry = 0;
         getProfessionTables(args);
         return;
@@ -302,9 +297,6 @@ const handleHouseAgeResponse = (args: AuctionCraftSniper.checkHouseAgeArgs, json
       toggleUserInputs(false);
       updateState('idling');
       toggleSearchLoadingState();
-
-      console.timeEnd('search');
-      console.groupEnd();
       break;
     default:
       if (args.retry > 2) {
@@ -312,6 +304,24 @@ const handleHouseAgeResponse = (args: AuctionCraftSniper.checkHouseAgeArgs, json
       }
       break;
   }
+};
+
+const hasProfessionSelectionChanged = (): boolean => {
+  const tabs = document.querySelectorAll('[data-profession-tab]');
+  const professionCheckboxes = document.querySelectorAll('i + input[type="checkbox"]');
+
+  let selectionIsChanged = false;
+
+  for (let i = 0; i <= 8; i += 1) {
+    const isChecked = (<HTMLInputElement>professionCheckboxes[i]).checked;
+    const isVisible = tabs[i].classList.contains('visible');
+
+    if (!selectionIsChanged && (isChecked && !isVisible) || (!isChecked && isVisible)) {
+      selectionIsChanged = true;
+    }
+  }
+
+  return selectionIsChanged;
 };
 
 /**
@@ -350,14 +360,11 @@ const checkHouseAge = async (args: AuctionCraftSniper.checkHouseAgeArgs = { trig
 };
 
 const showHouseUnavailabilityError = (): void => {
-  console.warn('house unavailable');
-
   toggleUserInputs(false);
   toggleSearchLoadingState();
 
   document.getElementById('auction-craft-sniper').classList.remove('visible');
   document.getElementById('house-unavailable-disclaimer').classList.add('visible');
-  console.timeEnd('search');
 };
 
 /**
@@ -547,8 +554,6 @@ const fillProfessionTable = (json: AuctionCraftSniper.outerProfessionDataJSON = 
     let recipes: AuctionCraftSniper.innerProfessionDataJSON[];
     [professionName, recipes] = entry;
 
-    console.time(professionName);
-
     const professionTable = <HTMLTableElement>document.getElementById(professionName);
 
     const professionTabListElement = <HTMLUListElement>getProfessionTabListElement(professionName);
@@ -616,8 +621,6 @@ const fillProfessionTable = (json: AuctionCraftSniper.outerProfessionDataJSON = 
     professionTable.appendChild(tbodiesFragment);
 
     Tablesort(professionTable);
-
-    console.timeEnd(professionName);
   });
 
   console.timeEnd('fillProfessionTable');
@@ -629,9 +632,6 @@ const fillProfessionTable = (json: AuctionCraftSniper.outerProfessionDataJSON = 
  * @param {boolean} isShorthanded
  */
 const manageProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON = {}, isShorthanded: boolean = false) => {
-  console.group(`filling profession tables for ${ACS.professions.length} professions - ${isShorthanded ? 'isShorthanded' : '!isShorthanded'}`);
-  console.time('manageProfessionTables');
-
   hideProfessionTabs();
   hideProfessionTables();
   emptyProfessionTables();
@@ -650,18 +650,15 @@ const manageProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON
 
   initiateRefreshInterval();
 
-  console.groupEnd();
-
   toggleUserInputs(false);
   toggleSearchLoadingState();
 
-  if (!isShorthanded) {
-    updateState('idling');
-    console.timeEnd('search');
-    console.groupEnd();
+  if (isShorthanded) {
+    insertUpdateInformation();
+    return;
   }
 
-  console.timeEnd('manageProfessionTables');
+  updateState('idling');
 };
 
 export const toggleTBody = function () {

@@ -1,10 +1,17 @@
 <progress id="progress-bar" class="progress is-primary is-medium" max="100"></progress>
 
+<div class="box has-background-dark">
+	<p class="has-text-info">Most recent changes</p>
+	<ul>
+		<li>sorting introduced - to sort a column, simply click on its name (e.g. Profit or Margin)</li>
+	</ul>
+</div>
+
 <div class="tabs is-boxed is-small">
 	<ul>
         <?php foreach ($professions as $id => $name) {
-        	$lowercased = lcfirst($name);
-        	?>
+            $lowercased = lcfirst($name);
+            ?>
 			<li data-profession-tab="<?= $lowercased ?>">
 				<a href="#auction-craft-sniper">
 					<i class="professions-sprite <?= $lowercased ?> icon-disabled"></i>
@@ -18,4 +25,5 @@
 			</a>
 		</li>
 	</ul>
+
 </div>
