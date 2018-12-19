@@ -7,7 +7,7 @@
     "build": "tsc && npx webpack",
     "scss-dev-watch": "npx node-sass assets/scss/acs.scss assets/css/acs.min.css --source-map=true --output-style=compressed --watch",
     "scss-deploy": "npx node-sass assets/scss/acs.scss assets/css/acs.min.css --output-style=compressed",
-    "sentry-release": "npx sentry-cli login && npx sentry-cli releases new \"c14de071d23f8a6f7dcd327afbb487831555be68\" && npx sentry-cli releases set-commits \"c14de071d23f8a6f7dcd327afbb487831555be68\" --commit \"ljosberinn/AuctionCraftSniper@c14de071d23f8a6f7dcd327afbb487831555be68\" && npx sentry-cli releases finalize \"c14de071d23f8a6f7dcd327afbb487831555be68\""
+    "sentry-release": "npx sentry-cli login && npx sentry-cli releases new \"4b1ec33bf86b25577698b0ae5883340c4c2fc984\" && npx sentry-cli releases set-commits \"4b1ec33bf86b25577698b0ae5883340c4c2fc984\" --commit \"ljosberinn/AuctionCraftSniper@4b1ec33bf86b25577698b0ae5883340c4c2fc984\" && npx sentry-cli releases finalize \"4b1ec33bf86b25577698b0ae5883340c4c2fc984\""
   },
   "repository": {
     "type": "git",
@@ -25,8 +25,6 @@
     "@babel/core": "^7.1.2",
     "@babel/preset-env": "^7.1.0",
     "@sentry/webpack-plugin": "^1.6.2",
-    "bulma": "^0.7.2",
-    "bulmaswatch": "^0.7.2",
     "eslint": "^5.6.1",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
@@ -45,7 +43,9 @@
     "@sentry/browser": "^4.3.4",
     "@sentry/cli": "^1.37.1",
     "bulma-checkradio": "^2.1.0",
+    "bulmaswatch": "^0.7.2",
     "datalist-polyfill": "^1.22.2",
+    "bulma": "^0.7.2",
     "date-fns": "^1.29.0",
     "tablesort": "^5.1.0",
     "tippy.js": "^3.2.0",
