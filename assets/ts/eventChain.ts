@@ -431,6 +431,10 @@ const getAuctionHouseData = async (args = { retry: 0 }) => {
     case 'parseAuctionData':
       parseAuctionData({ retry: 0 });
       break;
+    case 'waitForParseTimeout':
+      updateState('waiting for someone elses parse to finish - please stand by');
+      // dont kill interval here since file existence can also just mean someone started downloading, hence regular interval applies
+      break;
     default:
       if (args.retry > 2) {
         showHouseUnavailabilityError();

@@ -11,7 +11,11 @@ if (isset($_GET['houseID']) && is_numeric($_GET['houseID'])) {
     $AuctionCraftSniper = new AuctionCraftSniper();
     $AuctionCraftSniper->setHouseID((int)$_GET['houseID']);
 
-    $response = ['callback' => $AuctionCraftSniper->getInnerAuctionData() ? 'parseAuctionData' : 'throwHouseUnavailabilityError'];
+    if (!file_exists($_GET['houseID'] . '.json')) {
+        $response['callback'] = $AuctionCraftSniper->getInnerAuctionData() ? 'parseAuctionData' : 'throwHouseUnavailabilityError';
+    } else {
+        $response['callback'] = 'waitForParseTimeout';
+    }
 }
 
 echo json_encode($response);
