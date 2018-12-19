@@ -84,28 +84,35 @@ class AuctionCraftSniper
     public function getInnerAuctionData()
     : bool {
 
-        $json = fopen('../api/' . $this->houseID . '.json', 'wb+');
-        $ch   = curl_init();
+        $fileName = $this->houseID. '.json';
 
-        $innerAuctionURL = $this->getInnerAuctionURL();
+        if(!file_exists($fileName)) {
 
-        if (!empty($innerAuctionURL)) {
+            $json = fopen('../api/' . $this->houseID . '.json', 'wb+');
+            $ch   = curl_init();
 
-            curl_setopt_array($ch, [
-                CURLOPT_URL            => $innerAuctionURL,
-                CURLOPT_FILE           => $json,
-                CURLOPT_HTTPHEADER     => 'Authorization: Bearer ' . $this->OAuthAccessToken,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_SSL_VERIFYPEER => true,
-            ]);
+            $innerAuctionURL = $this->getInnerAuctionURL();
 
-            curl_exec($ch);
+            if (!empty($innerAuctionURL)) {
 
-            return fclose($json);
+                curl_setopt_array($ch, [
+                    CURLOPT_URL            => $innerAuctionURL,
+                    CURLOPT_FILE           => $json,
+                    CURLOPT_HTTPHEADER     => 'Authorization: Bearer ' . $this->OAuthAccessToken,
+                    CURLOPT_FOLLOWLOCATION => true,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_SSL_VERIFYPEER => true,
+                ]);
+
+                curl_exec($ch);
+
+                return fclose($json);
+            }
+
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     /**
