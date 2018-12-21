@@ -2,27 +2,37 @@ import * as distanceInWordsStrict from 'date-fns/distance_in_words_strict';
 import * as distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
 import * as Tablesort from 'tablesort';
 
-import { setACSLocalStorage, ACS } from './localStorage';
 import {
-  updateState, sortByProfit, getTUJBaseURL, cloneOrigin, toggleSearchLoadingState, showHint, copyOnClick, showLocalStorage, clearLocalStorage, toggleUserInputs,
+  clearLocalStorage,
+  cloneOrigin,
+  copyOnClick,
+  currencyContainer,
+  getTUJBaseURL,
+  showHint,
+  showLocalStorage,
+  sortByProfit,
+  toggleSearchLoadingState,
+  toggleUserInputs,
+  updateState
 } from './helper';
+import { ACS, setACSLocalStorage } from './localStorage';
 import { AuctionCraftSniper } from './types';
 
 import {
-  initiateTHead,
   createBlackListTD,
-  createProfitTD,
-  createMissingProfitsHintTR,
-  createProductNameTD,
   createMaterialTD,
+  createMissingProfitsHintTR,
   createProductBuyoutTD,
-  getCurrencyElements,
+  createProductNameTD,
+  createProfitTD,
   createRecipeHintTR,
   createWinMarginTD,
+  getCurrencyElements,
+  initiateTHead
 } from './elementBuilder';
 
 // extension of Tablesort since it's currently impossible to import it via modules
-(function () {
+(() => {
   const cleanNumber = i => i.replace(/[^\-?0-9.]/g, '');
 
   const compareNumber = (a, b) => {
@@ -37,18 +47,19 @@ import {
 
   Tablesort.extend(
     'number',
-    item => item.match(/^[-+]?[£\x24Û¢´€]?\d+\s*([,\.]\d{0,2})/) // Prefixed currency
-      || item.match(/^[-+]?\d+\s*([,\.]\d{0,2})?[£\x24Û¢´€]/) // Suffixed currency
-      || item.match(/^[-+]?(\d)*-?([,\.]){0,1}-?(\d)+([E,e][\-+][\d]+)?%?$/), // Number
+    item =>
+      item.match(/^[-+]?[£\x24Û¢´€]?\d+\s*([,\.]\d{0,2})/) || // Prefixed currency
+      item.match(/^[-+]?\d+\s*([,\.]\d{0,2})?[£\x24Û¢´€]/) || // Suffixed currency
+      item.match(/^[-+]?(\d)*-?([,\.]){0,1}-?(\d)+([E,e][\-+][\d]+)?%?$/), // Number
 
     (a, b) => {
       a = cleanNumber(a);
       b = cleanNumber(b);
 
       return compareNumber(b, a);
-    },
+    }
   );
-}());
+})();
 
 /**
  * @var {number} REFRESHER_INTERVAL
@@ -66,7 +77,7 @@ const REFRESHER_INTERVAL = 60000; // 1 * 1000 * 60
 const buildTSMString = (queryElement: HTMLElement | Document, selector: string): string => {
   let exportString = '';
 
-  queryElement.querySelectorAll(selector).forEach((td: HTMLTableCellElement) => (exportString += `i:${parseInt(td.dataset.recipe)},`));
+  queryElement.querySelectorAll(selector).forEach((td: HTMLTableCellElement) => (exportString += `i:${parseInt(td.dataset.recipe, 10)},`));
 
   return exportString.slice(0, -1);
 };
@@ -88,14 +99,14 @@ export const TSMListener = (el: HTMLTableCellElement, target: string): void => {
  *
  * @param {Event} e
  */
-const professionsEventListener = function (e: Event): void {
-  const { value, checked } = <HTMLInputElement> this;
-  const index = ACS.professions.indexOf(parseInt(value));
+const professionsEventListener = function(e: Event): void {
+  const { value, checked } = this as HTMLInputElement;
+  const index = ACS.professions.indexOf(parseInt(value, 10));
 
   this.previousElementSibling.classList.toggle('icon-disabled');
 
   if (checked && index === -1) {
-    ACS.professions.push(parseInt(value));
+    ACS.professions.push(parseInt(value, 10));
   } else {
     ACS.professions.splice(index, 1);
   }
@@ -116,9 +127,23 @@ const requestNotificationPermission = (): void => {
   }
 };
 
-const settingEvent = function (): void {
+const settingEvent = function(): void {
+  const _this = this as HTMLInputElement;
   const payload = {};
-  payload[this.id] = this.checked;
+
+  let value;
+
+  switch (_this.type) {
+    case 'checkbox':
+      value = _this.checked;
+      break;
+    case 'number':
+      const tempVal = parseFloat(_this.value);
+      value = !isNaN(tempVal) ? tempVal : 0;
+      break;
+  }
+
+  payload[_this.id] = value;
 
   setACSLocalStorage({ settings: payload });
 };
@@ -130,6 +155,10 @@ const settingListener = (): void => {
     } else {
       checkbox.addEventListener('change', settingEvent);
     }
+  });
+
+  document.querySelectorAll('#settings-modal input[type="number"]').forEach(inputNumber => {
+    inputNumber.addEventListener('input', settingEvent);
   });
 };
 
@@ -161,7 +190,7 @@ const refreshData = (interval: number = REFRESHER_INTERVAL): void => {
       console.log(`Refresher: updating houseID ${ACS.houseID}`);
 
       // sentry #802520384
-      const currentTab = <HTMLUListElement>document.querySelector('li.is-active');
+      const currentTab = document.querySelector('li.is-active') as HTMLUListElement;
       if (currentTab !== null) {
         setACSLocalStorage({ currentTab: currentTab.dataset.professionTab });
       }
@@ -178,7 +207,7 @@ const refreshData = (interval: number = REFRESHER_INTERVAL): void => {
     return;
   }
 
-  const hintMissingProfessions = <HTMLParagraphElement>document.getElementById('hint-missing-professions');
+  const hintMissingProfessions = document.getElementById('hint-missing-professions') as HTMLParagraphElement;
   hintMissingProfessions.classList.add('visible');
 
   setTimeout(() => {
@@ -195,7 +224,7 @@ export const hideIntroduction = () => {
 };
 
 export const searchListener = () => {
-  const value = (<HTMLInputElement>document.getElementById('realm')).value.split('-');
+  const value = (document.getElementById('realm') as HTMLInputElement).value.split('-');
 
   if (value.length < 2) {
     showHint('region-realm');
@@ -227,9 +256,9 @@ const validateRegionRealm = async (args: AuctionCraftSniper.realmRegionParams = 
 
   try {
     const data = await fetch(`api/validateRegionRealm.php?region=${region}&realm=${realm.join('-')}`, {
-      method: 'GET',
       credentials: 'same-origin',
-      mode: 'same-origin',
+      method: 'GET',
+      mode: 'same-origin'
     });
 
     json = await data.json();
@@ -313,7 +342,7 @@ const hasProfessionSelectionChanged = (): boolean => {
   let selectionIsChanged = false;
 
   for (let i = 0; i <= 8; i += 1) {
-    const isChecked = (<HTMLInputElement>professionCheckboxes[i]).checked;
+    const isChecked = (professionCheckboxes[i] as HTMLInputElement).checked;
     const isVisible = tabs[i].classList.contains('visible');
 
     if ((!selectionIsChanged && (isChecked && !isVisible)) || (!isChecked && isVisible)) {
@@ -337,9 +366,9 @@ const checkHouseAge = async (args: AuctionCraftSniper.checkHouseAgeArgs = { trig
 
   try {
     const data = await fetch(`api/checkHouseAge.php?houseID=${houseID}&expansionLevel=${expansionLevel}`, {
-      method: 'GET',
       credentials: 'same-origin',
-      mode: 'same-origin',
+      method: 'GET',
+      mode: 'same-origin'
     });
 
     json = await data.json();
@@ -372,8 +401,8 @@ const showHouseUnavailabilityError = (): void => {
  */
 const parseAuctionData = async (args = { retry: 0 }) => {
   const payload: AuctionCraftSniper.parseAuctionDataPayload = {
-    houseID: ACS.houseID,
     expansionLevel: ACS.expansionLevel,
+    houseID: ACS.houseID
   };
 
   updateState('parsing data');
@@ -382,10 +411,10 @@ const parseAuctionData = async (args = { retry: 0 }) => {
 
   try {
     const data = await fetch('api/parseAuctionData.php', {
-      method: 'POST',
       body: JSON.stringify(payload),
-      mode: 'same-origin',
       credentials: 'same-origin',
+      method: 'POST',
+      mode: 'same-origin'
     });
 
     json = await data.json();
@@ -400,7 +429,7 @@ const parseAuctionData = async (args = { retry: 0 }) => {
   }
 
   if (json.callback === 'getProfessionTables') {
-    (<HTMLProgressElement>document.getElementById('progress-bar')).value = 100;
+    (document.getElementById('progress-bar') as HTMLProgressElement).value = 100;
     getProfessionTables();
   }
 };
@@ -415,9 +444,9 @@ const getAuctionHouseData = async (args = { retry: 0 }) => {
 
   try {
     const data = await fetch(`api/getAuctionHouseData.php?houseID=${ACS.houseID}`, {
-      method: 'GET',
       credentials: 'same-origin',
-      mode: 'same-origin',
+      method: 'GET',
+      mode: 'same-origin'
     });
 
     json = await data.json();
@@ -459,9 +488,9 @@ export const getProfessionTables = async (args = { triggeredByRefresher: false, 
 
   try {
     const data = await fetch(`api/getProfessionTables.php?houseID=${houseID}&expansionLevel=${expansionLevel}&professions=${professions.toString()}`, {
-      method: 'GET',
       credentials: 'same-origin',
-      mode: 'same-origin',
+      method: 'GET',
+      mode: 'same-origin'
     });
 
     json = await data.json();
@@ -480,9 +509,9 @@ export const getProfessionTables = async (args = { triggeredByRefresher: false, 
   manageProfessionTables(json, args.triggeredByRefresher);
 };
 
-export const toggleBlacklistEntry = function () {
+export const toggleBlacklistEntry = function() {
   const blacklistedRecipes = ACS.settings.blacklistedRecipes;
-  const recipe = parseInt(this.dataset.recipe);
+  const recipe = parseInt(this.dataset.recipe, 10);
 
   let search = '';
   let replace = '';
@@ -513,7 +542,7 @@ export const toggleBlacklistEntry = function () {
  * @param {string} TUJLink
  */
 const fillRecipeTR = (recipe: AuctionCraftSniper.innerProfessionDataJSON, TUJLink: string, isBlacklisted: boolean) => {
-  const tr = <HTMLTableRowElement>cloneOrigin.tr.cloneNode();
+  const tr = cloneOrigin.tr.cloneNode() as HTMLTableRowElement;
 
   if (isBlacklisted) {
     tr.classList.add('blacklisted');
@@ -564,9 +593,9 @@ const fillProfessionTable = (json: AuctionCraftSniper.outerProfessionDataJSON = 
     let recipes: AuctionCraftSniper.innerProfessionDataJSON[];
     [professionName, recipes] = entry;
 
-    const professionTable = <HTMLTableElement>document.getElementById(professionName);
+    const professionTable = document.getElementById(professionName) as HTMLTableElement;
 
-    const professionTabListElement = <HTMLUListElement>getProfessionTabListElement(professionName);
+    const professionTabListElement = getProfessionTabListElement(professionName) as HTMLUListElement;
     professionTabListElement.classList.add('visible');
 
     if (!subNavHasActiveIndicator) {
@@ -584,8 +613,8 @@ const fillProfessionTable = (json: AuctionCraftSniper.outerProfessionDataJSON = 
 
     const [positiveTbody, negativeTbody, unlistedTbody] = [
       cloneOrigin.tbody.cloneNode(),
-      <HTMLTableSectionElement>cloneOrigin.tbody.cloneNode(),
-      <HTMLTableSectionElement>cloneOrigin.tbody.cloneNode(),
+      cloneOrigin.tbody.cloneNode() as HTMLTableSectionElement,
+      cloneOrigin.tbody.cloneNode() as HTMLTableSectionElement
     ];
     negativeTbody.classList.add('lossy-recipes');
     unlistedTbody.classList.add('unlisted-recipes');
@@ -595,13 +624,26 @@ const fillProfessionTable = (json: AuctionCraftSniper.outerProfessionDataJSON = 
 
       // only prceed if user opts to not entirely hide blacklisted recipes OR recipe is not blacklisted
       if ((!ACS.settings.hideBlacklistedRecipes && isBlacklisted) || !isBlacklisted) {
-        const tr = <HTMLTableRowElement>fillRecipeTR(recipe, TUJLink, isBlacklisted);
+        const tr = fillRecipeTR(recipe, TUJLink, isBlacklisted) as HTMLTableRowElement;
 
-        if (recipe.profit > 0 || (recipe.profit < 0 && ACS.settings.alwaysShowLossyRecipes) || (recipe.profit === 0 && ACS.settings.alwaysShowUnlistedRecipes)) {
+        const isPositive = recipe.profit > 0;
+
+        const isNegativeButVisible = recipe.profit < 0 && ACS.settings.alwaysShowLossyRecipes;
+        const isNeutralButVisible = recipe.profit === 0 && ACS.settings.alwaysShowUnlistedRecipes;
+
+        // allow overwriting % by having a higher absolute value
+        const isAboveThresholds = isPositive && (recipe.margin > ACS.settings.marginThresholdPercent || recipe.profit > ACS.settings.profitThresholdValue * 100 * 100);
+
+        /**
+         * sichtbar wenn:
+         * -
+         */
+
+        if ((isPositive || isNegativeButVisible || isNeutralButVisible) && isAboveThresholds) {
           positiveTbody.appendChild(tr);
-        } else if (recipe.profit < 0) {
+        } else if (recipe.profit < 0 || (!isAboveThresholds && recipe.profit !== 0)) {
           negativeTbody.appendChild(tr);
-        } else {
+        } else if (recipe.profit === 0 && !isNeutralButVisible) {
           unlistedTbody.appendChild(tr);
         }
       }
@@ -655,7 +697,7 @@ const manageProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON
 
   // when switching professions entirely and searching anew
   if (document.querySelector('li[data-profession-tab].is-active') === null) {
-    (<HTMLUListElement>document.querySelector('li[data-profession-tab].visible')).click();
+    (document.querySelector('li[data-profession-tab].visible') as HTMLUListElement).click();
   }
 
   initiateRefreshInterval();
@@ -671,10 +713,10 @@ const manageProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON
   updateState('idling');
 };
 
-export const toggleTBody = function () {
+export const toggleTBody = function() {
   const targetClass = this.classList[0].replace('-hint', '');
 
-  const target = <HTMLTableSectionElement> this.closest('table').querySelector(`.${targetClass}`);
+  const target = this.closest('table').querySelector(`.${targetClass}`) as HTMLTableSectionElement;
   const isCurrentlyVisible = target.style.display === 'table-row-group';
 
   let newText: string;
@@ -693,7 +735,7 @@ export const toggleTBody = function () {
   this.innerText = newText;
 };
 
-const subNavEventListener = function () {
+const subNavEventListener = function() {
   if (!this.classList.contains('is-active')) {
     this.parentElement.querySelectorAll('li[data-profession-tab]').forEach((li: HTMLUListElement) => li.classList[li === this ? 'add' : 'remove']('is-active'));
 
@@ -707,31 +749,32 @@ const toggleSettingsModal = () => document.getElementById('settings-modal').clas
 
 export const addEventListeners = () => {
   document.querySelectorAll('#professions input[type="checkbox"]').forEach((checkbox: HTMLInputElement) => checkbox.addEventListener('click', professionsEventListener));
-  (<HTMLInputElement>document.getElementById('search')).addEventListener('click', searchListener);
+  (document.getElementById('search') as HTMLInputElement).addEventListener('click', searchListener);
 
-  const expansionLevelSelect = <HTMLSelectElement>document.getElementById('expansion-level');
-  expansionLevelSelect.addEventListener('change', () => expansionLevelListener(parseInt(expansionLevelSelect.value)));
+  const expansionLevelSelect = document.getElementById('expansion-level') as HTMLSelectElement;
+  expansionLevelSelect.addEventListener('change', () => expansionLevelListener(parseInt(expansionLevelSelect.value, 10)));
 
   document.querySelectorAll('li[data-profession-tab]').forEach(listElement => listElement.addEventListener('click', subNavEventListener));
 
   settingListener();
 
   Object.entries({
+    clearLocalStorage,
     'general-tsm-export': generalTSMExportListener,
     settings: toggleSettingsModal,
-    showLocalStorage,
-    clearLocalStorage,
+    showLocalStorage
   }).forEach(entry => {
     const [el, fn] = entry;
     document.getElementById(el).addEventListener('click', fn);
   });
 };
-
 /**
  *
  * @param {number} value
  */
 export const formatCurrency = (value: number) => {
+  const valueObj = {...currencyContainer};
+
   let isNegative = false;
 
   if (value < 0) {
@@ -739,12 +782,7 @@ export const formatCurrency = (value: number) => {
     isNegative = true;
   }
 
-  const valueObj: AuctionCraftSniper.valueObj = {
-    isNegative,
-    gold: 0,
-    silver: 0,
-    copper: 0,
-  };
+  valueObj.isNegative = isNegative;
 
   if (value < 100) {
     valueObj.copper = value;
@@ -777,21 +815,15 @@ const insertUpdateInformation = () => {
   const nextUpdate = new Date(ACS.lastUpdate + ACS.houseUpdateInterval);
   const lastUpdate = new Date(ACS.lastUpdate);
 
-  const lastUpdateSpan = <HTMLSpanElement>document.getElementById('last-update');
+  const lastUpdateSpan = document.getElementById('last-update') as HTMLSpanElement;
   lastUpdateSpan.parentElement.classList.add('visible');
   lastUpdateSpan.innerText = `${distanceInWordsStrict(now, lastUpdate, dateFnSuffix)} (${lastUpdate.toLocaleDateString()} - ${lastUpdate.toLocaleTimeString()})`;
 
-  const nextUpdateSpan = <HTMLSpanElement>document.getElementById('next-update');
+  const nextUpdateSpan = document.getElementById('next-update') as HTMLSpanElement;
   nextUpdateSpan.parentElement.classList.add('visible');
 
   // next update was supposed to be in the past, but the API hasn't updated
-  let nextUpdateText;
-
-  if (nextUpdate.getTime() < now.getTime()) {
-    nextUpdateText = `supposedly ${distanceInWordsStrict(now, nextUpdate, dateFnSuffix)}`;
-  } else {
-    nextUpdateText = `in ${distanceInWordsToNow(nextUpdate)}`;
-  }
+  let nextUpdateText = nextUpdate.getTime() < now.getTime() ? `supposedly ${distanceInWordsStrict(now, nextUpdate, dateFnSuffix)}` : `in ${distanceInWordsToNow(nextUpdate)}`;
 
   nextUpdateText += ` (${nextUpdate.toLocaleDateString()} - ${nextUpdate.toLocaleTimeString()})`;
 

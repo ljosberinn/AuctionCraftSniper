@@ -36,6 +36,9 @@ export declare namespace AuctionCraftSniper {
     fetchOnLoad?: boolean;
     pushNotificationsAllowed?: boolean;
     hideBlacklistedRecipes?: boolean;
+    marginThresholdPercent?: number;
+    profitThresholdValue?: number;
+    useAssumedAlchemyProcRate?: boolean;
   }
 
   interface localStorageObj {
@@ -84,8 +87,8 @@ export declare namespace AuctionCraftSniper {
     callback?: string;
   }
 
-  interface valueObj {
-    isNegative: boolean;
+  interface currencyContainer {
+    isNegative?: boolean;
     gold: number;
     silver: number;
     copper: number;

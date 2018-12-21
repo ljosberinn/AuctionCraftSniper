@@ -9,40 +9,31 @@
         'checkbox' => [
             'fetchOnLoad'               => [
                 'description' => 'automatically fetch data on page load (last selected realm will be used)',
-                'type'        => 'checkbox',
-                'classes'     => 'is-checkradio',
             ],
             'pushNotificationsAllowed'  => [
                 'description' => 'send push notifications when new auction house data is available',
-                'type'        => 'checkbox',
-                'classes'     => 'is-checkradio',
             ],
             'alwaysShowLossyRecipes'    => [
                 'description' => 'always show lossy recipes',
-                'type'        => 'checkbox',
-                'classes'     => 'is-checkradio',
             ],
             'alwaysShowUnlistedRecipes' => [
                 'description' => 'always show unlisted recipes',
-                'type'        => 'checkbox',
-                'classes'     => 'is-checkradio',
             ],
             'hideBlacklistedRecipes'    => [
                 'description' => 'hide blacklisted recipes entirely (requires unchecking of this setting to show blacklisted recipes again)',
-                'type'        => 'checkbox',
-                'classes'     => 'is-checkradio',
+            ],
+            'useAssumedAlchemyProcRate' => [
+                'description' => '<strong>coming soon!</strong> recalculate profits of potions|flasks using the assumed proc rate of 1.43',
             ],
         ],
-        'input'    => [
+        'number'   => [
             'marginThresholdPercent' => [
-                'description' => '<span class="has-text-warning">COMING SOON</span> define a custom <strong>percentage</strong> threshold of recipes to show',
-                'type'        => 'number',
-                'classes'     => 'input',
+                'description' => 'define a custom <strong>% margin threshold</strong> of recipes to show',
+                'placeholder' => '13.4 equals 13.4%',
             ],
-            'marginThresholdValue'   => [
-                'description' => '<span class="has-text-warning">COMING SOON</span> define a custom <strong>absolute value</strong> threshold of recipes to show',
-                'type'        => 'number',
-                'classes'     => 'input',
+            'profitThresholdValue'   => [
+                'description' => '<strong>overrides treshold %!</strong><br>define a custom <strong>absolute value in <span class="currency gold"></span></strong> threshold of recipes to show',
+                'placeholder' => '13.4 equals 13 gold 40 silver',
             ],
         ],
         'button'   => [
@@ -64,35 +55,28 @@
     foreach (SETTINGS['checkbox'] as $setting => $infoArray) {
         ?>
 		<div class="field">
-			<input type="checkbox" class="<?= $infoArray['classes'] ?>" id="<?= $setting ?>">
+			<input type="checkbox" class="is-checkradio" id="<?= $setting ?>" <?= $setting === 'useAssumedAlchemyProcRate' ? 'disabled' : '' ?>>
 			<label for="<?= $setting ?>"><?= $infoArray['description'] ?></label>
 		</div>
-        <?php
-    }
+    <?php } ?>
 
-    echo '<hr class="has-background-dark">';
+	<hr class="has-background-dark">
 
-    foreach (SETTINGS['input'] as $setting => $infoArray) {
-        ?>
-		<div class="field">
-			<input type="number" class="<?= $infoArray['classes'] ?>" id="<?= $setting ?>" placeholder="default 0">
+    <?php foreach (SETTINGS['number'] as $setting => $infoArray) { ?>
+		<div class="control">
+			<input class="input" type="number" min="0" placeholder="default 0, <?= $infoArray['placeholder'] ?>" id="<?= $setting ?>">
 			<label for="<?= $setting ?>"><?= $infoArray['description'] ?></label>
 		</div>
-        <?php
-    }
+    <?php } ?>
 
-    echo '<hr class="has-background-dark">';
+	<hr class="has-background-dark">
 
-    foreach (SETTINGS['button'] as $setting => $infoArray) {
-        ?>
-		<div class="field">
+	<div class="field">
+        <?php foreach (SETTINGS['button'] as $setting => $infoArray) { ?>
 			<a class="button <?= $infoArray['classes'] ?>" id="<?= $setting ?>">
 				<span class="icon icon-small"></span>
 				<span><?= $infoArray['description'] ?></span>
 			</a>
-		</div>
-        <?php
-    }
-
-    ?>
+        <?php } ?>
+	</div>
 </div>

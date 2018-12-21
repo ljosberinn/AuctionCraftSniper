@@ -146,6 +146,11 @@ a.is-loading {
   display: block !important;
 }
 
+.control.has-icons-right input {
+  width: 33%;
+  display: block;
+}
+
 /* https://stackoverflow.com/questions/50400219/bulma-progress-text-in-middle */
 
 #progress-bar {
@@ -250,6 +255,10 @@ a.button:hover,
 /* RESPONSIVENESS */
 
 @media (max-width: 768px) {
+
+  .control.has-icons-right input {
+    width: 100%;
+  }
 
   #professions div.control.has-text-centered {
     display: flex;

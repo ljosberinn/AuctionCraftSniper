@@ -1,10 +1,10 @@
 import { init } from '@sentry/browser';
-import { getACSLocalStorage } from './localStorage';
 import { addEventListeners } from './eventChain';
+import { getACSLocalStorage } from './localStorage';
 
 init({
   dsn: 'https://a14f918eaf6544eea696ad35340f68a5@sentry.io/1329859',
-  release: 'AuctionCraftSniper@4f1318b2e7239df41e6b9ff37f99ddad57d038f1',
+  release: 'AuctionCraftSniper@27b98d434c4f7e689200da5b8b4dc269ea20d4b1',
 });
 
 (() => {
@@ -20,12 +20,14 @@ init({
 
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries#Polyfill
   if (!Object.entries) {
-    Object.entries = function (obj) {
+    Object.entries = obj => {
       const ownProps = Object.keys(obj);
 
       let i = ownProps.length;
       const resArray = new Array(i); // preallocate the Array
-      while (i--) resArray[i] = [ownProps[i], obj[ownProps[i]]];
+      while (i--) {
+        resArray[i] = [ownProps[i], obj[ownProps[i]]];
+      }
 
       return resArray;
     };
@@ -40,7 +42,7 @@ init({
 
 document.onreadystatechange = () => {
   if (document.readyState === 'complete') {
-    console.warn("Stop! This is a browser functionality for developers. If anyone tells you top copy and paste anything in here, it's very likely to be a scam.");
+    console.warn('Stop! This is a browser functionality for developers. If anyone tells you top copy and paste anything in here, it\'s very likely to be a scam.');
     addEventListeners();
     getACSLocalStorage();
   }

@@ -1,5 +1,5 @@
-import { AuctionCraftSniper } from './types';
 import { ACS } from './localStorage';
+import { AuctionCraftSniper } from './types';
 
 const HINT_VISIBLE_DURATION = 3500; // 3 * 1000;
 
@@ -8,7 +8,7 @@ const HINT_VISIBLE_DURATION = 3500; // 3 * 1000;
  */
 export const initiateCloneObj = (): AuctionCraftSniper.cloneOriginObj => {
   const obj: AuctionCraftSniper.cloneOriginObj = {
-    currencies: {},
+    currencies: {}
   };
 
   ['table', 'thead', 'tbody', 'tr', 'th', 'td', 'a', 'div', 'button', 'strong'].forEach(tag => (obj[tag] = document.createElement(tag)));
@@ -26,6 +26,12 @@ export const initiateCloneObj = (): AuctionCraftSniper.cloneOriginObj => {
 };
 
 export const cloneOrigin = initiateCloneObj();
+
+export const currencyContainer: AuctionCraftSniper.currencyContainer = {
+  gold: 0,
+  silver: 0,
+  copper: 0
+};
 
 /**
  *
@@ -46,7 +52,7 @@ export const sortByProfit = (innerProfessionData: AuctionCraftSniper.innerProfes
  * @returns {string}
  */
 export const getTUJBaseURL = (): string => {
-  const [region, realm] = (<HTMLInputElement>document.getElementById('realm')).value.split('-');
+  const [region, realm] = (document.getElementById('realm') as HTMLInputElement).value.split('-');
 
   return `https://theunderminejournal.com/#${region.toLowerCase()}/${realm
     .split(' ')
@@ -84,14 +90,14 @@ export const showHint = (hintType: string): void => {
  * @param {string} notificationContent
  */
 const createNotification = (notificationType: string, notificationContent: string): void => {
-  const notification = <HTMLDivElement>cloneOrigin.div.cloneNode();
+  const notification = cloneOrigin.div.cloneNode() as HTMLDivElement;
   notification.classList.add('notification', notificationType);
 
-  const button = <HTMLButtonElement>cloneOrigin.button.cloneNode();
+  const button = cloneOrigin.button.cloneNode() as HTMLButtonElement;
   button.type = 'button';
   button.classList.add('delete');
 
-  button.addEventListener('click', function () {
+  button.addEventListener('click', function() {
     this.parentElement.remove();
   });
 
@@ -156,7 +162,7 @@ export const clearLocalStorage = (): void => {
 };
 
 export const toggleProgressBar = (): void => {
-  const progressBar = <HTMLProgressElement>document.getElementById('progress-bar');
+  const progressBar = document.getElementById('progress-bar') as HTMLProgressElement;
 
   progressBar.removeAttribute('value');
   progressBar.classList.toggle('visible');
@@ -168,5 +174,5 @@ export const toggleProgressBar = (): void => {
  */
 export const toggleUserInputs = (state: boolean = true): void => {
   document.querySelectorAll('input').forEach(input => (input.disabled = state));
-  [<HTMLInputElement>document.getElementById('search'), <HTMLSelectElement>document.getElementById('expansion-level')].forEach(el => (el.disabled = state));
+  [document.getElementById('search') as HTMLInputElement, document.getElementById('expansion-level') as HTMLSelectElement].forEach(el => (el.disabled = state));
 };

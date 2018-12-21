@@ -4,10 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "lint": "npx tslint -c tslint.json -p tsconfig.json",
+    "lint-fix": "npx tslint --fix -c tslint.json -p tsconfig.json",
     "build": "tsc && npx webpack",
     "scss-dev-watch": "npx node-sass assets/scss/acs.scss assets/css/acs.min.css --source-map=true --output-style=compressed --watch",
     "scss-deploy": "npx node-sass assets/scss/acs.scss assets/css/acs.min.css --output-style=compressed",
-    "sentry-release": "npx sentry-cli login && npx sentry-cli releases new \"4b1ec33bf86b25577698b0ae5883340c4c2fc984\" && npx sentry-cli releases set-commits \"4b1ec33bf86b25577698b0ae5883340c4c2fc984\" --commit \"ljosberinn/AuctionCraftSniper@4b1ec33bf86b25577698b0ae5883340c4c2fc984\" && npx sentry-cli releases finalize \"4b1ec33bf86b25577698b0ae5883340c4c2fc984\""
+    "sentry-release": "npx sentry-cli login && npx sentry-cli releases new \"27b98d434c4f7e689200da5b8b4dc269ea20d4b1\" && npx sentry-cli releases set-commits \"27b98d434c4f7e689200da5b8b4dc269ea20d4b1\" --commit \"ljosberinn/AuctionCraftSniper@27b98d434c4f7e689200da5b8b4dc269ea20d4b1\" && npx sentry-cli releases finalize \"27b98d434c4f7e689200da5b8b4dc269ea20d4b1\""
   },
   "repository": {
     "type": "git",
@@ -19,16 +21,12 @@
   "bugs": {
     "url": "https://github.com/ljosberinn/AuctionCraftSniper/issues"
   },
-  "homepage": "https://github.com/ljosberinn/AuctionCraftSniper#readme",
+  "homepage": "https://auctioncraftsniper.com",
   "devDependencies": {
     "@babel/cli": "^7.1.2",
     "@babel/core": "^7.1.2",
     "@babel/preset-env": "^7.1.0",
     "@sentry/webpack-plugin": "^1.6.2",
-    "eslint": "^5.6.1",
-    "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-typescript": "^0.12.0",
     "node-sass": "^4.10.0",
     "npx": "^10.2.0",
     "prettier": "^1.14.3",
@@ -42,13 +40,15 @@
   "dependencies": {
     "@sentry/browser": "^4.3.4",
     "@sentry/cli": "^1.37.1",
+    "bulma": "^0.7.2",
     "bulma-checkradio": "^2.1.0",
     "bulmaswatch": "^0.7.2",
     "datalist-polyfill": "^1.22.2",
-    "bulma": "^0.7.2",
     "date-fns": "^1.29.0",
     "tablesort": "^5.1.0",
     "tippy.js": "^3.2.0",
+    "tslint": "^5.12.0",
+    "tslint-config-prettier": "^1.17.0",
     "typescript": "^3.1.1"
   }
 }
