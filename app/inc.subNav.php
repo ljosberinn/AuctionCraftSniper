@@ -3,7 +3,7 @@
 <div class="box has-background-dark">
 	<p class="has-text-info">Most recent changes</p>
 	<ul>
-		<li>sorting introduced - to sort a column, simply click on its name (e.g. Profit or Margin)</li>
+		<li>custom thresholds introduced, check out the settings!</li>
 	</ul>
 </div>
 
