@@ -1,6 +1,5 @@
 <?php
 
-header('Location: https://gerritalex.de', 301);
 ob_start(function ($buffer) {
 
     $search = [
@@ -49,7 +48,7 @@ $professions        = $AuctionCraftSniper->getProfessions();
 
     require_once 'app/inc.settings.php';
 
-    require_once 'app/inc.description.html';
+    require_once 'app/inc.description.php';
 
     require_once 'app/inc.houseUnavailability.html';
 

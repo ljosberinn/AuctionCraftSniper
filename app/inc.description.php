@@ -8,9 +8,7 @@
 		<ul>
 			<li>support for previous expansions</li>
 			<li>setting to include Alchemy proc rates</li>
-			<li>setting for custom profit thresholds (<span class="currency gold"></span> or %)</li>
 			<li>setting for personal Expulsom, Hydrocore, etc. price definitions</li>
-			<li>column sorting</li>
 			<li>desktop push notifications for whenever new auction house data will be available (requires fetch-on-load active)</li>
 			<br>
 			<li>always interested in community ideas, so please come forward!</li>
@@ -32,7 +30,7 @@
 	</div>
 
 	<figure class="image blurred">
-		<img src="/assets/img/demo-light.png" alt="Demo" onload="this.parentElement.classList.remove('blurred'); this.removeAttribute('onload');">
+		<img src="/assets/img/demo-light.png?<?= filemtime('assets/img/demo-light.png') ?>" alt="Demo" onload="this.parentElement.classList.remove('blurred'); this.removeAttribute('onload');">
 	</figure>
 
 	<br>
@@ -43,6 +41,8 @@
 		<ul>
 			<li>introduced settings for custom thresholds</li>
 		</ul>
+
+		<br>
 
 		<ul>
 			<li>parser speed increased by around 85%</li>
