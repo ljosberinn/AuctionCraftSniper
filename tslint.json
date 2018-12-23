@@ -1,9 +1,12 @@
 {
+  "extends": ["tslint:latest", "tslint-config-prettier"],
   "rules": {
     "no-console": ["log", "time", "timeEnd", "warn", "error"],
     "no-eval": false,
     "no-submodule-imports": false,
-    "quotemark": "single"
-  },
-  "extends": ["tslint:latest", "tslint-config-prettier"]
+    "quotemark": [true, "single"],
+    "no-var-keyword": false,
+    "object-literal-sort-keys": false,
+    "completed-docs": true
+  }
 }

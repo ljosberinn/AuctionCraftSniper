@@ -4,10 +4,10 @@ import { AuctionCraftSniper } from './types';
 const HINT_VISIBLE_DURATION = 3500; // 3 * 1000;
 
 /**
- * @returns {AuctionCraftSniper.cloneOriginObj}
+ * @returns {AuctionCraftSniper.IcloneOriginObj}
  */
-export const initiateCloneObj = (): AuctionCraftSniper.cloneOriginObj => {
-  const obj: AuctionCraftSniper.cloneOriginObj = {
+export const initiateCloneObj = (): AuctionCraftSniper.IcloneOriginObj => {
+  const obj: AuctionCraftSniper.IcloneOriginObj = {
     currencies: {}
   };
 
@@ -27,7 +27,7 @@ export const initiateCloneObj = (): AuctionCraftSniper.cloneOriginObj => {
 
 export const cloneOrigin = initiateCloneObj();
 
-export const currencyContainer: AuctionCraftSniper.currencyContainer = {
+export const currencyContainer: AuctionCraftSniper.IcurrencyContainer = {
   gold: 0,
   silver: 0,
   copper: 0
@@ -43,10 +43,10 @@ export const updateState = (state: string): void => {
 
 /**
  *
- * @param {AuctionCraftSniper.innerProfessionDataJSON[]} innerProfessionData
- * @returns {AuctionCraftSniper.innerProfessionDataJSON[]} innerProfessionData
+ * @param {AuctionCraftSniper.IinnerProfessionDataJSON[]} innerProfessionData
+ * @returns {AuctionCraftSniper.IinnerProfessionDataJSON[]} innerProfessionData
  */
-export const sortByProfit = (innerProfessionData: AuctionCraftSniper.innerProfessionDataJSON[]) => innerProfessionData.sort((objA, objB) => objB.profit - objA.profit);
+export const sortByProfit = (innerProfessionData: AuctionCraftSniper.IinnerProfessionDataJSON[]) => innerProfessionData.sort((objA, objB) => objB.profit - objA.profit);
 
 /**
  * @returns {string}

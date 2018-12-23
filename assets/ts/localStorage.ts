@@ -1,6 +1,6 @@
-import { getProfessionTables, hideIntroduction, searchListener } from "./eventChain";
-import { showHint, toggleSearchLoadingState, toggleUserInputs } from "./helper";
-import { AuctionCraftSniper } from "./types";
+import { getProfessionTables, hideIntroduction, searchListener } from './eventChain';
+import { showHint, toggleSearchLoadingState, toggleUserInputs } from './helper';
+import { AuctionCraftSniper } from './types';
 
 /**
  *
@@ -11,7 +11,7 @@ const storageAvailable = (type: string): boolean => {
   try {
     var storage = window[type];
 
-    const x = "__storage_test__";
+    const x = '__storage_test__';
     storage.setItem(x, x);
     storage.removeItem(x);
     return true;
@@ -24,19 +24,19 @@ const storageAvailable = (type: string): boolean => {
         err.code === 1014 ||
         // test name field too, because code might not be present
         // everything except Firefox
-        err.name === "QuotaExceededError" ||
+        err.name === 'QuotaExceededError' ||
         // Firefox
-        err.name === "NS_ERROR_DOM_QUOTA_REACHED") &&
+        err.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
       // acknowledge QuotaExceededError only if there's something already stored
       storage.length !== 0
     );
   }
 };
 
-export const ACS: AuctionCraftSniper.localStorageObj = {
+export const ACS: AuctionCraftSniper.IlocalStorageObj = {
   currentTab: undefined,
   expansionLevel: 8,
-  hasLocalStorage: storageAvailable("localStorage"),
+  hasLocalStorage: storageAvailable('localStorage'),
   houseID: 0,
   houseUpdateInterval: 3300000, // 55 as default value
   lastUpdate: 0,
@@ -55,14 +55,14 @@ export const ACS: AuctionCraftSniper.localStorageObj = {
 
 /**
  *
- * @param {AuctionCraftSniper.localStorageObj} data
+ * @param {AuctionCraftSniper.IlocalStorageObj} data
  */
-export const setACSLocalStorage = (data: AuctionCraftSniper.localStorageObj): void => {
+export const setACSLocalStorage = (data: AuctionCraftSniper.IlocalStorageObj): void => {
   Object.entries(data).forEach(entry => {
     const [key, value] = entry;
 
     // prevent overwriting of settings via obj destructuring through setACSLocalStorage({ settings: payload })
-    if (key === "settings") {
+    if (key === 'settings') {
       Object.entries(value).forEach(settingsEntry => {
         const [setting, settingsValue] = settingsEntry;
 
@@ -78,14 +78,14 @@ export const setACSLocalStorage = (data: AuctionCraftSniper.localStorageObj): vo
     try {
       localStorage.ACS = JSON.stringify(ACS);
     } catch (err) {
-      if (err.name === "NS_ERROR_FILE_CORRUPTED") {
+      if (err.name === 'NS_ERROR_FILE_CORRUPTED') {
         try {
           localStorage.clear();
           localStorage.ACS = JSON.stringify(ACS);
         } catch (err2) {
-          if (err2.name === "NS_ERROR_FILE_CORRUPTED") {
+          if (err2.name === 'NS_ERROR_FILE_CORRUPTED') {
             alert(
-              "Sorry, it looks like your browser storage has been corrupted. Please clear your storage by going to Settings -> Privacy & Security -> section Cookies -> remove all cookies & restart your browser. This will remove the corrupted browser storage across all sites. Then try again."
+              'Sorry, it looks like your browser storage has been corrupted. Please clear your storage by going to Settings -> Privacy & Security -> section Cookies -> remove all cookies & restart your browser. This will remove the corrupted browser storage across all sites. Then try again.'
             );
           }
         }
@@ -96,28 +96,28 @@ export const setACSLocalStorage = (data: AuctionCraftSniper.localStorageObj): vo
 
 export const getACSLocalStorage = (): void => {
   if (localStorage.ACS) {
-    const tempACS: AuctionCraftSniper.localStorageObj = JSON.parse(localStorage.ACS);
+    const tempACS: AuctionCraftSniper.IlocalStorageObj = JSON.parse(localStorage.ACS);
 
     setACSLocalStorage(tempACS);
 
     const realm = document.querySelector(`#realms [data-house-id="${tempACS.houseID}"]`) as HTMLOptionElement;
     if (realm !== null) {
-      (document.getElementById("realm") as HTMLInputElement).value = realm.value;
+      (document.getElementById('realm') as HTMLInputElement).value = realm.value;
     }
 
     ACS.professions.forEach(professionID => {
       const checkbox = document.querySelector(`input[type="checkbox"][value="${professionID}"]`) as HTMLInputElement;
       checkbox.checked = true;
-      checkbox.previousElementSibling.classList.toggle("icon-disabled");
+      checkbox.previousElementSibling.classList.toggle('icon-disabled');
     });
 
-    (document.getElementById("expansion-level") as HTMLSelectElement).selectedIndex = ACS.expansionLevel;
+    (document.getElementById('expansion-level') as HTMLSelectElement).selectedIndex = ACS.expansionLevel;
 
     setSettings();
 
     if (ACS.settings.fetchOnLoad) {
       if (ACS.professions.length === 0) {
-        showHint("professions");
+        showHint('professions');
         return;
       }
       // circumvent API potentially not answering although most recent data is up to date anyways
@@ -138,19 +138,19 @@ const setSettings = (): void => {
   Object.entries(ACS.settings).forEach(entry => {
     const [settingName, value] = entry;
 
-    if (typeof value !== "object") {
+    if (typeof value !== 'object') {
       const input = document.getElementById(settingName) as HTMLInputElement;
 
       if (input !== null) {
         let method: string;
 
         switch (settingName) {
-          case "marginThresholdPercent":
-          case "profitThresholdValue":
-            method = "value";
+          case 'marginThresholdPercent':
+          case 'profitThresholdValue':
+            method = 'value';
             break;
           default:
-            method = "checked";
+            method = 'checked';
             break;
         }
 

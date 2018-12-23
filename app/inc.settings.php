@@ -32,7 +32,7 @@
                 'placeholder' => '13.4 equals 13.4%',
             ],
             'profitThresholdValue'   => [
-                'description' => '<strong>overrides treshold %!</strong><br>define a custom <strong>absolute value in <span class="currency gold"></span></strong> threshold of recipes to show',
+                'description' => '<strong>overrides threshold %!</strong><br>define a custom <strong>absolute value in <span class="currency gold"></span></strong> threshold of recipes to show',
                 'placeholder' => '13.4 equals 13 gold 40 silver',
             ],
         ],

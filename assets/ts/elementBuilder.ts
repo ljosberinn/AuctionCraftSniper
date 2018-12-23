@@ -50,7 +50,7 @@ export const createMissingProfitsHintTR = (): HTMLTableRowElement => {
  * @param {string} name
  * @returns {HTMLTableCellElement}
  */
-export const createProductNameTD = ({ item, name, producedQuantity, buyout }: AuctionCraftSniper.productJSON): HTMLTableCellElement => {
+export const createProductNameTD = ({ item, name, producedQuantity, buyout }: AuctionCraftSniper.IproductJSON): HTMLTableCellElement => {
   const td = cloneOrigin.td.cloneNode() as HTMLTableCellElement;
   td.dataset.sort = name;
 
@@ -99,10 +99,10 @@ export const createProfitTD = (profit: number = 0): HTMLTableCellElement => {
 
 /**
  *
- * @param {AuctionCraftSniper.innerProfessionDataJSON} recipe
+ * @param {AuctionCraftSniper.IinnerProfessionDataJSON} recipe
  * @returns {HTMLTableDataCellElement}
  */
-export const createMaterialTD = (recipe: AuctionCraftSniper.innerProfessionDataJSON): HTMLTableDataCellElement => {
+export const createMaterialTD = (recipe: AuctionCraftSniper.IinnerProfessionDataJSON): HTMLTableDataCellElement => {
   const materialInfoTD = cloneOrigin.td.cloneNode() as HTMLTableCellElement;
   materialInfoTD.classList.add('has-text-right');
 
@@ -154,11 +154,11 @@ export const createMaterialTD = (recipe: AuctionCraftSniper.innerProfessionDataJ
 
 /**
  *
- * @param {AuctionCraftSniper.innerProfessionDataJSON} recipe
+ * @param {AuctionCraftSniper.IinnerProfessionDataJSON} recipe
  * @param {string} TUJBaseUrl
  * @returns {HTMLTableCellElement}
  */
-export const createProductBuyoutTD = (recipe: AuctionCraftSniper.innerProfessionDataJSON, TUJBaseUrl: string): HTMLTableCellElement => {
+export const createProductBuyoutTD = (recipe: AuctionCraftSniper.IinnerProfessionDataJSON, TUJBaseUrl: string): HTMLTableCellElement => {
   const productBuyoutTD = cloneOrigin.td.cloneNode() as HTMLTableCellElement;
   productBuyoutTD.classList.add('has-text-right');
 
@@ -181,10 +181,10 @@ export const createProductBuyoutTD = (recipe: AuctionCraftSniper.innerProfession
 
 /**
  *
- * @param {AuctionCraftSniper.valueObj} valueObj
+ * @param {AuctionCraftSniper.IvalueObj} valueObj
  * @returns {DocumentFragment}
  */
-export const getCurrencyElements = (currencyContainer: AuctionCraftSniper.currencyContainer): DocumentFragment => {
+export const getCurrencyElements = (currencyContainer: AuctionCraftSniper.IcurrencyContainer): DocumentFragment => {
   const fragment = document.createDocumentFragment();
 
   const { isNegative, ...currencies } = currencyContainer;

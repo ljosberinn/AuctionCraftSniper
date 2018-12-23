@@ -1,11 +1,11 @@
 export declare namespace AuctionCraftSniper {
-  interface cloneOriginCurrencynObj {
+  interface IcloneOriginCurrencynObj {
     gold?: HTMLSpanElement;
     silver?: HTMLSpanElement;
     copper?: HTMLSpanElement;
   }
 
-  interface cloneOriginObj {
+  interface IcloneOriginObj {
     table?: HTMLTableElement;
     thead?: HTMLTableSectionElement;
     tbody?: HTMLTableSectionElement;
@@ -16,20 +16,20 @@ export declare namespace AuctionCraftSniper {
     div?: HTMLDivElement;
     button?: HTMLButtonElement;
     strong?: HTMLElement;
-    currencies?: cloneOriginCurrencynObj;
+    currencies?: IcloneOriginCurrencynObj;
   }
 
-  interface parseAuctionDataPayload {
+  interface IparseAuctionDataPayload {
     houseID: number;
     expansionLevel: number;
   }
 
-  interface parseAuctionDataResponseJSON {
+  interface IparseAuctionDataResponseJSON {
     err?: string;
     callback?: string;
   }
 
-  interface ACSSettingsObj {
+  interface IACSSettingsObj {
     blacklistedRecipes?: number[];
     alwaysShowLossyRecipes?: boolean;
     alwaysShowUnlistedRecipes?: boolean;
@@ -41,77 +41,77 @@ export declare namespace AuctionCraftSniper {
     useAssumedAlchemyProcRate?: boolean;
   }
 
-  interface localStorageObj {
+  interface IlocalStorageObj {
     houseID?: undefined | number;
     professions?: number[];
     expansionLevel?: number;
     lastUpdate?: number;
     houseUpdateInterval?: number;
     currentTab?: undefined | string;
-    settings?: ACSSettingsObj;
+    settings?: IACSSettingsObj;
     hasLocalStorage?: boolean;
   }
 
-  interface materialJSON {
+  interface ImaterialJSON {
     buyout: number;
     name: string;
     amount: number;
     itemID: number;
   }
 
-  interface productJSON {
+  interface IproductJSON {
     buyout: number;
     item: number;
     name: string;
     producedQuantity: number;
   }
 
-  interface innerProfessionDataJSON {
-    materials: materialJSON[];
-    product: productJSON;
+  interface IinnerProfessionDataJSON {
+    materials: ImaterialJSON[];
+    product: IproductJSON;
     profit: number;
     margin: number;
     materialCostSum: number;
   }
 
-  interface outerProfessionDataJSON {
-    alchemy?: innerProfessionDataJSON[];
-    blacksmithing?: innerProfessionDataJSON[];
-    cooking?: innerProfessionDataJSON[];
-    enchanting?: innerProfessionDataJSON[];
-    engineering?: innerProfessionDataJSON[];
-    inscription?: innerProfessionDataJSON[];
-    jewelcrafting?: innerProfessionDataJSON[];
-    leatherworking?: innerProfessionDataJSON[];
-    tailoring?: innerProfessionDataJSON[];
+  interface IouterProfessionDataJSON {
+    alchemy?: IinnerProfessionDataJSON[];
+    blacksmithing?: IinnerProfessionDataJSON[];
+    cooking?: IinnerProfessionDataJSON[];
+    enchanting?: IinnerProfessionDataJSON[];
+    engineering?: IinnerProfessionDataJSON[];
+    inscription?: IinnerProfessionDataJSON[];
+    jewelcrafting?: IinnerProfessionDataJSON[];
+    leatherworking?: IinnerProfessionDataJSON[];
+    tailoring?: IinnerProfessionDataJSON[];
     callback?: string;
   }
 
-  interface currencyContainer {
+  interface IcurrencyContainer {
     isNegative?: boolean;
     gold: number;
     silver: number;
     copper: number;
   }
 
-  interface checkHouseAgeJSON {
+  interface IcheckHouseAgeJSON {
     callback: string;
     lastUpdate: number;
   }
 
-  interface currencyObj {
+  interface IcurrencyObj {
     gold?: HTMLSpanElement;
     silver?: HTMLSpanElement;
     copper?: HTMLSpanElement;
   }
 
-  interface innerProfessionDataJSON {
-    materials: materialJSON[];
-    product: productJSON;
+  interface IinnerProfessionDataJSON {
+    materials: ImaterialJSON[];
+    product: IproductJSON;
     profit: number;
   }
 
-  interface materialJSON {
+  interface ImaterialJSON {
     buyout: number;
     name: string;
     rank: number;
@@ -119,22 +119,22 @@ export declare namespace AuctionCraftSniper {
     itemID: number;
   }
 
-  interface productJSON {
+  interface IproductJSON {
     buyout: number;
     item: number;
     name: string;
   }
-  interface validateRegionRealmJSON {
+  interface IvalidateRegionRealmJSON {
     houseID: number;
     updateInterval: number;
   }
 
-  interface realmRegionParams {
+  interface IrealmRegionParams {
     value: string[];
     retry: number;
   }
 
-  interface checkHouseAgeArgs {
+  interface IcheckHouseAgeArgs {
     triggeredByRefresher: boolean;
     retry: number;
   }

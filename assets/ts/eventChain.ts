@@ -128,22 +128,22 @@ const requestNotificationPermission = (): void => {
 };
 
 const settingEvent = function(): void {
-  const _this = this as HTMLInputElement;
+  const THIS = this as HTMLInputElement;
   const payload = {};
 
   let value;
 
-  switch (_this.type) {
+  switch (THIS.type) {
     case 'checkbox':
-      value = _this.checked;
+      value = THIS.checked;
       break;
     case 'number':
-      const tempVal = parseFloat(_this.value);
+      const tempVal = parseFloat(THIS.value);
       value = !isNaN(tempVal) ? tempVal : 0;
       break;
   }
 
-  payload[_this.id] = value;
+  payload[THIS.id] = value;
 
   setACSLocalStorage({ settings: payload });
 };
@@ -245,14 +245,14 @@ export const searchListener = () => {
 
 /**
  *
- * @param { AuctionCraftSniper.realmRegionParams} args
+ * @param { AuctionCraftSniper.IrealmRegionParams} args
  */
-const validateRegionRealm = async (args: AuctionCraftSniper.realmRegionParams = { value: [], retry: 0 }) => {
+const validateRegionRealm = async (args: AuctionCraftSniper.IrealmRegionParams = { value: [], retry: 0 }) => {
   const [region, ...realm] = args.value;
 
   updateState('validating region & realm');
 
-  let json: AuctionCraftSniper.validateRegionRealmJSON = { houseID: 0, updateInterval: 0 };
+  let json: AuctionCraftSniper.IvalidateRegionRealmJSON = { houseID: 0, updateInterval: 0 };
 
   try {
     const data = await fetch(`api/validateRegionRealm.php?region=${region}&realm=${realm.join('-')}`, {
@@ -293,10 +293,10 @@ const retryOnError = (callbackFn, params) => {
 
 /**
  *
- * @param {AuctionCraftSniper.checkHouseAgeArgs} args
- * @param {AuctionCraftSniper.checkHouseAgeJSON} json
+ * @param {AuctionCraftSniper.IcheckHouseAgeArgs} args
+ * @param {AuctionCraftSniper.IcheckHouseAgeJSON} json
  */
-const handleHouseAgeResponse = (args: AuctionCraftSniper.checkHouseAgeArgs, json: AuctionCraftSniper.checkHouseAgeJSON): void => {
+const handleHouseAgeResponse = (args: AuctionCraftSniper.IcheckHouseAgeArgs, json: AuctionCraftSniper.IcheckHouseAgeJSON): void => {
   switch (json.callback) {
     case 'waitForParseTimeout':
       updateState('waiting for someone elses parse to finish - please stand by');
@@ -317,15 +317,9 @@ const handleHouseAgeResponse = (args: AuctionCraftSniper.checkHouseAgeArgs, json
        * - new data should be there via refresherInterval
        * - or profession selection has changed
        */
-      if (args.triggeredByRefresher || hasProfessionSelectionChanged()) {
-        args.retry = 0;
-        getProfessionTables(args);
-        return;
-      }
+      args.retry = 0;
+      getProfessionTables(args);
 
-      toggleUserInputs(false);
-      updateState('idling');
-      toggleSearchLoadingState();
       break;
     default:
       if (args.retry > 2) {
@@ -341,7 +335,7 @@ const hasProfessionSelectionChanged = (): boolean => {
 
   let selectionIsChanged = false;
 
-  for (let i = 0; i <= 8; i += 1) {
+  for (let i = 0; i < document.querySelectorAll('[data-profession-tab]').length; i += 1) {
     const isChecked = (professionCheckboxes[i] as HTMLInputElement).checked;
     const isVisible = tabs[i].classList.contains('visible');
 
@@ -355,14 +349,14 @@ const hasProfessionSelectionChanged = (): boolean => {
 
 /**
  *
- * @param {AuctionCraftSniper.checkHouseAgeArgs} args
+ * @param {AuctionCraftSniper.IcheckHouseAgeArgs} args
  */
-const checkHouseAge = async (args: AuctionCraftSniper.checkHouseAgeArgs = { triggeredByRefresher: false, retry: 0 }) => {
+const checkHouseAge = async (args: AuctionCraftSniper.IcheckHouseAgeArgs = { triggeredByRefresher: false, retry: 0 }) => {
   const { houseID, expansionLevel } = ACS;
 
   updateState('validating data age');
 
-  let json: AuctionCraftSniper.checkHouseAgeJSON = { callback: '', lastUpdate: 0 };
+  let json: AuctionCraftSniper.IcheckHouseAgeJSON = { callback: '', lastUpdate: 0 };
 
   try {
     const data = await fetch(`api/checkHouseAge.php?houseID=${houseID}&expansionLevel=${expansionLevel}`, {
@@ -400,14 +394,14 @@ const showHouseUnavailabilityError = (): void => {
  * @param args
  */
 const parseAuctionData = async (args = { retry: 0 }) => {
-  const payload: AuctionCraftSniper.parseAuctionDataPayload = {
+  const payload: AuctionCraftSniper.IparseAuctionDataPayload = {
     expansionLevel: ACS.expansionLevel,
     houseID: ACS.houseID
   };
 
   updateState('parsing data');
 
-  let json: AuctionCraftSniper.parseAuctionDataResponseJSON = {};
+  let json: AuctionCraftSniper.IparseAuctionDataResponseJSON = {};
 
   try {
     const data = await fetch('api/parseAuctionData.php', {
@@ -484,7 +478,7 @@ export const getProfessionTables = async (args = { triggeredByRefresher: false, 
 
   const { houseID, expansionLevel, professions } = ACS;
 
-  let json: AuctionCraftSniper.outerProfessionDataJSON = { callback: 'throwHouseUnavailabilityError' };
+  let json: AuctionCraftSniper.IouterProfessionDataJSON = { callback: 'throwHouseUnavailabilityError' };
 
   try {
     const data = await fetch(`api/getProfessionTables.php?houseID=${houseID}&expansionLevel=${expansionLevel}&professions=${professions.toString()}`, {
@@ -538,10 +532,10 @@ export const toggleBlacklistEntry = function() {
 
 /**
  *
- * @param {number} recipe
+ * @param {AuctionCraftSniper.IinnerProfessionDataJSON} recipe
  * @param {string} TUJLink
  */
-const fillRecipeTR = (recipe: AuctionCraftSniper.innerProfessionDataJSON, TUJLink: string, isBlacklisted: boolean) => {
+const fillRecipeTR = (recipe: AuctionCraftSniper.IinnerProfessionDataJSON, TUJLink: string, isBlacklisted: boolean) => {
   const tr = cloneOrigin.tr.cloneNode() as HTMLTableRowElement;
 
   if (isBlacklisted) {
@@ -580,9 +574,34 @@ const emptyProfessionTables = () => {
 
 /**
  *
- * @param {AuctionCraftSniper.outerProfessionDataJSON} json
+ * @param {AuctionCraftSniper.IinnerProfessionDataJSON} recipe
  */
-const fillProfessionTable = (json: AuctionCraftSniper.outerProfessionDataJSON = {}): void => {
+const belongsToPositiveTBody = (recipe: AuctionCraftSniper.IinnerProfessionDataJSON) => {
+  const isNegativeButVisible = recipe.profit < 0 && ACS.settings.alwaysShowLossyRecipes;
+  const isNeutralButVisible = recipe.profit === 0 && ACS.settings.alwaysShowUnlistedRecipes;
+
+  // is positive && above % threshold && above profitThresholdValue
+  const hasPositivePercentageThreshold = recipe.margin > ACS.settings.marginThresholdPercent && recipe.profit > ACS.settings.profitThresholdValue * 100 * 100;
+
+  // user has a value set && above profitThresholdValue
+  const hasPositiveProfitThreshold = ACS.settings.profitThresholdValue > 0 && recipe.profit > ACS.settings.profitThresholdValue * 100 * 100;
+
+  /*
+   * a recipe is visible if:
+   * - setting 'alwaysShowLossyRecipes' is set
+   * - OR setting 'alwaysShowUnlistedRecipes' is set
+   * - OR recipe is profitable
+   * - AND is above user defined % profit threshold
+   * - OR is above user defined absolute gold value threshold
+   */
+  return isNeutralButVisible || isNegativeButVisible || (recipe.profit > 0 && (hasPositivePercentageThreshold || hasPositiveProfitThreshold));
+};
+
+/**
+ *
+ * @param {AuctionCraftSniper.IouterProfessionDataJSON} json
+ */
+const fillProfessionTable = (json: AuctionCraftSniper.IouterProfessionDataJSON = {}): void => {
   const TUJLink = getTUJBaseURL();
   console.time('fillProfessionTable');
 
@@ -590,7 +609,7 @@ const fillProfessionTable = (json: AuctionCraftSniper.outerProfessionDataJSON = 
 
   Object.entries(json).forEach(entry => {
     let professionName: string;
-    let recipes: AuctionCraftSniper.innerProfessionDataJSON[];
+    let recipes: AuctionCraftSniper.IinnerProfessionDataJSON[];
     [professionName, recipes] = entry;
 
     const professionTable = document.getElementById(professionName) as HTMLTableElement;
@@ -622,28 +641,15 @@ const fillProfessionTable = (json: AuctionCraftSniper.outerProfessionDataJSON = 
     sortByProfit(recipes).forEach(recipe => {
       const isBlacklisted = ACS.settings.blacklistedRecipes.includes(recipe.product.item);
 
-      // only prceed if user opts to not entirely hide blacklisted recipes OR recipe is not blacklisted
+      // only proceed if user opts to not entirely hide blacklisted recipes OR recipe is not blacklisted
       if ((!ACS.settings.hideBlacklistedRecipes && isBlacklisted) || !isBlacklisted) {
         const tr = fillRecipeTR(recipe, TUJLink, isBlacklisted) as HTMLTableRowElement;
 
-        const isPositive = recipe.profit > 0;
-
-        const isNegativeButVisible = recipe.profit < 0 && ACS.settings.alwaysShowLossyRecipes;
-        const isNeutralButVisible = recipe.profit === 0 && ACS.settings.alwaysShowUnlistedRecipes;
-
-        // allow overwriting % by having a higher absolute value
-        const isAboveThresholds = isPositive && (recipe.margin > ACS.settings.marginThresholdPercent || recipe.profit > ACS.settings.profitThresholdValue * 100 * 100);
-
-        /**
-         * sichtbar wenn:
-         * -
-         */
-
-        if ((isPositive || isNegativeButVisible || isNeutralButVisible) && isAboveThresholds) {
+        if (belongsToPositiveTBody(recipe)) {
           positiveTbody.appendChild(tr);
-        } else if (recipe.profit < 0 || (!isAboveThresholds && recipe.profit !== 0)) {
+        } else if (recipe.profit !== 0) {
           negativeTbody.appendChild(tr);
-        } else if (recipe.profit === 0 && !isNeutralButVisible) {
+        } else {
           unlistedTbody.appendChild(tr);
         }
       }
@@ -680,10 +686,10 @@ const fillProfessionTable = (json: AuctionCraftSniper.outerProfessionDataJSON = 
 
 /**
  *
- * @param {AuctionCraftSniper.outerProfessionDataJSON} json
+ * @param {AuctionCraftSniper.IouterProfessionDataJSON} json
  * @param {boolean} isShorthanded
  */
-const manageProfessionTables = (json: AuctionCraftSniper.outerProfessionDataJSON = {}, isShorthanded: boolean = false) => {
+const manageProfessionTables = (json: AuctionCraftSniper.IouterProfessionDataJSON = {}, isShorthanded: boolean = false) => {
   hideProfessionTabs();
   hideProfessionTables();
   emptyProfessionTables();
@@ -773,7 +779,7 @@ export const addEventListeners = () => {
  * @param {number} value
  */
 export const formatCurrency = (value: number) => {
-  const valueObj = {...currencyContainer};
+  const valueObj = { ...currencyContainer };
 
   let isNegative = false;
 
