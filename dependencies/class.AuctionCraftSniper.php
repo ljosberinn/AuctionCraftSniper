@@ -352,12 +352,17 @@ class AuctionCraftSniper
                         'name'             => $recipe['itemName'],
                         'buyout'           => $recipe['buyout'],
                         'producedQuantity' => 1,
+                        'mayProcMultiple'  => false,
                     ],
                     'materials'       => [],
                     'materialCostSum' => 0,
                     'profit'          => $recipe['buyout'],
                     'margin'          => 0.00,
                 ];
+
+                if($this->expansionLevel >= 7 && preg_match("/(Flask?|Potion?)/", $recipe['itemName'])) {
+                    $recipeData['product']['mayProcMultiple'] = true;
+                }
 
                 $getConnectedRecipeRequirements->execute([
                     'recipeID' => $recipe['itemID'],
