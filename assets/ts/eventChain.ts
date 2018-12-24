@@ -31,6 +31,8 @@ import {
   initiateTHead
 } from './elementBuilder';
 
+const ALCHEMY_PROC_RATE: number = 1.4;
+
 // extension of Tablesort since it's currently impossible to import it via modules
 (() => {
   const cleanNumber = i => i.replace(/[^\-?0-9.]/g, '');
@@ -597,6 +599,17 @@ const belongsToPositiveTBody = (recipe: AuctionCraftSniper.IinnerProfessionDataJ
   return isNeutralButVisible || isNegativeButVisible || (recipe.profit > 0 && (hasPositivePercentageThreshold || hasPositiveProfitThreshold));
 };
 
+const adjustAlchemyProfits = (alchemyRecipes: AuctionCraftSniper.IinnerProfessionDataJSON[]) => {
+  alchemyRecipes.forEach(recipe => {
+    if (recipe.product.mayProcMultiple) {
+      recipe.margin = parseFloat((((recipe.product.buyout * ALCHEMY_PROC_RATE) / recipe.materialCostSum - 1) * 100).toFixed(2));
+      recipe.profit = recipe.product.buyout * ALCHEMY_PROC_RATE - recipe.materialCostSum;
+    }
+  });
+
+  return alchemyRecipes;
+};
+
 /**
  *
  * @param {AuctionCraftSniper.IouterProfessionDataJSON} json
@@ -635,8 +648,13 @@ const fillProfessionTable = (json: AuctionCraftSniper.IouterProfessionDataJSON =
       cloneOrigin.tbody.cloneNode() as HTMLTableSectionElement,
       cloneOrigin.tbody.cloneNode() as HTMLTableSectionElement
     ];
+
     negativeTbody.classList.add('lossy-recipes');
     unlistedTbody.classList.add('unlisted-recipes');
+
+    if (ACS.settings.useAssumedAlchemyProcRate && professionName === 'alchemy') {
+      recipes = adjustAlchemyProfits(recipes);
+    }
 
     sortByProfit(recipes).forEach(recipe => {
       const isBlacklisted = ACS.settings.blacklistedRecipes.includes(recipe.product.item);
@@ -774,10 +792,7 @@ export const addEventListeners = () => {
     document.getElementById(el).addEventListener('click', fn);
   });
 };
-/**
- *
- * @param {number} value
- */
+
 export const formatCurrency = (value: number) => {
   const valueObj = { ...currencyContainer };
 

@@ -23,7 +23,7 @@
                 'description' => 'hide blacklisted recipes entirely (requires unchecking of this setting to show blacklisted recipes again)',
             ],
             'useAssumedAlchemyProcRate' => [
-                'description' => '<strong>coming soon!</strong> recalculate profits of potions|flasks using the assumed proc rate of 1.43',
+                'description' => 'adjust profits of potions|flasks using a assumed proc rate of 1.4',
             ],
         ],
         'number'   => [
@@ -55,7 +55,7 @@
     foreach (SETTINGS['checkbox'] as $setting => $infoArray) {
         ?>
 		<div class="field">
-			<input type="checkbox" class="is-checkradio" id="<?= $setting ?>" <?= $setting === 'useAssumedAlchemyProcRate' ? 'disabled' : '' ?>>
+			<input type="checkbox" class="is-checkradio" id="<?= $setting ?>">
 			<label for="<?= $setting ?>"><?= $infoArray['description'] ?></label>
 		</div>
     <?php } ?>

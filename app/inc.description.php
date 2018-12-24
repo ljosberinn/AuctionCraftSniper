@@ -7,7 +7,6 @@
 
 		<ul>
 			<li>support for previous expansions</li>
-			<li>setting to include Alchemy proc rates</li>
 			<li>setting for personal Expulsom, Hydrocore, etc. price definitions</li>
 			<li>desktop push notifications for whenever new auction house data will be available (requires fetch-on-load active)</li>
 			<br>
@@ -40,6 +39,7 @@
 
 		<ul>
 			<li>introduced settings for custom thresholds</li>
+			<li>added alchemy proc rate</li>
 		</ul>
 
 		<br>

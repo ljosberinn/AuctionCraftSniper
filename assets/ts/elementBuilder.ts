@@ -45,33 +45,45 @@ export const createMissingProfitsHintTR = (): HTMLTableRowElement => {
 };
 
 /**
+ * @param {string} type
+ * @param {string} content
+ * @param {string} tooltip
+ */
+const createTag = (type: string, content: string, tooltip?: string): HTMLElement => {
+  const strong = cloneOrigin.strong.cloneNode() as HTMLElement;
+
+  strong.classList.add('tag', 'has-text-dark', type);
+  strong.innerText = content;
+  if (tooltip) {
+    tippy(strong, { content: tooltip });
+  }
+
+  return strong;
+};
+
+/**
  *
  * @param {number} id
  * @param {string} name
+ *
  * @returns {HTMLTableCellElement}
  */
-export const createProductNameTD = ({ item, name, producedQuantity, buyout }: AuctionCraftSniper.IproductJSON): HTMLTableCellElement => {
+export const createProductNameTD = ({ item, name, producedQuantity, buyout, mayProcMultiple }: AuctionCraftSniper.IproductJSON): HTMLTableCellElement => {
   const td = cloneOrigin.td.cloneNode() as HTMLTableCellElement;
   td.dataset.sort = name;
 
+  if (mayProcMultiple) {
+    td.appendChild(
+      createTag('is-warning', 'can proc multiple', `With the setting 'adjust profits of potions|flasks' active, the columns Profit and Margin will be adjusted for an average proc factor of 1.4.`)
+    );
+  }
+
   if (buyout === 0) {
-    const strong = cloneOrigin.strong.cloneNode() as HTMLElement;
-
-    strong.classList.add('tag', 'is-info', 'has-text-dark');
-    strong.innerText = 'unlisted';
-
-    td.appendChild(strong);
+    td.appendChild(createTag('is-info', 'unlisted'));
   }
 
   if (producedQuantity > 1) {
-    const strong = cloneOrigin.strong.cloneNode() as HTMLElement;
-
-    strong.classList.add('tag', 'is-warning', 'has-text-dark');
-    strong.innerText = `${producedQuantity}x`;
-
-    tippy(strong, { content: `This recipe always produces ${producedQuantity}, thus the product buyout column is adjusted to reflect that.` });
-
-    td.appendChild(strong);
+    td.appendChild(createTag('is-warning', `${producedQuantity}x`, `This recipe always produces ${producedQuantity}, thus the product buyout column is adjusted to reflect that.`));
   }
 
   const a = cloneOrigin.a.cloneNode() as HTMLAnchorElement;

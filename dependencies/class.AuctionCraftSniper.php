@@ -284,7 +284,8 @@ class AuctionCraftSniper
             `auctionData`.`itemID`,
             `auctionData`.`buyout`,
             `itemNames`.`itemName`,
-            `recipes`.`profession`
+            `recipes`.`profession`,
+            `recipes`.`mayProcMultiple`
             FROM `recipes`
             LEFT JOIN `auctionData` ON `auctionData`.`itemID` = `recipes`.`id`
             LEFT JOIN `houseUpdateTracker` ON `houseUpdateTracker`.`houseID` = @houseID
@@ -330,7 +331,7 @@ class AuctionCraftSniper
             $getConnectedRecipeRequirements = $this->connection->prepare('SELECT
                 `requiredItemID` as `itemID`,
                 `requiredAmount` as `amount`,
-                `itemNames`.`itemName` as `name`,
+                `itemNames`.`itemName` as `name`,              
                 `baseBuyPrice`, `producedQuantity`
                 FROM `recipeRequirements`
                 LEFT JOIN `itemNames` ON `requiredItemID` = `itemNames`.`itemID`
@@ -352,17 +353,13 @@ class AuctionCraftSniper
                         'name'             => $recipe['itemName'],
                         'buyout'           => $recipe['buyout'],
                         'producedQuantity' => 1,
-                        'mayProcMultiple'  => false,
+                        'mayProcMultiple'  => (int) $recipe['mayProcMultiple'] === 1,
                     ],
                     'materials'       => [],
                     'materialCostSum' => 0,
                     'profit'          => $recipe['buyout'],
                     'margin'          => 0.00,
                 ];
-
-                if($this->expansionLevel >= 7 && preg_match("/(Flask?|Potion?)/", $recipe['itemName'])) {
-                    $recipeData['product']['mayProcMultiple'] = true;
-                }
 
                 $getConnectedRecipeRequirements->execute([
                     'recipeID' => $recipe['itemID'],

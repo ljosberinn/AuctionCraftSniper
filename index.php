@@ -1,5 +1,6 @@
 <?php
 
+#header('Location: https://gerritalex.de', 301);
 ob_start(function ($buffer) {
 
     $search = [
@@ -43,6 +44,12 @@ $professions        = $AuctionCraftSniper->getProfessions();
 </section>
 <div class="container">
     <?php
+
+    $now = time();
+
+    if($now > 1545609600 && $now < 1546344000) {
+    	require 'app/winter.html';
+    }
 
     require_once 'app/inc.menu.php';
 

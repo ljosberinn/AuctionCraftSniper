@@ -3,7 +3,7 @@
 <div class="box has-background-dark">
 	<p class="has-text-info">Most recent changes</p>
 	<ul>
-		<li>custom thresholds introduced, check out the settings!</li>
+		<li>alchemy proc consideration & custom thresholds introduced, check out the settings!</li>
 	</ul>
 </div>
 

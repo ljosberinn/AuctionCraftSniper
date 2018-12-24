@@ -64,6 +64,7 @@ export declare namespace AuctionCraftSniper {
     item: number;
     name: string;
     producedQuantity: number;
+    mayProcMultiple: boolean
   }
 
   interface IinnerProfessionDataJSON {
