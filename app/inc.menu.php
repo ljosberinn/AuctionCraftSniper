@@ -10,7 +10,9 @@
 		<p id="hint-invalid-region-realm" class="help has-text-danger">Invalid region-realm pair.</p>
 		<p id="last-update-wrap" class="help has-text-info">Last update <span id="last-update"></span></p>
 		<p id="next-update-wrap" class="help has-text-warning">Next update <span id="next-update"></span></p>
-		<p onclick="document.getElementsByClassName('snowflakes')[0].remove(); this.remove();" style="cursor: pointer;">remove snowflakes...</p>
+		<?php if($now > 1577145600 && $now < 1577880000) { ?>
+			<p onclick="document.getElementsByClassName('snowflakes')[0].remove(); this.remove();" style="cursor: pointer;">remove snowflakes...</p>
+		<?php } ?>
 	</div>
 
 	<div class="field column" id="professions">
