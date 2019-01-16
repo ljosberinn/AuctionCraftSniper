@@ -684,7 +684,7 @@ class AuctionCraftSniper
      * @param string $region
      * @param string $realm
      *
-     * @return int
+     * @return array
      */
     public function validateRegionRealm(string $region = '', string $realm = '')
     : array {
