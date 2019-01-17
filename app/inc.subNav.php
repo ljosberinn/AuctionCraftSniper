@@ -1,6 +1,6 @@
 <progress id="progress-bar" class="progress is-primary is-medium" max="100"></progress>
 
-<div class="box has-background-dark">
+<div class="box has-background-dark" style="display: none;">
 	<p class="has-text-info">Most recent changes</p>
 	<ul>
 		<li>alchemy proc consideration & custom thresholds introduced, check out the settings!</li>

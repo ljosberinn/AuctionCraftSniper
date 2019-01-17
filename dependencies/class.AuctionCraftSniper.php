@@ -901,8 +901,7 @@ class AuctionCraftSniper {
         $expulsomWorth = $craftsPerExpulsom * $costPerCraft;
 
         $scrappedMaterialWorth   = $this->calculateScrappedMaterialWorth($cheapestDataset['requirements']);
-        $enchantingMaterialWorth = $this->calculateEnchantingMaterialWorth($this->getCurrentGloomDustUmbraShardPrices()
-                                                                                ->fetchAll());
+        $enchantingMaterialWorth = $this->calculateEnchantingMaterialWorth($this->getCurrentGloomDustUmbraShardPrices(), $craftProcRate * $craftsPerExpulsom * 1.5);
 
         $expulsomWorthAdjusted = $expulsomWorth - $enchantingMaterialWorth - $scrappedMaterialWorth;
 
@@ -917,13 +916,13 @@ class AuctionCraftSniper {
     }
 
     /**
-     * @return PDOStatement
+     * @return array
      */
-    private function getCurrentGloomDustUmbraShardPrices(): PDOStatement {
+    private function getCurrentGloomDustUmbraShardPrices(): array {
         $query = 'SELECT `itemID`, `buyout` FROM `auctionData` WHERE (`itemID` = 152875 OR `itemID` = 152876) AND `houseID` = :houseID';
         $stmt  = $this->connection->prepare($query);
         $stmt->execute(['houseID' => $this->houseID]);
-        return $stmt;
+        return $stmt->fetchAll();
     }
 
     /**
@@ -963,14 +962,14 @@ class AuctionCraftSniper {
      *
      * @return int
      */
-    private function calculateEnchantingMaterialWorth(array $enchantingMaterials): int {
+    private function calculateEnchantingMaterialWorth(array $enchantingMaterials, float $rate): int {
         $enchantingMaterialWorth = 0;
 
         foreach($enchantingMaterials as $dataset) {
             $enchantingMaterialWorth += $dataset['buyout'];
         }
 
-        return $enchantingMaterialWorth;
+        return $enchantingMaterialWorth * $rate;
     }
 
     /**
