@@ -4,13 +4,13 @@ import { getACSLocalStorage } from './localStorage';
 
 init({
   dsn: 'https://a14f918eaf6544eea696ad35340f68a5@sentry.io/1329859',
-  release: 'AuctionCraftSniper@8181a40f417bb70b978693ad10928139ff2d6a17.',
+  release: 'AuctionCraftSniper@35afe333f8c2d12d384c509403049c61e6a460e5.'
 });
 
 (() => {
   // https://developer.mozilla.org/en-US/docs/Web/API/NodeList/forEach#Polyfill
   if (!NodeList.prototype.forEach) {
-    NodeList.prototype.forEach = function (callback, thisArg) {
+    NodeList.prototype.forEach = function(callback, thisArg) {
       thisArg = thisArg || window;
       for (let i = 0; i < this.length; i++) {
         callback.call(thisArg, this[i], i, this);
@@ -42,7 +42,7 @@ init({
 
 document.onreadystatechange = () => {
   if (document.readyState === 'complete') {
-    console.warn('Stop! This is a browser functionality for developers. If anyone tells you top copy and paste anything in here, it\'s very likely to be a scam.');
+    console.warn("Stop! This is a browser functionality for developers. If anyone tells you top copy and paste anything in here, it's very likely to be a scam.");
     addEventListeners();
     getACSLocalStorage();
   }

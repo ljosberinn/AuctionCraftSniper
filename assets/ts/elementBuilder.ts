@@ -11,12 +11,6 @@ const MATERIAL_TH_HINT_SVG =
 
 const T_HEAD_TEXTS = ['Product', `Material ${MATERIAL_TH_HINT_SVG} Info`, `Product ${TUJ_LINK_HINT_SVG} TUJ`, 'Profit', 'Margin'];
 
-/**
- *
- * @param {number} recipe
- * @param {boolean} isBlacklisted
- * @returns {HTMLTableCellElement}
- */
 export const createBlackListTD = (recipe: number, isBlacklisted: boolean = false): HTMLTableCellElement => {
   const td = cloneOrigin.td.cloneNode() as HTMLTableCellElement;
   td.dataset.recipe = recipe.toString();
@@ -28,9 +22,6 @@ export const createBlackListTD = (recipe: number, isBlacklisted: boolean = false
   return td;
 };
 
-/**
- * @returns {HTMLTableRowElement}
- */
 export const createMissingProfitsHintTR = (): HTMLTableRowElement => {
   const hintTR = cloneOrigin.tr.cloneNode() as HTMLTableRowElement;
 
@@ -44,11 +35,6 @@ export const createMissingProfitsHintTR = (): HTMLTableRowElement => {
   return hintTR;
 };
 
-/**
- * @param {string} type
- * @param {string} content
- * @param {string} tooltip
- */
 const createTag = (type: string, content: string, tooltip?: string): HTMLElement => {
   const strong = cloneOrigin.strong.cloneNode() as HTMLElement;
 
@@ -61,14 +47,7 @@ const createTag = (type: string, content: string, tooltip?: string): HTMLElement
   return strong;
 };
 
-/**
- *
- * @param {number} id
- * @param {string} name
- *
- * @returns {HTMLTableCellElement}
- */
-export const createProductNameTD = ({ item, name, producedQuantity, buyout, mayProcMultiple }: AuctionCraftSniper.IproductJSON): HTMLTableCellElement => {
+export const createProductNameTD = ({ item, name, producedQuantity, buyout, mayProcMultiple }: AuctionCraftSniper.ProductJSONInterface): HTMLTableCellElement => {
   const td = cloneOrigin.td.cloneNode() as HTMLTableCellElement;
   td.dataset.sort = name;
 
@@ -95,11 +74,6 @@ export const createProductNameTD = ({ item, name, producedQuantity, buyout, mayP
   return td;
 };
 
-/**
- *
- * @param {number} profit
- * @returns {HTMLTableCellElement}
- */
 export const createProfitTD = (profit: number = 0): HTMLTableCellElement => {
   const td = cloneOrigin.td.cloneNode() as HTMLTableCellElement;
   td.classList.add('has-text-right');
@@ -109,12 +83,7 @@ export const createProfitTD = (profit: number = 0): HTMLTableCellElement => {
   return td;
 };
 
-/**
- *
- * @param {AuctionCraftSniper.IinnerProfessionDataJSON} recipe
- * @returns {HTMLTableDataCellElement}
- */
-export const createMaterialTD = (recipe: AuctionCraftSniper.IinnerProfessionDataJSON): HTMLTableDataCellElement => {
+export const createMaterialTD = (recipe: AuctionCraftSniper.InnerProfessionDataJSONInterface): HTMLTableDataCellElement => {
   const materialInfoTD = cloneOrigin.td.cloneNode() as HTMLTableCellElement;
   materialInfoTD.classList.add('has-text-right');
 
@@ -164,13 +133,7 @@ export const createMaterialTD = (recipe: AuctionCraftSniper.IinnerProfessionData
   return materialInfoTD;
 };
 
-/**
- *
- * @param {AuctionCraftSniper.IinnerProfessionDataJSON} recipe
- * @param {string} TUJBaseUrl
- * @returns {HTMLTableCellElement}
- */
-export const createProductBuyoutTD = (recipe: AuctionCraftSniper.IinnerProfessionDataJSON, TUJBaseUrl: string): HTMLTableCellElement => {
+export const createProductBuyoutTD = (recipe: AuctionCraftSniper.InnerProfessionDataJSONInterface, TUJBaseUrl: string): HTMLTableCellElement => {
   const productBuyoutTD = cloneOrigin.td.cloneNode() as HTMLTableCellElement;
   productBuyoutTD.classList.add('has-text-right');
 
@@ -191,12 +154,7 @@ export const createProductBuyoutTD = (recipe: AuctionCraftSniper.IinnerProfessio
   return productBuyoutTD;
 };
 
-/**
- *
- * @param {AuctionCraftSniper.IvalueObj} valueObj
- * @returns {DocumentFragment}
- */
-export const getCurrencyElements = (currencyContainer: AuctionCraftSniper.IcurrencyContainer): DocumentFragment => {
+export const getCurrencyElements = (currencyContainer: AuctionCraftSniper.CurrencyContainerInterface): DocumentFragment => {
   const fragment = document.createDocumentFragment();
 
   const { isNegative, ...currencies } = currencyContainer;
@@ -248,11 +206,6 @@ const initiateMaterialInfoTippyThead = (): HTMLTableSectionElement => {
 
 const materialInfoTippyHead = initiateMaterialInfoTippyThead();
 
-/**
- *
- * @param {number} margin
- * @returns {HTMLTableCellElement}
- */
 export const createWinMarginTD = (margin: number): HTMLTableCellElement => {
   const td = cloneOrigin.td.cloneNode() as HTMLTableCellElement;
   td.classList.add('has-text-right');
@@ -262,11 +215,6 @@ export const createWinMarginTD = (margin: number): HTMLTableCellElement => {
   return td;
 };
 
-/**
- *
- * @param target
- * @returns {HTMLTableCellElement}
- */
 const createTSMTD = (target: string = ''): HTMLTableCellElement => {
   const TSMTD = cloneOrigin.td.cloneNode() as HTMLTableCellElement;
   TSMTD.classList.add('tsm');
@@ -279,9 +227,6 @@ const createTSMTD = (target: string = ''): HTMLTableCellElement => {
   return TSMTD;
 };
 
-/**
- * @returns {HTMLTableRowElement}
- */
 export const createRecipeHintTR = (className: string): HTMLTableRowElement => {
   const hintTR = cloneOrigin.tr.cloneNode() as HTMLTableRowElement;
   hintTR.dataset.sortMethod = 'none';
@@ -301,9 +246,6 @@ export const createRecipeHintTR = (className: string): HTMLTableRowElement => {
   return hintTR;
 };
 
-/**
- * @returns {HTMLTableSectionElement}
- */
 export const initiateTHead = (): HTMLTableSectionElement => {
   const thead = cloneOrigin.thead.cloneNode() as HTMLTableSectionElement;
   const theadRow = cloneOrigin.tr.cloneNode();

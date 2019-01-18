@@ -13,7 +13,8 @@ import {
   sortByProfit,
   toggleSearchLoadingState,
   toggleUserInputs,
-  updateState
+  updateState,
+  getWoWheadURL
 } from './helper';
 import { ACS, setACSLocalStorage } from './localStorage';
 import { AuctionCraftSniper } from './types';
@@ -69,13 +70,6 @@ const ALCHEMY_PROC_RATE: number = 1.4;
  */
 const REFRESHER_INTERVAL = 60000; // 1 * 1000 * 60
 
-/**
- *
- * @param {any} queryElement
- * @param {string} selector
- *
- * @returns {string}
- */
 const buildTSMString = (queryElement: HTMLElement | Document, selector: string): string => {
   let exportString = '';
 
@@ -86,10 +80,6 @@ const buildTSMString = (queryElement: HTMLElement | Document, selector: string):
 
 const generalTSMExportListener = (): void => copyOnClick(buildTSMString(document, '#auction-craft-sniper td.recipe-is-visible[data-recipe]'));
 
-/**
- *
- * @param {string} target
- */
 export const TSMListener = (el: HTMLTableCellElement, target: string): void => {
   const previousTable = el.closest('table');
   const tbodySpecifics = target === '.lossy-recipes' ? target : ':first-of-type';
@@ -97,10 +87,6 @@ export const TSMListener = (el: HTMLTableCellElement, target: string): void => {
   copyOnClick(buildTSMString(previousTable, `tbody${tbodySpecifics} td.recipe-is-visible[data-recipe]`));
 };
 
-/**
- *
- * @param {Event} e
- */
 const professionsEventListener = function(e: Event): void {
   const { value, checked } = this as HTMLInputElement;
   const index = ACS.professions.indexOf(parseInt(value, 10));
@@ -117,17 +103,6 @@ const professionsEventListener = function(e: Event): void {
 };
 
 const expansionLevelListener = (expansionLevel: number): void => setACSLocalStorage({ expansionLevel });
-
-const requestNotificationPermission = (): void => {
-  // if user is requested for the first time || user revoked rights at some point
-  if (!ACS.settings.pushNotificationsAllowed && 'Notification' in window) {
-    Notification.requestPermission().then(result => {
-      setACSLocalStorage({ settings: { pushNotificationsAllowed: result === 'granted' } });
-    });
-  } else {
-    setACSLocalStorage({ settings: { pushNotificationsAllowed: false } });
-  }
-};
 
 const settingEvent = function(): void {
   const THIS = this as HTMLInputElement;
@@ -152,11 +127,7 @@ const settingEvent = function(): void {
 
 const settingListener = (): void => {
   document.querySelectorAll('#settings-modal input[type="checkbox"]').forEach(checkbox => {
-    if (checkbox.id === 'pushNotificationsAllowed') {
-      checkbox.addEventListener('change', requestNotificationPermission);
-    } else {
-      checkbox.addEventListener('change', settingEvent);
-    }
+    checkbox.addEventListener('change', settingEvent);
   });
 
   document.querySelectorAll('#settings-modal input[type="number"]').forEach(inputNumber => {
@@ -171,10 +142,6 @@ const killRefreshInterval = () => {
   }
 };
 
-/**
- *
- * @param {number} interval
- */
 const initiateRefreshInterval = (interval: number = REFRESHER_INTERVAL) => {
   if (typeof refreshInterval === 'undefined') {
     refreshInterval = setInterval(() => {
@@ -245,16 +212,12 @@ export const searchListener = () => {
   validateRegionRealm({ value, retry: 0 });
 };
 
-/**
- *
- * @param { AuctionCraftSniper.IrealmRegionParams} args
- */
-const validateRegionRealm = async (args: AuctionCraftSniper.IrealmRegionParams = { value: [], retry: 0 }) => {
+const validateRegionRealm = async (args: AuctionCraftSniper.RealmRegionParamsInterface = { value: [], retry: 0 }) => {
   const [region, ...realm] = args.value;
 
   updateState('validating region & realm');
 
-  let json: AuctionCraftSniper.IvalidateRegionRealmJSON = { houseID: 0, updateInterval: 0 };
+  let json: AuctionCraftSniper.ValidateRegionRealmJSONInterface = { houseID: 0, updateInterval: 0 };
 
   try {
     const data = await fetch(`api/validateRegionRealm.php?region=${region}&realm=${realm.join('-')}`, {
@@ -293,12 +256,7 @@ const retryOnError = (callbackFn, params) => {
   }, params.retry * 5000);
 };
 
-/**
- *
- * @param {AuctionCraftSniper.IcheckHouseAgeArgs} args
- * @param {AuctionCraftSniper.IcheckHouseAgeJSON} json
- */
-const handleHouseAgeResponse = (args: AuctionCraftSniper.IcheckHouseAgeArgs, json: AuctionCraftSniper.IcheckHouseAgeJSON): void => {
+const handleHouseAgeResponse = (args: AuctionCraftSniper.CheckHouseAgeArgsInterface, json: AuctionCraftSniper.CheckHouseAgeJSONInterface): void => {
   switch (json.callback) {
     case 'waitForParseTimeout':
       updateState('waiting for someone elses parse to finish - please stand by');
@@ -349,16 +307,12 @@ const hasProfessionSelectionChanged = (): boolean => {
   return selectionIsChanged;
 };
 
-/**
- *
- * @param {AuctionCraftSniper.IcheckHouseAgeArgs} args
- */
-const checkHouseAge = async (args: AuctionCraftSniper.IcheckHouseAgeArgs = { triggeredByRefresher: false, retry: 0 }) => {
+const checkHouseAge = async (args: AuctionCraftSniper.CheckHouseAgeArgsInterface = { triggeredByRefresher: false, retry: 0 }) => {
   const { houseID, expansionLevel } = ACS;
 
   updateState('validating data age');
 
-  let json: AuctionCraftSniper.IcheckHouseAgeJSON = { callback: '', lastUpdate: 0 };
+  let json: AuctionCraftSniper.CheckHouseAgeJSONInterface = { callback: '', lastUpdate: 0 };
 
   try {
     const data = await fetch(`api/checkHouseAge.php?houseID=${houseID}&expansionLevel=${expansionLevel}`, {
@@ -392,18 +346,15 @@ const showHouseUnavailabilityError = (): void => {
   document.getElementById('house-unavailable-disclaimer').classList.add('visible');
 };
 
-/**
- * @param args
- */
 const parseAuctionData = async (args = { retry: 0 }) => {
-  const payload: AuctionCraftSniper.IparseAuctionDataPayload = {
+  const payload: AuctionCraftSniper.ParseAuctionDataPayloadInterface = {
     expansionLevel: ACS.expansionLevel,
     houseID: ACS.houseID
   };
 
   updateState('parsing data');
 
-  let json: AuctionCraftSniper.IparseAuctionDataResponseJSON = {};
+  let json: AuctionCraftSniper.ParseAuctionDataResponseJSONInterface = {};
 
   try {
     const data = await fetch('api/parseAuctionData.php', {
@@ -430,9 +381,6 @@ const parseAuctionData = async (args = { retry: 0 }) => {
   }
 };
 
-/**
- * @param args
- */
 const getAuctionHouseData = async (args = { retry: 0 }) => {
   updateState('retrieving data from Blizzard - this can take up to a minute, please stand by');
 
@@ -467,9 +415,6 @@ const getAuctionHouseData = async (args = { retry: 0 }) => {
   }
 };
 
-/**
- * @param args
- */
 export const getProfessionTables = async (args = { triggeredByRefresher: false, retry: 0 }) => {
   updateState('fetching results');
 
@@ -480,7 +425,7 @@ export const getProfessionTables = async (args = { triggeredByRefresher: false, 
 
   const { houseID, expansionLevel, professions } = ACS;
 
-  let json: AuctionCraftSniper.IouterProfessionDataJSON = { callback: 'throwHouseUnavailabilityError' };
+  let json: AuctionCraftSniper.OuterProfessionDataJSONInterface = { callback: 'throwHouseUnavailabilityError' };
 
   try {
     const data = await fetch(`api/getProfessionTables.php?houseID=${houseID}&expansionLevel=${expansionLevel}&professions=${professions.toString()}`, {
@@ -532,12 +477,7 @@ export const toggleBlacklistEntry = function() {
   this.parentElement.classList.toggle('blacklisted');
 };
 
-/**
- *
- * @param {AuctionCraftSniper.IinnerProfessionDataJSON} recipe
- * @param {string} TUJLink
- */
-const fillRecipeTR = (recipe: AuctionCraftSniper.IinnerProfessionDataJSON, TUJLink: string, isBlacklisted: boolean) => {
+const fillRecipeTR = (recipe: AuctionCraftSniper.InnerProfessionDataJSONInterface, TUJLink: string, isBlacklisted: boolean) => {
   const tr = cloneOrigin.tr.cloneNode() as HTMLTableRowElement;
 
   if (isBlacklisted) {
@@ -560,25 +500,21 @@ const hideProfessionTabs = () => document.querySelectorAll('#auction-craft-snipe
 
 const hideProfessionTables = () => document.querySelectorAll('#auction-craft-sniper table').forEach((table: HTMLTableElement) => (table.style.display = 'none'));
 
-/**
- *
- * @param {string} professionName
- */
 const getProfessionTabListElement = (professionName: string) => document.querySelector(`[data-profession-tab="${professionName}"]`);
 
 const emptyProfessionTables = () => {
   document.querySelectorAll('#auction-craft-sniper table').forEach((table: HTMLTableElement) => {
-    while (table.firstChild) {
-      table.removeChild(table.lastChild);
-    }
+    emptyElement(table);
   });
 };
 
-/**
- *
- * @param {AuctionCraftSniper.IinnerProfessionDataJSON} recipe
- */
-const belongsToPositiveTBody = (recipe: AuctionCraftSniper.IinnerProfessionDataJSON) => {
+const emptyElement = (element: HTMLElement) => {
+  while (element.firstChild) {
+    element.removeChild(element.lastChild);
+  }
+};
+
+const belongsToPositiveTBody = (recipe: AuctionCraftSniper.InnerProfessionDataJSONInterface) => {
   const isNegativeButVisible = recipe.profit < 0 && ACS.settings.alwaysShowLossyRecipes;
   const isNeutralButVisible = recipe.profit === 0 && ACS.settings.alwaysShowUnlistedRecipes;
 
@@ -599,7 +535,23 @@ const belongsToPositiveTBody = (recipe: AuctionCraftSniper.IinnerProfessionDataJ
   return isNeutralButVisible || isNegativeButVisible || (recipe.profit > 0 && (hasPositivePercentageThreshold || hasPositiveProfitThreshold));
 };
 
-const adjustAlchemyProfits = (alchemyRecipes: AuctionCraftSniper.IinnerProfessionDataJSON[]) => {
+const adjustExpulsomProfits = (recipes: AuctionCraftSniper.InnerProfessionDataJSONInterface[], worth: number) => {
+  recipes.forEach(recipe => {
+    recipe.materials.forEach(material => {
+      if (material.itemID === 152668) {
+        const sum = worth * material.amount;
+        recipe.profit -= sum;
+        recipe.materialCostSum += sum;
+
+        material.buyout = worth;
+      }
+    });
+  });
+
+  return recipes;
+};
+
+const adjustAlchemyProfits = (alchemyRecipes: AuctionCraftSniper.InnerProfessionDataJSONInterface[]) => {
   alchemyRecipes.forEach(recipe => {
     if (recipe.product.mayProcMultiple) {
       recipe.margin = parseFloat((((recipe.product.buyout * ALCHEMY_PROC_RATE) / recipe.materialCostSum - 1) * 100).toFixed(2));
@@ -610,19 +562,56 @@ const adjustAlchemyProfits = (alchemyRecipes: AuctionCraftSniper.IinnerProfessio
   return alchemyRecipes;
 };
 
-/**
- *
- * @param {AuctionCraftSniper.IouterProfessionDataJSON} json
- */
-const fillProfessionTable = (json: AuctionCraftSniper.IouterProfessionDataJSON = {}): void => {
+const insertExpulsomData = (expulsomData: AuctionCraftSniper.ExpulsomWorthObjInterface) => {
+  const p = document.getElementById('expulsom-data');
+  emptyElement(p);
+
+  const fragment = document.createDocumentFragment();
+
+  Object.entries(expulsomData).forEach(entry => {
+    const [key, value] = entry;
+
+    const span = document.createElement('span');
+    let content;
+
+    switch (key) {
+      case 'cheapestItem':
+        span.innerText = 'Cheapest scrapping item: ';
+        content = cloneOrigin.a.cloneNode();
+        content.href = getWoWheadURL(value);
+        content.innerText = expulsomData.cheapestItem;
+        break;
+      case 'estimatedWorth':
+        span.innerText = 'Est. Expulsom worth: ';
+        content = formatCurrency(value);
+        break;
+      case 'adjustedWorth':
+        span.innerText = 'Adj. Expulsom worth: ';
+        content = formatCurrency(value);
+        break;
+    }
+
+    fragment.appendChild(span);
+    fragment.appendChild(content);
+    fragment.appendChild(document.createElement('br'));
+  });
+
+  p.appendChild(fragment);
+};
+
+const fillProfessionTable = (json: AuctionCraftSniper.OuterProfessionDataJSONInterface = {}): void => {
   const TUJLink = getTUJBaseURL();
   console.time('fillProfessionTable');
 
   let subNavHasActiveIndicator = false;
 
-  Object.entries(json).forEach(entry => {
+  const { expulsomData, ...tables } = json;
+
+  insertExpulsomData(expulsomData);
+
+  Object.entries(tables).forEach(entry => {
     let professionName: string;
-    let recipes: AuctionCraftSniper.IinnerProfessionDataJSON[];
+    let recipes: AuctionCraftSniper.InnerProfessionDataJSONInterface[];
     [professionName, recipes] = entry;
 
     const professionTable = document.getElementById(professionName) as HTMLTableElement;
@@ -654,6 +643,14 @@ const fillProfessionTable = (json: AuctionCraftSniper.IouterProfessionDataJSON =
 
     if (ACS.settings.useAssumedAlchemyProcRate && professionName === 'alchemy') {
       recipes = adjustAlchemyProfits(recipes);
+    }
+
+    if (ACS.settings.useAdjustedExpulsomWorth || ACS.settings.useEstimatedExpulsomWorth) {
+      const worth = expulsomData[ACS.settings.useAdjustedExpulsomWorth ? 'adjustedWorth' : 'estimatedWorth'];
+
+      if (worth > 0) {
+        recipes = adjustExpulsomProfits(recipes, worth);
+      }
     }
 
     sortByProfit(recipes).forEach(recipe => {
@@ -702,12 +699,7 @@ const fillProfessionTable = (json: AuctionCraftSniper.IouterProfessionDataJSON =
   console.timeEnd('fillProfessionTable');
 };
 
-/**
- *
- * @param {AuctionCraftSniper.IouterProfessionDataJSON} json
- * @param {boolean} isShorthanded
- */
-const manageProfessionTables = (json: AuctionCraftSniper.IouterProfessionDataJSON = {}, isShorthanded: boolean = false) => {
+const manageProfessionTables = (json: AuctionCraftSniper.OuterProfessionDataJSONInterface = {}, isShorthanded: boolean = false) => {
   hideProfessionTabs();
   hideProfessionTables();
   emptyProfessionTables();
@@ -824,10 +816,6 @@ export const formatCurrency = (value: number) => {
   return getCurrencyElements(valueObj);
 };
 
-/**
- *
- * @param {number} lastUpdate
- */
 const insertUpdateInformation = () => {
   const dateFnSuffix = { addSuffix: true };
 

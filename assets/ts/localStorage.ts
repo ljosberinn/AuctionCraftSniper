@@ -2,10 +2,6 @@ import { getProfessionTables, hideIntroduction, searchListener } from './eventCh
 import { showHint, toggleSearchLoadingState, toggleUserInputs } from './helper';
 import { AuctionCraftSniper } from './types';
 
-/**
- *
- * @param {string} type
- */
 const storageAvailable = (type: string): boolean => {
   // https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API#Testing_for_availability
   try {
@@ -33,7 +29,7 @@ const storageAvailable = (type: string): boolean => {
   }
 };
 
-export const ACS: AuctionCraftSniper.IlocalStorageObj = {
+export const ACS: AuctionCraftSniper.LocalStorageObjInterface = {
   currentTab: undefined,
   expansionLevel: 8,
   hasLocalStorage: storageAvailable('localStorage'),
@@ -49,15 +45,12 @@ export const ACS: AuctionCraftSniper.IlocalStorageObj = {
     hideBlacklistedRecipes: false,
     marginThresholdPercent: 0,
     profitThresholdValue: 0,
-    pushNotificationsAllowed: false
+    useEstimatedExpulsomWorth: false,
+    useAdjustedExpulsomWorth: false
   }
 };
 
-/**
- *
- * @param {AuctionCraftSniper.IlocalStorageObj} data
- */
-export const setACSLocalStorage = (data: AuctionCraftSniper.IlocalStorageObj): void => {
+export const setACSLocalStorage = (data: AuctionCraftSniper.LocalStorageObjInterface): void => {
   Object.entries(data).forEach(entry => {
     const [key, value] = entry;
 
@@ -96,7 +89,7 @@ export const setACSLocalStorage = (data: AuctionCraftSniper.IlocalStorageObj): v
 
 export const getACSLocalStorage = (): void => {
   if (localStorage.ACS) {
-    const tempACS: AuctionCraftSniper.IlocalStorageObj = JSON.parse(localStorage.ACS);
+    const tempACS: AuctionCraftSniper.LocalStorageObjInterface = JSON.parse(localStorage.ACS);
 
     setACSLocalStorage(tempACS);
 

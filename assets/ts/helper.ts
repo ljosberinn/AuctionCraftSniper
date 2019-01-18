@@ -1,13 +1,10 @@
 import { ACS } from './localStorage';
 import { AuctionCraftSniper } from './types';
 
-const HINT_VISIBLE_DURATION = 3500; // 3 * 1000;
+const HINT_VISIBLE_DURATION = 3500; // 3.5 * 1000;
 
-/**
- * @returns {AuctionCraftSniper.IcloneOriginObj}
- */
-export const initiateCloneObj = (): AuctionCraftSniper.IcloneOriginObj => {
-  const obj: AuctionCraftSniper.IcloneOriginObj = {
+export const initiateCloneObj = (): AuctionCraftSniper.CloneOriginObjInterface => {
+  const obj: AuctionCraftSniper.CloneOriginObjInterface = {
     currencies: {}
   };
 
@@ -27,30 +24,18 @@ export const initiateCloneObj = (): AuctionCraftSniper.IcloneOriginObj => {
 
 export const cloneOrigin = initiateCloneObj();
 
-export const currencyContainer: AuctionCraftSniper.IcurrencyContainer = {
+export const currencyContainer: AuctionCraftSniper.CurrencyContainerInterface = {
   gold: 0,
   silver: 0,
   copper: 0
 };
 
-/**
- *
- * @param {string} state
- */
 export const updateState = (state: string): void => {
   document.getElementById('progress-bar').dataset.state = state;
 };
 
-/**
- *
- * @param {AuctionCraftSniper.IinnerProfessionDataJSON[]} innerProfessionData
- * @returns {AuctionCraftSniper.IinnerProfessionDataJSON[]} innerProfessionData
- */
-export const sortByProfit = (innerProfessionData: AuctionCraftSniper.IinnerProfessionDataJSON[]) => innerProfessionData.sort((objA, objB) => objB.profit - objA.profit);
+export const sortByProfit = (innerProfessionData: AuctionCraftSniper.InnerProfessionDataJSONInterface[]) => innerProfessionData.sort((objA, objB) => objB.profit - objA.profit);
 
-/**
- * @returns {string}
- */
 export const getTUJBaseURL = (): string => {
   const [region, realm] = (document.getElementById('realm') as HTMLInputElement).value.split('-');
 
@@ -60,11 +45,6 @@ export const getTUJBaseURL = (): string => {
     .toLowerCase()}/item/`;
 };
 
-/**
- *
- * @param {number} itemID
- * @returns {string}
- */
 export const getWoWheadURL = (itemID: number): string => `https://wowhead.com/?item=${itemID}`;
 
 export const toggleSearchLoadingState = () => {
@@ -84,11 +64,6 @@ export const showHint = (hintType: string): void => {
   }, HINT_VISIBLE_DURATION);
 };
 
-/**
- *
- * @param {string} notificationType
- * @param {string} notificationContent
- */
 const createNotification = (notificationType: string, notificationContent: string): void => {
   const notification = cloneOrigin.div.cloneNode() as HTMLDivElement;
   notification.classList.add('notification', notificationType);
@@ -115,10 +90,6 @@ const createNotification = (notificationType: string, notificationContent: strin
   }, HINT_VISIBLE_DURATION);
 };
 
-/**
- *
- * @param {any} valueToCopy
- */
 export const copyOnClick = (valueToCopy: any): void => {
   const input = document.createElement('input');
   input.value = valueToCopy;
@@ -168,10 +139,6 @@ export const toggleProgressBar = (): void => {
   progressBar.classList.toggle('visible');
 };
 
-/**
- *
- * @param {bool} state
- */
 export const toggleUserInputs = (state: boolean = true): void => {
   document.querySelectorAll('input').forEach(input => (input.disabled = state));
   [document.getElementById('search') as HTMLInputElement, document.getElementById('expansion-level') as HTMLSelectElement].forEach(el => (el.disabled = state));

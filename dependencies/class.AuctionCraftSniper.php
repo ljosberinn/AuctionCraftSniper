@@ -310,44 +310,20 @@ class AuctionCraftSniper {
 
         $this->setCalculationExemptionsIDs();
 
-        $professionTableData = [];
+        $professionTableData = [
+            'expulsomData' => $this->getExpulsomData(),
+        ];
 
         $recipes = $this->getRecipes($professions);
 
         if($recipes->rowCount() > 0) {
 
-            $getConnectedRecipeRequirements = $this->connection->prepare('SELECT
-                `requiredItemID` as `itemID`,
-                `requiredAmount` as `amount`,
-                `itemNames`.`itemName` as `name`,              
-                `baseBuyPrice`, `producedQuantity`
-                FROM `recipeRequirements`
-                LEFT JOIN `itemNames` ON `requiredItemID` = `itemNames`.`itemID`
-                WHERE `recipe` = :recipeID AND (`rank` = 3 OR `rank` = 0)');
-
-            $getMaterialBuyout = $this->connection->prepare('SELECT `buyout`
-                          FROM `auctionData`
-                          WHERE `itemID` = :itemID
-                          AND `expansionLevel` = :expansionLevel
-                          AND `houseID` = :houseID');
-
-            $calculationExemptionItemIDs = array_keys($this->calculationExemptionItemIDs);
+            $getConnectedRecipeRequirements = $this->prepareConnectedRecipeRequirements();
+            $getMaterialBuyout              = $this->prepareMaterialBuyout();
+            $calculationExemptionItemIDs    = array_keys($this->calculationExemptionItemIDs);
 
             foreach($recipes->fetchAll() as $recipe) {
-
-                $recipeData = [
-                    'product'         => [
-                        'item'             => $recipe['itemID'],
-                        'name'             => $recipe['itemName'],
-                        'buyout'           => $recipe['buyout'],
-                        'producedQuantity' => 1,
-                        'mayProcMultiple'  => (int) $recipe['mayProcMultiple'] === 1,
-                    ],
-                    'materials'       => [],
-                    'materialCostSum' => 0,
-                    'profit'          => $recipe['buyout'],
-                    'margin'          => 0.00,
-                ];
+                $recipeData = $this->populateRecipeData($recipe);
 
                 $getConnectedRecipeRequirements->execute([
                     'recipeID' => $recipe['itemID'],
@@ -414,6 +390,69 @@ class AuctionCraftSniper {
         ini_set('serialize_precision', -1);
 
         return $professionTableData;
+    }
+
+    /**
+     * @return array
+     */
+    private function getExpulsomData(): array {
+        $getExpulsomStoreQuery = 'SELECT `expulsomWorth`, `expulsomWorthAdjusted`, `itemID` FROM `expulsomStore` WHERE `houseID` = :houseID';
+        $stmt                  = $this->connection->prepare($getExpulsomStoreQuery);
+        $stmt->execute(['houseID' => $this->houseID]);
+
+        $data = $stmt->fetch();
+
+        return [
+            'estimatedWorth' => $data['expulsomWorth'],
+            'adjustedWorth'  => $data['expulsomWorthAdjusted'],
+            'cheapestItem'   => $data['itemID'],
+        ];
+    }
+
+    /**
+     * @return PDOStatement
+     */
+    private function prepareMaterialBuyout(): PDOStatement {
+        return $this->connection->prepare('SELECT `buyout`
+                          FROM `auctionData`
+                          WHERE `itemID` = :itemID
+                          AND `expansionLevel` = :expansionLevel
+                          AND `houseID` = :houseID');
+    }
+
+    /**
+     * @return PDOStatement
+     */
+    private function prepareConnectedRecipeRequirements(): PDOStatement {
+        return $this->connection->prepare('SELECT
+                `requiredItemID` as `itemID`,
+                `requiredAmount` as `amount`,
+                `itemNames`.`itemName` as `name`,              
+                `baseBuyPrice`, `producedQuantity`
+                FROM `recipeRequirements`
+                LEFT JOIN `itemNames` ON `requiredItemID` = `itemNames`.`itemID`
+                WHERE `recipe` = :recipeID AND (`rank` = 3 OR `rank` = 0)');
+    }
+
+    /**
+     * @param array $recipe
+     *
+     * @return array
+     */
+    private function populateRecipeData(array $recipe): array {
+        return [
+            'product'         => [
+                'item'             => $recipe['itemID'],
+                'name'             => $recipe['itemName'],
+                'buyout'           => $recipe['buyout'],
+                'producedQuantity' => 1,
+                'mayProcMultiple'  => (int) $recipe['mayProcMultiple'] === 1,
+            ],
+            'materials'       => [],
+            'materialCostSum' => 0,
+            'profit'          => $recipe['buyout'],
+            'margin'          => 0.00,
+        ];
     }
 
     /**
@@ -791,7 +830,92 @@ class AuctionCraftSniper {
      * https://docs.google.com/spreadsheets/d/1-Omdx3Pkq5rxht_YdSjEeoK506aMNhnVBCflIPIZkhs/
      */
     private function updateExpulsomPrice(): void {
-        $params = ['houseID' => $this->houseID];
+        $cheapestDataset = $this->extractCheapestBfARecipe();
+
+        // trinkets always return one Expulsom
+        $trinkets = [152636, 152634,];
+
+        // magic numbers from spreadsheet
+        $craftProcRate     = 0.15;
+        $craftsPerExpulsom = in_array($cheapestDataset['id'], $trinkets, true) ? 1 : 6.3 * (1 / (1 - $craftProcRate));
+        $costPerCraft      = $cheapestDataset['sum'];
+
+        $expulsomWorth = $craftsPerExpulsom * $costPerCraft;
+
+        $scrappedMaterialWorth   = $this->calculateScrappedMaterialWorth($cheapestDataset['requirements']);
+        $enchantingMaterialWorth = $this->calculateEnchantingMaterialWorth($this->getCurrentGloomDustUmbraShardPrices(), $craftProcRate * $craftsPerExpulsom * 1.5);
+
+        $expulsomWorthAdjusted = $expulsomWorth - $enchantingMaterialWorth - $scrappedMaterialWorth;
+
+        if($this->removePreviousExpulsomData()) {
+            $this->insertNewExpulsomData([
+                'houseID'               => $this->houseID,
+                'expulsomWorth'         => $expulsomWorth,
+                'expulsomWorthAdjusted' => $expulsomWorthAdjusted,
+                'itemID'                => $cheapestDataset['id'],
+            ]);
+        }
+    }
+
+    /**
+     * @return array
+     */
+    private function extractCheapestBfARecipe(): array {
+
+        $cheapestDataset       = [];
+        $recipeRequirements    = $this->getExpulsomRecipes();
+        $prices                = $this->getCurrentBfAPrices();
+        $calculationExemptions = $this->getCalculationExemptionItemIDs();
+
+        foreach($recipeRequirements as $recipe => &$requirements) {
+            foreach($requirements as &$requirement) {
+                $price = 0;
+
+                if(isset($calculationExemptions[$requirement['requiredItemID']])) {
+                    $price = $calculationExemptions[$requirement['requiredItemID']];
+                } elseif(isset($prices[$requirement['requiredItemID']])) {
+                    $price = $prices[$requirement['requiredItemID']];
+                }
+
+                $requirement['price']               = $price;
+                $recipeRequirements[$recipe]['sum'] += $requirement['requiredAmount'] * $price;
+            }
+            unset($requirement);
+
+            if(empty($cheapestDataset)) {
+                $cheapestDataset = ['id' => $recipe, 'sum' => $recipeRequirements[$recipe]['sum'], 'requirements' => $requirements];
+            } elseif($recipeRequirements[$recipe]['sum'] !== 0 && $recipeRequirements[$recipe]['sum'] < $cheapestDataset['sum']) {
+                $cheapestDataset['id']           = $recipe;
+                $cheapestDataset['sum']          = $recipeRequirements[$recipe]['sum'];
+                $cheapestDataset['requirements'] = $requirements;
+            }
+        }
+
+        return $cheapestDataset;
+    }
+
+    /**
+     * @return array
+     */
+    private function getCurrentBfAPrices(): array {
+        $prices = [];
+
+        $query = 'SELECT `buyout`, `itemID` FROM `auctionData` WHERE `expansionLevel` = 8 AND `houseID` = :houseID';
+        $stmt  = $this->connection->prepare($query);
+        $stmt->execute(['houseID' => $this->houseID]);
+
+        // store prices as map
+        foreach($stmt->fetchAll() as $dataset) {
+            $prices[$dataset['itemID']] = $dataset['buyout'];
+        }
+
+        return $prices;
+    }
+
+    /**
+     * @return array
+     */
+    private function getExpulsomRecipes(): array {
 
         // items such as enchanting scrolls, follower equipment or keys cannot be disenchanted but are rarity GREEN and could be scrapped
         $exemptions = [
@@ -842,7 +966,7 @@ class AuctionCraftSniper {
 
         $stmt = $this->connection->query($query);
 
-        $recipeRequirements = $prices = $cheapestDataset = [];
+        $recipeRequirements = [];
 
         foreach($stmt->fetchAll() as $recipeRequirement) {
             if(!isset($recipeRequirements[$recipeRequirement['recipe']])) {
@@ -856,63 +980,7 @@ class AuctionCraftSniper {
             ];
         }
 
-        // get inserted data from previous function call
-        $query = 'SELECT `buyout`, `itemID` FROM `auctionData` WHERE `expansionLevel` = 8 AND `houseID` = :houseID';
-        $stmt  = $this->connection->prepare($query);
-        $stmt->execute($params);
-
-        // store prices as map
-        foreach($stmt->fetchAll() as $dataset) {
-            $prices[$dataset['itemID']] = $dataset['buyout'];
-        }
-
-        $calculationExemptions = $this->getCalculationExemptionItemIDs();
-
-        foreach($recipeRequirements as $recipe => &$requirements) {
-            foreach($requirements as &$requirement) {
-                $price = 0;
-
-                if(isset($calculationExemptions[$requirement['requiredItemID']])) {
-                    $price = $calculationExemptions[$requirement['requiredItemID']];
-                } elseif(isset($prices[$requirement['requiredItemID']])) {
-                    $price = $prices[$requirement['requiredItemID']];
-                }
-
-                $requirement['price']               = $price;
-                $recipeRequirements[$recipe]['sum'] += $requirement['requiredAmount'] * $price;
-            }
-            unset($requirement);
-
-            if(empty($cheapestDataset)) {
-                $cheapestDataset = ['id' => $recipe, 'sum' => $recipeRequirements[$recipe]['sum'], 'requirements' => $requirements];
-            } elseif($recipeRequirements[$recipe]['sum'] !== 0 && $recipeRequirements[$recipe]['sum'] < $cheapestDataset['sum']) {
-                $cheapestDataset['id']           = $recipe;
-                $cheapestDataset['sum']          = $recipeRequirements[$recipe]['sum'];
-                $cheapestDataset['requirements'] = $requirements;
-            }
-        }
-        unset($requirements, $recipeRequirements);
-
-        // magic numbers from spreadsheet
-        $craftProcRate     = 0.15;
-        $craftsPerExpulsom = 6.3 * (1 / (1 - $craftProcRate));
-        $costPerCraft      = $cheapestDataset['sum'];
-
-        $expulsomWorth = $craftsPerExpulsom * $costPerCraft;
-
-        $scrappedMaterialWorth   = $this->calculateScrappedMaterialWorth($cheapestDataset['requirements']);
-        $enchantingMaterialWorth = $this->calculateEnchantingMaterialWorth($this->getCurrentGloomDustUmbraShardPrices(), $craftProcRate * $craftsPerExpulsom * 1.5);
-
-        $expulsomWorthAdjusted = $expulsomWorth - $enchantingMaterialWorth - $scrappedMaterialWorth;
-
-        if($this->removePreviousExpulsomData()) {
-            $this->insertNewExpulsomData([
-                'houseID'               => $this->houseID,
-                'expulsomPrice'         => $expulsomWorth,
-                'expulsomPriceAdjusted' => $expulsomWorthAdjusted,
-                'itemID'                => $cheapestDataset['id'],
-            ]);
-        }
+        return $recipeRequirements;
     }
 
     /**
@@ -929,7 +997,7 @@ class AuctionCraftSniper {
      * @param array $params
      */
     private function insertNewExpulsomData(array $params): void {
-        $query = 'INSERT INTO `expulsomStore` (`houseID`, `expulsomPrice`, `expulsomPriceAdjusted`, `itemID`) VALUES(:houseID, :expulsomPrice, :expulsomPriceAdjusted, :itemID)';
+        $query = 'INSERT INTO `expulsomStore` (`houseID`, `expulsomWorth`, `expulsomWorthAdjusted`, `itemID`) VALUES(:houseID, :expulsomWorth, :expulsomWorthAdjusted, :itemID)';
         $stmt  = $this->connection->prepare($query);
         $stmt->execute($params);
     }
@@ -959,6 +1027,7 @@ class AuctionCraftSniper {
 
     /**
      * @param array $enchantingMaterials
+     * @param float $rate
      *
      * @return int
      */

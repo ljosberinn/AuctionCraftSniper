@@ -1,9 +1,9 @@
 <progress id="progress-bar" class="progress is-primary is-medium" max="100"></progress>
 
-<div class="box has-background-dark" style="display: none;">
+<div class="box has-background-dark">
 	<p class="has-text-info">Most recent changes</p>
 	<ul>
-		<li>alchemy proc consideration & custom thresholds introduced, check out the settings!</li>
+		<li>Expulsom worth can now automatically be calculated based on your servers economy. Check out the settings!</li>
 	</ul>
 </div>
 

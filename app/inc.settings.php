@@ -10,9 +10,6 @@
             'fetchOnLoad'               => [
                 'description' => 'automatically fetch data on page load (last selected realm will be used)',
             ],
-            'pushNotificationsAllowed'  => [
-                'description' => 'send push notifications when new auction house data is available',
-            ],
             'alwaysShowLossyRecipes'    => [
                 'description' => 'always show lossy recipes',
             ],
@@ -24,6 +21,12 @@
             ],
             'useAssumedAlchemyProcRate' => [
                 'description' => 'adjust profits of potions|flasks using a assumed proc rate of 1.4',
+            ],
+            'useEstimatedExpulsomWorth' => [
+                'description' => 'adjust recipe costs based on current estimated Expulsom worth ',
+            ],
+            'useAdjustedExpulsomWorth' => [
+                'description' => 'adjusts Expulsom worth, assuming you disenchant crafted blue items and sell the Dust/Shard (overrides previous setting)',
             ],
         ],
         'number'   => [
