@@ -581,11 +581,11 @@ const insertExpulsomData = (expulsomData: AuctionCraftSniper.ExpulsomWorthObjInt
         content.href = getWoWheadURL(value);
         content.innerText = value;
         break;
-      case 'estimatedWorth':
+      case 'estimatedPrice':
         span.innerText = 'Est. Expulsom price: ';
         content = formatCurrency(value);
         break;
-      case 'adjustedWorth':
+      case 'adjustedPrice':
         span.innerText = 'Adj. Expulsom price: ';
         content = formatCurrency(value);
         break;

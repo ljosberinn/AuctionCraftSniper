@@ -91,6 +91,11 @@ export const getACSLocalStorage = (): void => {
   if (localStorage.ACS) {
     const tempACS: AuctionCraftSniper.LocalStorageObjInterface = JSON.parse(localStorage.ACS);
 
+    if (tempACS.settings.hasOwnProperty('pushNotificationsAllowed')) {
+      const { pushNotificationsAllowed, ...validSettings } = tempACS.settings;
+      tempACS.settings = validSettings;
+    }
+
     setACSLocalStorage(tempACS);
 
     const realm = document.querySelector(`#realms [data-house-id="${tempACS.houseID}"]`) as HTMLOptionElement;

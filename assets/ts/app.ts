@@ -4,7 +4,7 @@ import { getACSLocalStorage } from './localStorage';
 
 init({
   dsn: 'https://a14f918eaf6544eea696ad35340f68a5@sentry.io/1329859',
-  release: 'AuctionCraftSniper@35afe333f8c2d12d384c509403049c61e6a460e5.'
+  release: 'AuctionCraftSniper@7b8d658f0f32194a62573c0d069b2a05848c7803.'
 });
 
 (() => {
