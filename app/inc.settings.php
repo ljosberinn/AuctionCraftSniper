@@ -22,11 +22,11 @@
             'useAssumedAlchemyProcRate' => [
                 'description' => 'adjust profits of potions|flasks using a assumed proc rate of 1.4',
             ],
-            'useEstimatedExpulsomWorth' => [
-                'description' => 'adjust recipe costs based on current estimated Expulsom worth ',
+            'useEstimatedExpulsomPrice' => [
+                'description' => 'adjust recipe costs based on current estimated Expulsom price ',
             ],
-            'useAdjustedExpulsomWorth' => [
-                'description' => 'adjusts Expulsom worth, assuming you disenchant crafted blue items and sell the Dust/Shard (overrides previous setting)',
+            'useAdjustedExpulsomPrice' => [
+                'description' => 'adjusts Expulsom price, assuming you disenchant crafted blue items and sell the Dust/Shard (overrides previous setting)',
             ],
         ],
         'number'   => [

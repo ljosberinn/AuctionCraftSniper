@@ -45,8 +45,8 @@ export const ACS: AuctionCraftSniper.LocalStorageObjInterface = {
     hideBlacklistedRecipes: false,
     marginThresholdPercent: 0,
     profitThresholdValue: 0,
-    useEstimatedExpulsomWorth: false,
-    useAdjustedExpulsomWorth: false
+    useEstimatedExpulsomPrice: false,
+    useAdjustedExpulsomPrice: false
   }
 };
 

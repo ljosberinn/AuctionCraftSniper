@@ -39,8 +39,8 @@ export declare namespace AuctionCraftSniper {
     marginThresholdPercent?: number;
     profitThresholdValue?: number;
     useAssumedAlchemyProcRate?: boolean;
-    useEstimatedExpulsomWorth?: boolean;
-    useAdjustedExpulsomWorth?: boolean;
+    useEstimatedExpulsomPrice?: boolean;
+    useAdjustedExpulsomPrice?: boolean;
   }
 
   interface LocalStorageObjInterface {
