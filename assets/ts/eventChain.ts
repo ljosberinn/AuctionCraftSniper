@@ -644,11 +644,7 @@ const fillProfessionTable = (json: AuctionCraftSniper.OuterProfessionDataJSONInt
     }
 
     if (ACS.settings.useAdjustedExpulsomWorth || ACS.settings.useEstimatedExpulsomWorth) {
-      const worth = expulsomData[ACS.settings.useAdjustedExpulsomWorth ? 'adjustedWorth' : 'estimatedWorth'];
-
-      if (worth > 0) {
-        recipes = adjustExpulsomProfits(recipes, worth);
-      }
+      recipes = adjustExpulsomProfits(recipes, expulsomData[ACS.settings.useAdjustedExpulsomWorth ? 'adjustedPrice' : 'estimatedPrice']);
     }
 
     sortByProfit(recipes).forEach(recipe => {

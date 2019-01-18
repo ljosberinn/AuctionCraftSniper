@@ -1,5 +1,4 @@
 <?php
-header('Location: https://gerritalex.de', 301);
 ob_start(function ($buffer) {
 
     $search = [
@@ -38,6 +37,7 @@ $professions        = $AuctionCraftSniper->getProfessions();
 		<div class="container">
 			<h1 class="title is-size-1 is-size-3-mobile has-text-warning"> ` AuctionCraftSniper</h1>
 			<h2 class="subtitle is-size-6-mobile"><?= $pageDescriptionEnding ?></h2>
+            <p>AuctionCraftSniper is free, <a rel="noreferrer" href="https://github.com/ljosberinn/AuctionCraftSniper" target="_blank">open-source</a> and will always be. No ads, no tracking, a single cookie to remember your settings. Server cost is 15€/month.<br>If you wish to grab me a &#9749;, please head over to <a rel="noreferrer" href="https://paypal.me/GerritAlex" target="_blank">PayPal</a>. Thanks!</p>
 		</div>
 	</div>
 </section>

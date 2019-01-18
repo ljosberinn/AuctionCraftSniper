@@ -9,7 +9,7 @@
     "build": "tsc && npx webpack",
     "scss-dev-watch": "npx node-sass assets/scss/acs.scss assets/css/acs.min.css --source-map=true --output-style=compressed --watch",
     "scss-deploy": "npx node-sass assets/scss/acs.scss assets/css/acs.min.css --output-style=compressed",
-    "sentry-release": "npx sentry-cli login && npx sentry-cli releases new \"7b8d658f0f32194a62573c0d069b2a05848c7803\" && npx sentry-cli releases set-commits \"7b8d658f0f32194a62573c0d069b2a05848c7803\" --commit \"ljosberinn/AuctionCraftSniper@7b8d658f0f32194a62573c0d069b2a05848c7803\" && npx sentry-cli releases finalize \"7b8d658f0f32194a62573c0d069b2a05848c7803\""
+    "sentry-release": "npx sentry-cli login && npx sentry-cli releases new \"bca3c8f5c61e9f81b5979ce20217ee881107c112\" && npx sentry-cli releases set-commits \"bca3c8f5c61e9f81b5979ce20217ee881107c112\" --commit \"ljosberinn/AuctionCraftSniper@bca3c8f5c61e9f81b5979ce20217ee881107c112\" && npx sentry-cli releases finalize \"bca3c8f5c61e9f81b5979ce20217ee881107c112\""
   },
   "repository": {
     "type": "git",
