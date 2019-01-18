@@ -3,7 +3,7 @@
 <div class="box has-background-dark">
 	<p class="has-text-info">Most recent changes</p>
 	<ul>
-		<li>Expulsom worth can now automatically be calculated based on your servers economy. Check out the settings!</li>
+		<li>Expulsom worth can now automatically be calculated based on your realms economy. Check out the settings!</li>
 	</ul>
 </div>
 
@@ -25,5 +25,4 @@
 			</a>
 		</li>
 	</ul>
-
 </div>

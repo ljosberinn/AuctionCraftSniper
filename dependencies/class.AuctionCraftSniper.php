@@ -295,7 +295,6 @@ class AuctionCraftSniper {
         }
 
         $getCurrentlyAvailableRecipes = $this->connection->prepare($getRecipesQuery);
-
         $getCurrentlyAvailableRecipes->execute($queryParams);
 
         return $getCurrentlyAvailableRecipes;
@@ -396,15 +395,15 @@ class AuctionCraftSniper {
      * @return array
      */
     private function getExpulsomData(): array {
-        $getExpulsomStoreQuery = 'SELECT `expulsomWorth`, `expulsomWorthAdjusted`, `itemID` FROM `expulsomStore` WHERE `houseID` = :houseID';
+        $getExpulsomStoreQuery = 'SELECT `expulsomPrice`, `expulsomPriceAdjusted`, `itemID` FROM `expulsomStore` WHERE `houseID` = :houseID';
         $stmt                  = $this->connection->prepare($getExpulsomStoreQuery);
         $stmt->execute(['houseID' => $this->houseID]);
 
         $data = $stmt->fetch();
 
         return [
-            'estimatedWorth' => $data['expulsomWorth'],
-            'adjustedWorth'  => $data['expulsomWorthAdjusted'],
+            'estimatedPrice' => $data['expulsomPrice'],
+            'adjustedPrice'  => $data['expulsomPriceAdjusted'],
             'cheapestItem'   => $data['itemID'],
         ];
     }
@@ -840,18 +839,18 @@ class AuctionCraftSniper {
         $craftsPerExpulsom = in_array($cheapestDataset['id'], $trinkets, true) ? 1 : 6.3 * (1 / (1 - $craftProcRate));
         $costPerCraft      = $cheapestDataset['sum'];
 
-        $expulsomWorth = $craftsPerExpulsom * $costPerCraft;
+        $expulsomPrice = $craftsPerExpulsom * $costPerCraft;
 
         $scrappedMaterialWorth   = $this->calculateScrappedMaterialWorth($cheapestDataset['requirements']);
         $enchantingMaterialWorth = $this->calculateEnchantingMaterialWorth($this->getCurrentGloomDustUmbraShardPrices(), $craftProcRate * $craftsPerExpulsom * 1.5);
 
-        $expulsomWorthAdjusted = $expulsomWorth - $enchantingMaterialWorth - $scrappedMaterialWorth;
+        $expulsomPriceAdjusted = $expulsomPrice - $enchantingMaterialWorth - $scrappedMaterialWorth;
 
         if($this->removePreviousExpulsomData()) {
             $this->insertNewExpulsomData([
                 'houseID'               => $this->houseID,
-                'expulsomWorth'         => $expulsomWorth,
-                'expulsomWorthAdjusted' => $expulsomWorthAdjusted,
+                'expulsomPrice'         => $expulsomPrice,
+                'expulsomPriceAdjusted' => $expulsomPriceAdjusted,
                 'itemID'                => $cheapestDataset['id'],
             ]);
         }
@@ -997,7 +996,7 @@ class AuctionCraftSniper {
      * @param array $params
      */
     private function insertNewExpulsomData(array $params): void {
-        $query = 'INSERT INTO `expulsomStore` (`houseID`, `expulsomWorth`, `expulsomWorthAdjusted`, `itemID`) VALUES(:houseID, :expulsomWorth, :expulsomWorthAdjusted, :itemID)';
+        $query = 'INSERT INTO `expulsomStore` (`houseID`, `expulsomPrice`, `expulsomPriceAdjusted`, `itemID`) VALUES(:houseID, :expulsomPrice, :expulsomPriceAdjusted, :itemID)';
         $stmt  = $this->connection->prepare($query);
         $stmt->execute($params);
     }

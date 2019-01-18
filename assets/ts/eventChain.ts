@@ -579,21 +579,19 @@ const insertExpulsomData = (expulsomData: AuctionCraftSniper.ExpulsomWorthObjInt
         span.innerText = 'Cheapest scrapping item: ';
         content = cloneOrigin.a.cloneNode();
         content.href = getWoWheadURL(value);
-        content.innerText = expulsomData.cheapestItem;
+        content.innerText = value;
         break;
       case 'estimatedWorth':
-        span.innerText = 'Est. Expulsom worth: ';
+        span.innerText = 'Est. Expulsom price: ';
         content = formatCurrency(value);
         break;
       case 'adjustedWorth':
-        span.innerText = 'Adj. Expulsom worth: ';
+        span.innerText = 'Adj. Expulsom price: ';
         content = formatCurrency(value);
         break;
     }
 
-    fragment.appendChild(span);
-    fragment.appendChild(content);
-    fragment.appendChild(document.createElement('br'));
+    [span, content, document.createElement('br')].forEach(element => fragment.appendChild(element));
   });
 
   p.appendChild(fragment);

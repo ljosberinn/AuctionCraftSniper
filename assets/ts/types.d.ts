@@ -92,8 +92,8 @@ export declare namespace AuctionCraftSniper {
   }
 
   interface ExpulsomWorthObjInterface {
-    estimatedWorth: number;
-    adjustedWorth: number;
+    estimatedPrice: number;
+    adjustedPrice: number;
     cheapestItem: number;
   }
 
