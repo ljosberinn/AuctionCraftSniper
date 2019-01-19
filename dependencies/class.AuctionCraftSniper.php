@@ -861,7 +861,11 @@ class AuctionCraftSniper {
      */
     private function extractCheapestBfARecipe(): array {
 
-        $cheapestDataset       = [];
+        $cheapestDataset       = [
+            'id'           => 0,
+            'sum'          => 0,
+            'requirements' => [],
+        ];
         $recipeRequirements    = $this->getExpulsomRecipes();
         $prices                = $this->getCurrentBfAPrices();
         $calculationExemptions = $this->getCalculationExemptionItemIDs();
@@ -876,14 +880,16 @@ class AuctionCraftSniper {
                     $price = $prices[$requirement['requiredItemID']];
                 }
 
+                if($price === 0) {
+                    continue;
+                }
+
                 $requirement['price']               = $price;
                 $recipeRequirements[$recipe]['sum'] += $requirement['requiredAmount'] * $price;
             }
             unset($requirement);
 
-            if(empty($cheapestDataset)) {
-                $cheapestDataset = ['id' => $recipe, 'sum' => $recipeRequirements[$recipe]['sum'], 'requirements' => $requirements];
-            } elseif($recipeRequirements[$recipe]['sum'] !== 0 && $recipeRequirements[$recipe]['sum'] < $cheapestDataset['sum']) {
+            if($recipeRequirements[$recipe]['sum'] !== 0 && ($cheapestDataset['id'] === 0 || $recipeRequirements[$recipe]['sum'] < $cheapestDataset['sum'])) {
                 $cheapestDataset['id']           = $recipe;
                 $cheapestDataset['sum']          = $recipeRequirements[$recipe]['sum'];
                 $cheapestDataset['requirements'] = $requirements;
