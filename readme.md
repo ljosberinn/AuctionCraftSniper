@@ -6,6 +6,7 @@
 ## Community reactions
 - [MethodGumdrops introducing AuctionCraftSniper](https://www.twitch.tv/videos/349515845?t=02h26m11s)
 - [wowhead - weekly economy recap](https://www.wowhead.com/news=289214/wow-economy-weekly-wrap-up-patch-8-1-released-gathering-efficiencies-new-web-bas)
+- [German only - Presentation of AuctionCraftSniper by GoldGoblin.net](https://www.goldgoblin.net/vorstellung-auctioncraftsniper/)
  
 ## Feature requests
 Please [add an issue](https://github.com/ljosberinn/auction-craft-sniper/issues) or contact to me directly.
