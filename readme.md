@@ -32,6 +32,8 @@ If you want to support the development: [![PayPal link](https://img.shields.io/b
 
 `npm install`
 
+![Logic Flow](https://auctioncraftsniper.com/assets/img/logic-flow.jpg)
+
 ### Compiling
 
  `npm run build` typescript conversion to source-mapped js
