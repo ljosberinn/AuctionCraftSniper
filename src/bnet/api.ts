@@ -1,6 +1,12 @@
 import type { BattleNetRegion } from "../client/context/AuthContext/types";
 import { BATTLENET_CLIENT_ID, BATTLENET_CLIENT_SECRET } from "../constants";
 import type { Realm, RealmIndex, RealmMeta } from "./realms";
+import type {
+  Profession,
+  ProfessionOverview,
+  Recipe,
+  SkillTier,
+} from "./recipes";
 
 const btoa = (str: string) => Buffer.from(str).toString("base64");
 
@@ -44,7 +50,6 @@ export const getAllRealmsByRegion = async (
   }).toString();
 
   const baseUrl = `https://${region}.api.blizzard.com/data/wow/realm/index`;
-
   const url = `${baseUrl}?${params}`;
 
   const response = await fetch(url);
@@ -71,11 +76,86 @@ export const getRealmDataByName = async (
   }).toString();
 
   const baseUrl = `https://${region}.api.blizzard.com/data/wow/realm/${name}`;
-
   const url = `${baseUrl}?${params}`;
 
   const response = await fetch(url);
   const { _links, ...rest }: RealmMeta = await response.json();
 
   return rest;
+};
+
+export const getAllProfessionsByLocale = async (
+  locale: string,
+  access_token: string
+): Promise<ProfessionOverview> => {
+  const params = new URLSearchParams({
+    access_token,
+    locale,
+    namespace: "static-eu",
+    region: "eu",
+  }).toString();
+
+  const baseUrl = `https://eu.api.blizzard.com/data/wow/profession/index`;
+  const url = `${baseUrl}?${params}`;
+
+  const response = await fetch(url);
+  return response.json();
+};
+
+export const getProfessionDataByIdAndLocale = async (
+  id: number,
+  locale: string,
+  access_token: string
+): Promise<Profession> => {
+  const params = new URLSearchParams({
+    access_token,
+    locale,
+    namespace: "static-eu",
+    region: "eu",
+  }).toString();
+
+  const baseUrl = `https://eu.api.blizzard.com/data/wow/profession/${id}`;
+  const url = `${baseUrl}?${params}`;
+
+  const response = await fetch(url);
+  return response.json();
+};
+
+export const getSkillTierDataByProfessionIdAndSkillTierIdAndLocale = async (
+  professionId: number,
+  skillTierId: number,
+  locale: string,
+  access_token: string
+): Promise<SkillTier> => {
+  const params = new URLSearchParams({
+    access_token,
+    locale,
+    namespace: "static-eu",
+    region: "eu",
+  }).toString();
+
+  const baseUrl = `https://eu.api.blizzard.com/data/wow/profession/${professionId}/skill-tier/${skillTierId}`;
+  const url = `${baseUrl}?${params}`;
+
+  const response = await fetch(url);
+  return response.json();
+};
+
+export const getRecipeDataByIdAndLocale = async (
+  recipeId: number,
+  locale: string,
+  access_token: string
+): Promise<Recipe> => {
+  const params = new URLSearchParams({
+    access_token,
+    locale,
+    namespace: "static-eu",
+    region: "eu",
+  }).toString();
+
+  const baseUrl = `https://eu.api.blizzard.com/data/wow/recipe/${recipeId}`;
+  const url = `${baseUrl}?${params}`;
+
+  const response = await fetch(url);
+  return response.json();
 };
