@@ -1,54 +1,35 @@
 {
-  "name": "AuctionCraftSniper",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "auctioncraftsniper",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "lint": "npx tslint -c tslint.json -p tsconfig.json",
-    "lint-fix": "npx tslint --fix -c tslint.json -p tsconfig.json",
-    "build": "tsc && npx webpack",
-    "scss-dev-watch": "npx node-sass assets/scss/acs.scss assets/css/acs.min.css --source-map=true --output-style=compressed --watch",
-    "scss-deploy": "npx node-sass assets/scss/acs.scss assets/css/acs.min.css --output-style=compressed",
-    "sentry-release": "npx sentry-cli login && npx sentry-cli releases new \"bca3c8f5c61e9f81b5979ce20217ee881107c112\" && npx sentry-cli releases set-commits \"bca3c8f5c61e9f81b5979ce20217ee881107c112\" --commit \"ljosberinn/AuctionCraftSniper@bca3c8f5c61e9f81b5979ce20217ee881107c112\" && npx sentry-cli releases finalize \"bca3c8f5c61e9f81b5979ce20217ee881107c112\""
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ljosberinn/AuctionCraftSniper.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/ljosberinn/AuctionCraftSniper/issues"
-  },
-  "homepage": "https://auctioncraftsniper.com",
-  "devDependencies": {
-    "@babel/cli": "^7.1.2",
-    "@babel/core": "^7.1.2",
-    "@babel/preset-env": "^7.1.0",
-    "@sentry/webpack-plugin": "^1.6.2",
-    "node-sass": "^4.10.0",
-    "npx": "^10.2.0",
-    "prettier": "^1.14.3",
-    "stylelint": "^9.6.0",
-    "stylelint-config-recommended": "^2.1.0",
-    "typescript-eslint-parser": "^19.0.2",
-    "uglifyjs-webpack-plugin": "^2.0.1",
-    "webpack": "^4.20.2",
-    "webpack-cli": "^3.1.2"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "install:clean": "rm -rf node_modules && rm yarn.lock && yarn",
+    "lint:types": "tsc --noEmit",
+    "lint:code": "eslint src",
+    "lint:code:fix": "eslint src --fix && prettier --write src",
+    "postinstall": "yarn-deduplicate -l"
   },
   "dependencies": {
-    "@sentry/browser": "^4.3.4",
-    "@sentry/cli": "^1.37.1",
-    "bulma": "^0.7.2",
-    "bulma-checkradio": "^2.1.0",
-    "bulmaswatch": "^0.7.2",
-    "datalist-polyfill": "^1.22.2",
-    "date-fns": "^1.29.0",
-    "tablesort": "^5.1.0",
-    "tippy.js": "^3.2.0",
-    "tslint": "^5.12.0",
-    "tslint-config-prettier": "^1.17.0",
-    "typescript": "^3.1.1"
+    "cookie": "0.4.1",
+    "next": "10.0.1",
+    "next-connect": "0.9.1",
+    "react": "17.0.1",
+    "react-dom": "17.0.1"
+  },
+  "devDependencies": {
+    "@types/cookie": "0.4.0",
+    "@types/node": "14.14.6",
+    "@types/react": "16.9.56",
+    "@types/react-dom": "16.9.9",
+    "eslint": "7.12.1",
+    "eslint-config-galex": "2.6.3",
+    "typescript": "4.0.5",
+    "yarn-deduplicate": "^3.1.0"
+  },
+  "resolutions": {
+    "webpack": "5.4.0"
   }
 }
