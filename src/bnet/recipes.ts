@@ -62,8 +62,8 @@ export type Recipe = {
   id: number;
   name: string;
   media: Media;
-  crafted_item: Item;
-  reagents: Reagent[];
+  crafted_item?: Item;
+  reagents?: Reagent[];
   crafted_quantity: CraftedQuantity;
 };
 
@@ -83,7 +83,17 @@ export type Reagent = {
   quantity: number;
 };
 
-type CustomRecipe = {
+export type RecipeAssets = {
+  id: number;
+  _links: Links;
+  assets: {
+    file_data_id: number;
+    key: "icon";
+    value: string;
+  }[];
+};
+
+export type CustomRecipe = {
   /**
    * @example 39023
    */
@@ -97,7 +107,7 @@ type CustomRecipe = {
   /**
    * crafted item id
    */
-  craftedItem: Recipe["crafted_item"]["id"];
+  craftedItem: Item["id"];
   /**
    * min max
    */
@@ -136,19 +146,19 @@ type CustomRecipe = {
 /**
  * used to do `map[recipe.professionId]`
  */
-type ProfessionLocalization = Record<number, string>;
+export type ProfessionLocalization = Record<number, string>;
 
 /**
  * used to do `map[recipe.craftedItem]` as well as for each reagent
  */
-type ItemLocalization = Record<number, string>;
+export type ItemLocalization = Record<number, string>;
 
 /**
  * used to do `map[recipe.skillTier.id]
  */
-type SkillTierLocalization = Record<number, string>;
+export type SkillTierLocalization = Record<number, string>;
 
 /**
  * used to do `map[recipe.id]`
  */
-type RecipeLocalization = Record<number, string>;
+export type RecipeLocalization = Record<number, string>;

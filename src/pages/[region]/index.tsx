@@ -1,4 +1,5 @@
 import type { GetStaticPathsResult, GetStaticProps } from "next";
+import Head from "next/head";
 import Link from "next/link";
 
 import { getAllRealmsByRegion, regions, retrieveToken } from "../../bnet/api";
@@ -14,11 +15,16 @@ type RegionProps = {
 export default function Region({ region, realms }: RegionProps): JSX.Element {
   return (
     <>
+      <Head>
+        <title>{region}</title>
+      </Head>
       <h1>{region}</h1>
       {realms.map((realm) => (
         <ul key={realm.id}>
           <li>
-            <Link href={`/${region}/${realm.slug}`}>{realm.name}</Link>
+            <Link href={`/${region.toLowerCase()}/${realm.slug}`}>
+              {realm.name}
+            </Link>
           </li>
         </ul>
       ))}
@@ -29,7 +35,7 @@ export default function Region({ region, realms }: RegionProps): JSX.Element {
 export const getStaticPaths = (): GetStaticPathsResult<{
   region: string;
 }> => ({
-  fallback: false,
+  fallback: "blocking",
   paths: regions.map((region) => ({
     params: {
       region,
@@ -50,7 +56,7 @@ export const getStaticProps: GetStaticProps<RegionProps> = async (ctx) => {
   return {
     props: {
       realms,
-      region,
+      region: region.toUpperCase() as BattleNetRegion,
     },
   };
 };

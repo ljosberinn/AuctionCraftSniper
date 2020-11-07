@@ -3,8 +3,10 @@ import { BATTLENET_CLIENT_ID, BATTLENET_CLIENT_SECRET } from "../constants";
 import type { Realm, RealmIndex, RealmMeta } from "./realms";
 import type {
   Profession,
+  ProfessionMeta,
   ProfessionOverview,
   Recipe,
+  RecipeAssets,
   SkillTier,
 } from "./recipes";
 
@@ -84,6 +86,20 @@ export const getRealmDataByName = async (
   return rest;
 };
 
+const omitIrrelevantProfessions = (professions: ProfessionMeta[]) => {
+  const excludedIds = new Set([
+    182, // Herbalism
+    303, // Skinning
+    356, // Fishing
+    794, // Archaeology
+    2777, // Soul Cyphering,
+    2787, // Abominable Stitching
+    2791, // Ascension Crafting
+  ]);
+
+  return professions.filter((profession) => !excludedIds.has(profession.id));
+};
+
 export const getAllProfessionsByLocale = async (
   locale: string,
   access_token: string
@@ -99,7 +115,12 @@ export const getAllProfessionsByLocale = async (
   const url = `${baseUrl}?${params}`;
 
   const response = await fetch(url);
-  return response.json();
+  const json: ProfessionOverview = await response.json();
+
+  return {
+    ...json,
+    professions: omitIrrelevantProfessions(json.professions),
+  };
 };
 
 export const getProfessionDataByIdAndLocale = async (
@@ -154,6 +175,25 @@ export const getRecipeDataByIdAndLocale = async (
   }).toString();
 
   const baseUrl = `https://eu.api.blizzard.com/data/wow/recipe/${recipeId}`;
+  const url = `${baseUrl}?${params}`;
+
+  const response = await fetch(url);
+  return response.json();
+};
+
+export const getRecipeMediaUrl = async (
+  id: number,
+  locale: string,
+  access_token: string
+): Promise<RecipeAssets> => {
+  const params = new URLSearchParams({
+    access_token,
+    locale,
+    namespace: "static-eu",
+    region: "eu",
+  }).toString();
+
+  const baseUrl = `https://eu.api.blizzard.com/data/wow/media/recipe/${id}`;
   const url = `${baseUrl}?${params}`;
 
   const response = await fetch(url);
