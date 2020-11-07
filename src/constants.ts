@@ -42,9 +42,9 @@ export const I18N_COOKIE_NAME = "NEXT_LOCALE" as const;
  *
  * @default en_US,de_DE
  */
-export const ENABLED_LOCALES = process.env.NEXT_PUBLIC_ENABLED_LOCALES!.split(
-  ","
-);
+export const ENABLED_LOCALES = (
+  process.env.NEXT_PUBLIC_ENABLED_LOCALES ?? ""
+).split(",");
 
 /**
  * the fallback language used if:

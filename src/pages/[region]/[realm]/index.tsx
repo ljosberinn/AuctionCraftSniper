@@ -3,13 +3,8 @@ import Head from "next/head";
 import Link from "next/link";
 import React from "react";
 
-import {
-  getAllProfessionsByLocale,
-  getAllRealmsByRegion,
-  getRealmDataByName,
-  regions,
-  retrieveToken,
-} from "../../../bnet/api";
+import allRealms from "../../../../static/realms.json";
+import { getAllProfessionsByLocale, retrieveToken } from "../../../bnet/api";
 import type { RealmMeta } from "../../../bnet/realms";
 import type { ProfessionMeta } from "../../../bnet/recipes";
 import type { BattleNetRegion } from "../../../client/context/AuthContext/types";
@@ -36,9 +31,9 @@ export default function Realm({
       <h1>
         {region} - {realm.name}
       </h1>
-      {professions.map((profession) => (
-        <ul key={profession.id}>
-          <li>
+      <ul>
+        {professions.map((profession) => (
+          <li key={profession.id}>
             <Link
               href={`/${region.toLowerCase()}/${realm.slug}/${profession.name}`}
             >
@@ -46,8 +41,8 @@ export default function Realm({
                 profession.name.slice(1)}
             </Link>
           </li>
-        </ul>
-      ))}
+        ))}
+      </ul>
     </>
   );
 }
@@ -56,29 +51,18 @@ export const getStaticPaths: GetStaticPaths<{
   region: BattleNetRegion;
   realm: string;
 }> = async () => {
-  const token = await retrieveToken();
-  const allRealms = await Promise.all(
-    regions.map(async (region) => ({
-      realms: await getAllRealmsByRegion(region, token),
-      region,
-    }))
-  );
-
-  const paths = allRealms.flatMap((data) =>
-    data.realms.map((realm) => ({
-      params: {
-        realm: realm.slug,
-        region: data.region,
-      },
-    }))
-  );
-
   return {
     fallback: "blocking",
-    paths,
+    paths: allRealms.map((realm) => ({
+      params: {
+        realm: realm.slug,
+        region: realm.region.slug as BattleNetRegion,
+      },
+    })),
   };
 };
 
+// @ts-expect-error TODO
 export const getStaticProps: GetStaticProps<RealmProps> = async (ctx) => {
   if (
     !ctx.params?.region ||
@@ -94,8 +78,16 @@ export const getStaticProps: GetStaticProps<RealmProps> = async (ctx) => {
     realm: string;
   };
 
+  const realmData = allRealms.find(
+    (maybeRealm) =>
+      maybeRealm.region.slug === region && maybeRealm.slug === realm
+  );
+
+  if (!realmData) {
+    throw new Error(`unknown realm "${region}-${realm}"`);
+  }
+
   const token = await retrieveToken();
-  const realmData = await getRealmDataByName(realm, region, token);
   const professions = await getAllProfessionsByLocale("en_US", token);
 
   return {

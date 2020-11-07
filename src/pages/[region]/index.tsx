@@ -2,7 +2,8 @@ import type { GetStaticPathsResult, GetStaticProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
 
-import { getAllRealmsByRegion, regions, retrieveToken } from "../../bnet/api";
+import realms from "../../../static/realms.json";
+import { regions } from "../../bnet/api";
 import type { Realm } from "../../bnet/realms";
 import type { BattleNetRegion } from "../../client/context/AuthContext/types";
 
@@ -19,15 +20,15 @@ export default function Region({ region, realms }: RegionProps): JSX.Element {
         <title>{region}</title>
       </Head>
       <h1>{region}</h1>
-      {realms.map((realm) => (
-        <ul key={realm.id}>
-          <li>
+      <ul>
+        {realms.map((realm) => (
+          <li key={realm.id}>
             <Link href={`/${region.toLowerCase()}/${realm.slug}`}>
-              {realm.name}
+              <a>{realm.name}</a>
             </Link>
           </li>
-        </ul>
-      ))}
+        ))}
+      </ul>
     </>
   );
 }
@@ -43,19 +44,16 @@ export const getStaticPaths = (): GetStaticPathsResult<{
   })),
 });
 
-export const getStaticProps: GetStaticProps<RegionProps> = async (ctx) => {
-  if (!ctx.params?.region || Array.isArray(ctx.params.region)) {
+export const getStaticProps: GetStaticProps<RegionProps> = async (context) => {
+  if (!context.params?.region || Array.isArray(context.params.region)) {
     throw new Error("missing region");
   }
 
-  const { region } = ctx.params as { region: BattleNetRegion };
-
-  const access_token = await retrieveToken();
-  const realms = await getAllRealmsByRegion(region, access_token);
+  const { region } = context.params as { region: BattleNetRegion };
 
   return {
     props: {
-      realms,
+      realms: realms.filter((realm) => realm.region.slug === region),
       region: region.toUpperCase() as BattleNetRegion,
     },
   };

@@ -1,5 +1,4 @@
 import type { BattleNetRegion } from "../client/context/AuthContext/types";
-import { BATTLENET_CLIENT_ID, BATTLENET_CLIENT_SECRET } from "../constants";
 import type { Realm, RealmIndex, RealmMeta } from "./realms";
 import type {
   Profession,
@@ -15,10 +14,17 @@ const btoa = (str: string) => Buffer.from(str).toString("base64");
 export const regions: BattleNetRegion[] = ["us", "eu"];
 
 export const retrieveToken = async (): Promise<string> => {
+  if (
+    !process.env.BATTLENET_CLIENT_ID ||
+    !process.env.BATTLENET_CLIENT_SECRET
+  ) {
+    throw new Error("missing battle net credentials");
+  }
+
   const headers = {
     "Content-Type": "application/x-www-form-urlencoded",
     authorization: `Basic ${btoa(
-      `${BATTLENET_CLIENT_ID}:${BATTLENET_CLIENT_SECRET}`
+      `${process.env.BATTLENET_CLIENT_ID}:${process.env.BATTLENET_CLIENT_SECRET}`
     )}`,
   };
 
@@ -89,7 +95,7 @@ export const getRealmDataByName = async (
 const omitIrrelevantProfessions = (professions: ProfessionMeta[]) => {
   const excludedIds = new Set([
     182, // Herbalism
-    303, // Skinning
+    393, // Skinning
     356, // Fishing
     794, // Archaeology
     2777, // Soul Cyphering,
