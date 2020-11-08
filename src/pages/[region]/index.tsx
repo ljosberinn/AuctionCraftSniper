@@ -2,14 +2,13 @@ import type { GetStaticPathsResult, GetStaticProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
 
-import realms from "../../../static/realms.json";
+import allRealms from "../../../static/realms.json";
 import { regions } from "../../bnet/api";
-import type { Realm } from "../../bnet/realms";
 import type { BattleNetRegion } from "../../client/context/AuthContext/types";
 
 type RegionProps = {
   region: BattleNetRegion;
-  realms: Omit<Realm, "key">[];
+  realms: typeof allRealms;
 };
 
 // eslint-disable-next-line import/no-default-export
@@ -36,7 +35,7 @@ export default function Region({ region, realms }: RegionProps): JSX.Element {
 export const getStaticPaths = (): GetStaticPathsResult<{
   region: string;
 }> => ({
-  fallback: "blocking",
+  fallback: false,
   paths: regions.map((region) => ({
     params: {
       region,
@@ -53,7 +52,7 @@ export const getStaticProps: GetStaticProps<RegionProps> = async (context) => {
 
   return {
     props: {
-      realms: realms.filter((realm) => realm.region.slug === region),
+      realms: allRealms.filter((realm) => realm.region.slug === region),
       region: region.toUpperCase() as BattleNetRegion,
     },
   };

@@ -1,24 +1,10 @@
-import { loadEnvConfig } from "@next/env";
 import { writeFileSync } from "fs";
-import fetch from "node-fetch";
 import { resolve } from "path";
 
-import { regions, retrieveToken } from "../../src/bnet/api";
+import { regions } from "../../src/bnet/api";
 import type { Realm, RealmIndex, RealmMeta } from "../../src/bnet/realms";
 import type { BattleNetRegion } from "../../src/client/context/AuthContext/types";
-
-// @ts-expect-error required for other files
-global.fetch = fetch;
-
-const cwd = process.cwd();
-loadEnvConfig(cwd);
-
-const staticFolder = resolve(cwd, "./static");
-
-const sleep = (duration: number) =>
-  new Promise((resolve) => {
-    setTimeout(resolve, duration);
-  });
+import { staticFolder, sleep, retrieveToken } from "./setup";
 
 const getAllRealmsByRegion = async (
   region: BattleNetRegion,
@@ -105,6 +91,5 @@ const getRealmDataByName = async (
   }
 
   const targetPath = resolve(staticFolder, "realms.json");
-
   writeFileSync(targetPath, JSON.stringify(allRealms.flat()));
 })();

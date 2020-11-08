@@ -1,0 +1,201 @@
+[
+  {
+    "id": 164,
+    "name": "Blacksmithing",
+    "description": "Higher smithing skill allows you to learn higher level smithing plans.  Blacksmithing plans can be found on trainers around the world as well as from quests and monsters.",
+    "type": { "type": "PRIMARY", "name": "Primary" },
+    "media": "https://render-eu.worldofwarcraft.com/icons/56/trade_blacksmithing.jpg",
+    "skill_tiers": [
+      {
+        "id": 2437,
+        "name": "Kul Tiran Blacksmithing / Zandalari Blacksmithing"
+      },
+      { "id": 2454, "name": "Legion Blacksmithing" },
+      { "id": 2472, "name": "Draenor Blacksmithing" },
+      { "id": 2473, "name": "Pandaria Blacksmithing" },
+      { "id": 2474, "name": "Cataclysm Blacksmithing" },
+      { "id": 2475, "name": "Northrend Blacksmithing" },
+      { "id": 2476, "name": "Outland Blacksmithing" },
+      { "id": 2477, "name": "Blacksmithing" },
+      { "id": 2751, "name": "Shadowlands Blacksmithing" }
+    ],
+    "slug": "blacksmithing"
+  },
+  {
+    "id": 165,
+    "name": "Leatherworking",
+    "description": "Higher leatherworking skill allows you to learn higher level leatherworking patterns.  Leatherworking patterns can be found on trainers around the world as well as from quests and monsters.",
+    "type": { "type": "PRIMARY", "name": "Primary" },
+    "media": "https://render-eu.worldofwarcraft.com/icons/56/trade_leatherworking.jpg",
+    "skill_tiers": [
+      {
+        "id": 2525,
+        "name": "Kul Tiran Leatherworking / Zandalari Leatherworking"
+      },
+      { "id": 2526, "name": "Legion Leatherworking" },
+      { "id": 2527, "name": "Draenor Leatherworking" },
+      { "id": 2528, "name": "Pandaria Leatherworking" },
+      { "id": 2529, "name": "Cataclysm Leatherworking" },
+      { "id": 2530, "name": "Northrend Leatherworking" },
+      { "id": 2531, "name": "Outland Leatherworking" },
+      { "id": 2532, "name": "Leatherworking" },
+      { "id": 2758, "name": "Shadowlands Leatherworking" }
+    ],
+    "slug": "leatherworking"
+  },
+  {
+    "id": 171,
+    "name": "Alchemy",
+    "description": "Higher alchemy skill allows you to learn higher level alchemy recipes.  Alchemy recipes can be found on trainers around the world as well as from quests and monsters.",
+    "type": { "type": "PRIMARY", "name": "Primary" },
+    "media": "https://render-eu.worldofwarcraft.com/icons/56/trade_alchemy.jpg",
+    "skill_tiers": [
+      { "id": 2478, "name": "Kul Tiran Alchemy / Zandalari Alchemy" },
+      { "id": 2479, "name": "Legion Alchemy" },
+      { "id": 2480, "name": "Draenor Alchemy" },
+      { "id": 2481, "name": "Pandaria Alchemy" },
+      { "id": 2482, "name": "Cataclysm Alchemy" },
+      { "id": 2483, "name": "Northrend Alchemy" },
+      { "id": 2484, "name": "Outland Alchemy" },
+      { "id": 2485, "name": "Alchemy" },
+      { "id": 2750, "name": "Shadowlands Alchemy" }
+    ],
+    "slug": "alchemy"
+  },
+  {
+    "id": 185,
+    "name": "Cooking",
+    "description": "Higher cooking skill allows you to learn higher level cooking recipes.  Recipes can be found on trainers around the world as well as from quests and as drops from monsters.",
+    "type": { "type": "SECONDARY", "name": "Secondary" },
+    "media": "https://render-eu.worldofwarcraft.com/icons/56/inv_misc_food_15.jpg",
+    "skill_tiers": [
+      { "id": 2541, "name": "Kul Tiran Cooking / Zandalari Cooking" },
+      { "id": 2542, "name": "Legion Cooking" },
+      { "id": 2543, "name": "Draenor Cooking" },
+      { "id": 2544, "name": "Pandaria Cooking" },
+      { "id": 2545, "name": "Cataclysm Cooking" },
+      { "id": 2546, "name": "Northrend Cooking" },
+      { "id": 2547, "name": "Outland Cooking" },
+      { "id": 2548, "name": "Cooking" },
+      { "id": 2752, "name": "Shadowlands Cooking" }
+    ],
+    "slug": "cooking"
+  },
+  {
+    "id": 186,
+    "name": "Mining",
+    "description": "Higher mining skill allows you to harvest more difficult minerals nodes around the world.  If you cannot harvest a specific mineral, then increase your skill by mining easier to mine minerals in lower level areas.",
+    "type": { "type": "PRIMARY", "name": "Primary" },
+    "media": "https://render-eu.worldofwarcraft.com/icons/56/inv_pick_02.jpg",
+    "skill_tiers": [
+      { "id": 2565, "name": "Kul Tiran Mining / Zandalari Mining" },
+      { "id": 2566, "name": "Legion Mining" },
+      { "id": 2567, "name": "Draenor Mining" },
+      { "id": 2568, "name": "Pandaria Mining" },
+      { "id": 2569, "name": "Cataclysm Mining" },
+      { "id": 2570, "name": "Northrend Mining" },
+      { "id": 2571, "name": "Outland Mining" },
+      { "id": 2572, "name": "Mining" },
+      { "id": 2761, "name": "Shadowlands Mining" }
+    ],
+    "slug": "mining"
+  },
+  {
+    "id": 197,
+    "name": "Tailoring",
+    "description": "Higher tailoring skill allows you to learn higher level tailoring patterns.  Tailoring patterns can be found on trainers around the world as well as from quests and monsters.",
+    "type": { "type": "PRIMARY", "name": "Primary" },
+    "media": "https://render-eu.worldofwarcraft.com/icons/56/trade_tailoring.jpg",
+    "skill_tiers": [
+      { "id": 2533, "name": "Kul Tiran Tailoring / Zandalari Tailoring" },
+      { "id": 2534, "name": "Legion Tailoring" },
+      { "id": 2535, "name": "Draenor Tailoring" },
+      { "id": 2536, "name": "Pandaria Tailoring" },
+      { "id": 2537, "name": "Cataclysm Tailoring" },
+      { "id": 2538, "name": "Northrend Tailoring" },
+      { "id": 2539, "name": "Outland Tailoring" },
+      { "id": 2540, "name": "Tailoring" },
+      { "id": 2759, "name": "Shadowlands Tailoring" }
+    ],
+    "slug": "tailoring"
+  },
+  {
+    "id": 202,
+    "name": "Engineering",
+    "description": "Higher engineering skill allows you to learn higher level engineering schematics.  Schematics can be found on trainers around the world as well as from quests and monsters.",
+    "type": { "type": "PRIMARY", "name": "Primary" },
+    "media": "https://render-eu.worldofwarcraft.com/icons/56/trade_engineering.jpg",
+    "skill_tiers": [
+      { "id": 2499, "name": "Kul Tiran Engineering / Zandalari Engineering" },
+      { "id": 2500, "name": "Legion Engineering" },
+      { "id": 2501, "name": "Draenor Engineering" },
+      { "id": 2502, "name": "Pandaria Engineering" },
+      { "id": 2503, "name": "Cataclysm Engineering" },
+      { "id": 2504, "name": "Northrend Engineering" },
+      { "id": 2505, "name": "Outland Engineering" },
+      { "id": 2506, "name": "Engineering" },
+      { "id": 2755, "name": "Shadowlands Engineering" }
+    ],
+    "slug": "engineering"
+  },
+  {
+    "id": 333,
+    "name": "Enchanting",
+    "description": "Higher enchanting skill allows you to learn more powerful formulae.  Formulae can be found on trainers around the world as well as from quests and monsters.",
+    "type": { "type": "PRIMARY", "name": "Primary" },
+    "media": "https://render-eu.worldofwarcraft.com/icons/56/trade_engraving.jpg",
+    "skill_tiers": [
+      { "id": 2486, "name": "Kul Tiran Enchanting / Zandalari Enchanting" },
+      { "id": 2487, "name": "Legion Enchanting" },
+      { "id": 2488, "name": "Draenor Enchanting" },
+      { "id": 2489, "name": "Pandaria Enchanting" },
+      { "id": 2491, "name": "Cataclysm Enchanting" },
+      { "id": 2492, "name": "Northrend Enchanting" },
+      { "id": 2493, "name": "Outland Enchanting" },
+      { "id": 2494, "name": "Enchanting" },
+      { "id": 2753, "name": "Shadowlands Enchanting" }
+    ],
+    "slug": "enchanting"
+  },
+  {
+    "id": 755,
+    "name": "Jewelcrafting",
+    "description": "Higher jewelcrafting skill allows you to learn higher level jewelcrafting plans.  Jewelcrafting plans can be found on trainers around the world as well as from quests and monsters.",
+    "type": { "type": "PRIMARY", "name": "Primary" },
+    "media": "https://render-eu.worldofwarcraft.com/icons/56/inv_misc_gem_01.jpg",
+    "skill_tiers": [
+      {
+        "id": 2517,
+        "name": "Kul Tiran Jewelcrafting / Zandalari Jewelcrafting"
+      },
+      { "id": 2518, "name": "Legion Jewelcrafting" },
+      { "id": 2519, "name": "Draenor Jewelcrafting" },
+      { "id": 2520, "name": "Pandaria Jewelcrafting" },
+      { "id": 2521, "name": "Cataclysm Jewelcrafting" },
+      { "id": 2522, "name": "Northrend Jewelcrafting" },
+      { "id": 2523, "name": "Outland Jewelcrafting" },
+      { "id": 2524, "name": "Jewelcrafting" },
+      { "id": 2757, "name": "Shadowlands Jewelcrafting" }
+    ],
+    "slug": "jewelcrafting"
+  },
+  {
+    "id": 773,
+    "name": "Inscription",
+    "description": "Higher inscription skill allows you to learn more advanced inscriptions.  Inscriptions are acquired from learned scribes throughout the world.",
+    "type": { "type": "PRIMARY", "name": "Primary" },
+    "media": "https://render-eu.worldofwarcraft.com/icons/56/inv_inscription_tradeskill01.jpg",
+    "skill_tiers": [
+      { "id": 2507, "name": "Kul Tiran Inscription / Zandalari Inscription" },
+      { "id": 2508, "name": "Legion Inscription" },
+      { "id": 2509, "name": "Draenor Inscription" },
+      { "id": 2510, "name": "Pandaria Inscription" },
+      { "id": 2511, "name": "Cataclysm Inscription" },
+      { "id": 2512, "name": "Northrend Inscription" },
+      { "id": 2513, "name": "Outland Inscription" },
+      { "id": 2514, "name": "Inscription" },
+      { "id": 2756, "name": "Shadowlands Inscription" }
+    ],
+    "slug": "inscription"
+  }
+]

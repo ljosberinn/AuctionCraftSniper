@@ -1,15 +1,14 @@
 import type { GetStaticPathsResult, GetStaticProps } from "next";
 import Head from "next/head";
 
+import allProfessions from "../../../../../static/professions.json";
 import allRealms from "../../../../../static/realms.json";
-import { getAllProfessionsByLocale, retrieveToken } from "../../../../bnet/api";
-import type { RealmMeta } from "../../../../bnet/realms";
 import type { BattleNetRegion } from "../../../../client/context/AuthContext/types";
 
 type ProfessionProps = {
   region: BattleNetRegion;
-  profession: string;
-  realm: Omit<RealmMeta, "_links">;
+  profession: typeof allProfessions[number];
+  realm: typeof allRealms[number];
 };
 
 // eslint-disable-next-line import/no-default-export
@@ -22,11 +21,11 @@ export default function Profession({
     <>
       <Head>
         <title>
-          {profession} / {region}-{realm.name}
+          {profession.name} / {region}-{realm.name}
         </title>
       </Head>
       <h1>
-        {region} - {realm.name} - {profession}
+        {region} - {realm.name} - {profession.name}
       </h1>
     </>
   );
@@ -40,16 +39,10 @@ export const getStaticPaths = async (): Promise<
     region: realm.region.slug as BattleNetRegion,
   }));
 
-  const token = await retrieveToken();
-  const professionData = await getAllProfessionsByLocale("en_US", token);
-  const professionNames = professionData.professions.map((profession) =>
-    profession.name.toLocaleLowerCase().split(" ").join("-")
-  );
-
   const paths = flatRealms.flatMap(({ realm, region }) => {
-    return professionNames.map((profession) => ({
+    return allProfessions.map((profession) => ({
       params: {
-        profession,
+        profession: profession.slug,
         realm,
         region,
       },
@@ -57,12 +50,11 @@ export const getStaticPaths = async (): Promise<
   });
 
   return {
-    fallback: "blocking",
+    fallback: false,
     paths,
   };
 };
 
-// @ts-expect-error TODO
 export const getStaticProps: GetStaticProps<ProfessionProps> = async (ctx) => {
   if (
     !ctx.params?.region ||
@@ -90,9 +82,17 @@ export const getStaticProps: GetStaticProps<ProfessionProps> = async (ctx) => {
     throw new Error(`unknown realm ${region}-${realm}`);
   }
 
+  const professionData = allProfessions.find(
+    (maybeProfession) => maybeProfession.slug === profession
+  );
+
+  if (!professionData) {
+    throw new Error(`unknown profession ${profession}`);
+  }
+
   return {
     props: {
-      profession: profession.charAt(0).toUpperCase() + profession.slice(1),
+      profession: professionData,
       realm: realmData,
       region: region.toUpperCase() as BattleNetRegion,
     },

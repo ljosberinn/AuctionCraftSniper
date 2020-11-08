@@ -3,16 +3,14 @@ import Head from "next/head";
 import Link from "next/link";
 import React from "react";
 
+import allProfessions from "../../../../static/professions.json";
 import allRealms from "../../../../static/realms.json";
-import { getAllProfessionsByLocale, retrieveToken } from "../../../bnet/api";
-import type { RealmMeta } from "../../../bnet/realms";
-import type { ProfessionMeta } from "../../../bnet/recipes";
 import type { BattleNetRegion } from "../../../client/context/AuthContext/types";
 
 type RealmProps = {
   region: BattleNetRegion;
-  realm: Omit<RealmMeta, "_links">;
-  professions: ProfessionMeta[];
+  realm: typeof allRealms[number];
+  professions: typeof allProfessions;
 };
 
 // eslint-disable-next-line import/no-default-export
@@ -35,10 +33,9 @@ export default function Realm({
         {professions.map((profession) => (
           <li key={profession.id}>
             <Link
-              href={`/${region.toLowerCase()}/${realm.slug}/${profession.name}`}
+              href={`/${region.toLowerCase()}/${realm.slug}/${profession.slug}`}
             >
-              {profession.name.charAt(0).toUpperCase() +
-                profession.name.slice(1)}
+              {profession.name}
             </Link>
           </li>
         ))}
@@ -52,7 +49,7 @@ export const getStaticPaths: GetStaticPaths<{
   realm: string;
 }> = async () => {
   return {
-    fallback: "blocking",
+    fallback: false,
     paths: allRealms.map((realm) => ({
       params: {
         realm: realm.slug,
@@ -62,7 +59,6 @@ export const getStaticPaths: GetStaticPaths<{
   };
 };
 
-// @ts-expect-error TODO
 export const getStaticProps: GetStaticProps<RealmProps> = async (ctx) => {
   if (
     !ctx.params?.region ||
@@ -87,15 +83,9 @@ export const getStaticProps: GetStaticProps<RealmProps> = async (ctx) => {
     throw new Error(`unknown realm "${region}-${realm}"`);
   }
 
-  const token = await retrieveToken();
-  const professions = await getAllProfessionsByLocale("en_US", token);
-
   return {
     props: {
-      professions: professions.professions.map((profession) => ({
-        ...profession,
-        name: profession.name.toLocaleLowerCase().split(" ").join("-"),
-      })),
+      professions: allProfessions,
       realm: realmData,
       region: region.toUpperCase() as BattleNetRegion,
     },
