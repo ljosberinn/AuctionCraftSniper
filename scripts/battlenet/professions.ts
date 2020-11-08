@@ -85,7 +85,6 @@ const getProfessionImage = async (
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async () => {
   const token = await retrieveToken();
-
   const professionData = await getAllProfessionsByLocale("en_US", token);
 
   const professions = await Promise.all(

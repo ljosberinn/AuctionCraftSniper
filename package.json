@@ -14,7 +14,8 @@
     "test": "jest --passWithNoTests",
     "build:static": "tsc -b tsconfig.node.json",
     "run:static:realms": "node build/scripts/battlenet/realms.js",
-    "run:static:professions": "node build/scripts/battlenet/professions.js"
+    "run:static:professions": "node build/scripts/battlenet/professions.js",
+    "run:static:recipes": "node build/scripts/battlenet/recipes.js"
   },
   "dependencies": {
     "cookie": "0.4.1",

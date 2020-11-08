@@ -38,11 +38,6 @@ module.exports = {
     // scrollRestoration: true,
     productionBrowserSourceMaps: true,
   },
-  i18n: {
-    defaultLocale: process.env.NEXT_PUBLIC_FALLBACK_LOCALE,
-    localeDetection: true,
-    locales: process.env.NEXT_PUBLIC_ENABLED_LOCALES.split(","),
-  },
   reactStrictMode: true,
   typescript: {
     /**
