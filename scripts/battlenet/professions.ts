@@ -6,7 +6,7 @@ import type {
   ProfessionMeta,
   ProfessionOverview,
 } from "../../src/bnet/recipes";
-import { retrieveToken, staticFolder } from "./setup";
+import { fetchWithRetry, retrieveToken, staticFolder } from "./setup";
 
 const excludedProfessions = new Set([
   182, // Herbalism
@@ -89,13 +89,13 @@ const getProfessionImage = async (
 
   const professions = await Promise.all(
     professionData.professions.map(async (profession) => {
-      const {
-        _links,
-        skill_tiers = [],
-        ...rest
-      } = await getProfessionDataByIdAndLocale(profession.id, "en_US", token);
+      const { _links, skill_tiers = [], ...rest } = await fetchWithRetry(() =>
+        getProfessionDataByIdAndLocale(profession.id, "en_US", token)
+      );
 
-      const media = await getProfessionImage(rest.id, token);
+      const media = await fetchWithRetry(() =>
+        getProfessionImage(rest.id, token)
+      );
 
       const sanitizedSkillTiers = skill_tiers.map(({ key, ...rest }) => rest);
       const slug = profession.name.toLowerCase().split(" ").join("-");

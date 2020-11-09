@@ -1,0 +1,56 @@
+[
+  {
+    "id": 2478,
+    "name": "Kul Tiran Alchemy / Zandalari Alchemy",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 175
+  },
+  {
+    "id": 2479,
+    "name": "Legion Alchemy",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  },
+  {
+    "id": 2480,
+    "name": "Draenor Alchemy",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  },
+  {
+    "id": 2481,
+    "name": "Pandaria Alchemy",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2482,
+    "name": "Cataclysm Alchemy",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2483,
+    "name": "Northrend Alchemy",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2484,
+    "name": "Outland Alchemy",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2485,
+    "name": "Alchemy",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 300
+  },
+  {
+    "id": 2750,
+    "name": "Shadowlands Alchemy",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 175
+  }
+]

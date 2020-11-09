@@ -50,3 +50,20 @@ export const retrieveToken = async (): Promise<string> => {
 
   throw new Error("oauth2: could not authenticate");
 };
+
+export const fetchWithRetry = async <T>(
+  fetcher: () => Promise<T>,
+  attempt = 1
+): Promise<T> => {
+  try {
+    // eslint-disable-next-line no-await-in-loop
+    return await fetcher();
+  } catch {
+    // eslint-disable-next-line no-console
+    console.error(`attempt ${attempt} failed`);
+
+    await sleep(attempt * 1000);
+
+    return fetchWithRetry(fetcher, attempt + 1);
+  }
+};

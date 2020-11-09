@@ -1,0 +1,56 @@
+[
+  {
+    "id": 2533,
+    "name": "Kul Tiran Tailoring / Zandalari Tailoring",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 175
+  },
+  {
+    "id": 2534,
+    "name": "Legion Tailoring",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  },
+  {
+    "id": 2535,
+    "name": "Draenor Tailoring",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  },
+  {
+    "id": 2536,
+    "name": "Pandaria Tailoring",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2537,
+    "name": "Cataclysm Tailoring",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2538,
+    "name": "Northrend Tailoring",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2539,
+    "name": "Outland Tailoring",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2540,
+    "name": "Tailoring",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 300
+  },
+  {
+    "id": 2759,
+    "name": "Shadowlands Tailoring",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  }
+]

@@ -4,7 +4,7 @@ import { resolve } from "path";
 import { regions } from "../../src/bnet/api";
 import type { Realm, RealmIndex, RealmMeta } from "../../src/bnet/realms";
 import type { BattleNetRegion } from "../../src/client/context/AuthContext/types";
-import { staticFolder, sleep, retrieveToken } from "./setup";
+import { staticFolder, retrieveToken, fetchWithRetry } from "./setup";
 
 const getAllRealmsByRegion = async (
   region: BattleNetRegion,
@@ -63,16 +63,12 @@ const getRealmDataByName = async (
 
     // eslint-disable-next-line no-await-in-loop
     const realmData = await Promise.all(
-      realms.map(async (realm, index) => {
+      realms.map(async (realm) => {
         // eslint-disable-next-line no-console
         console.time(`${region}-${realm.slug}`);
 
-        await sleep(index * 15);
-
-        const { region: regionMeta, ...rest } = await getRealmDataByName(
-          realm.slug,
-          region,
-          token
+        const { region: regionMeta, ...rest } = await fetchWithRetry(() =>
+          getRealmDataByName(realm.slug, region, token)
         );
 
         const { key, ...trimmedRegionMeta } = { ...regionMeta, slug: region };

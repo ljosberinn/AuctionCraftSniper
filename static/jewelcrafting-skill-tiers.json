@@ -1,0 +1,56 @@
+[
+  {
+    "id": 2517,
+    "name": "Kul Tiran Jewelcrafting / Zandalari Jewelcrafting",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 175
+  },
+  {
+    "id": 2518,
+    "name": "Legion Jewelcrafting",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  },
+  {
+    "id": 2519,
+    "name": "Draenor Jewelcrafting",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  },
+  {
+    "id": 2520,
+    "name": "Pandaria Jewelcrafting",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2521,
+    "name": "Cataclysm Jewelcrafting",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2522,
+    "name": "Northrend Jewelcrafting",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2523,
+    "name": "Outland Jewelcrafting",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2524,
+    "name": "Jewelcrafting",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 300
+  },
+  {
+    "id": 2757,
+    "name": "Shadowlands Jewelcrafting",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  }
+]

@@ -7,17 +7,17 @@
     "media": "https://render-eu.worldofwarcraft.com/icons/56/trade_blacksmithing.jpg",
     "skill_tiers": [
       {
-        "id": 2437,
-        "name": "Kul Tiran Blacksmithing / Zandalari Blacksmithing"
+        "name": "Kul Tiran Blacksmithing / Zandalari Blacksmithing",
+        "id": 2437
       },
-      { "id": 2454, "name": "Legion Blacksmithing" },
-      { "id": 2472, "name": "Draenor Blacksmithing" },
-      { "id": 2473, "name": "Pandaria Blacksmithing" },
-      { "id": 2474, "name": "Cataclysm Blacksmithing" },
-      { "id": 2475, "name": "Northrend Blacksmithing" },
-      { "id": 2476, "name": "Outland Blacksmithing" },
-      { "id": 2477, "name": "Blacksmithing" },
-      { "id": 2751, "name": "Shadowlands Blacksmithing" }
+      { "name": "Legion Blacksmithing", "id": 2454 },
+      { "name": "Draenor Blacksmithing", "id": 2472 },
+      { "name": "Pandaria Blacksmithing", "id": 2473 },
+      { "name": "Cataclysm Blacksmithing", "id": 2474 },
+      { "name": "Northrend Blacksmithing", "id": 2475 },
+      { "name": "Outland Blacksmithing", "id": 2476 },
+      { "name": "Blacksmithing", "id": 2477 },
+      { "name": "Shadowlands Blacksmithing", "id": 2751 }
     ],
     "slug": "blacksmithing"
   },
@@ -29,17 +29,17 @@
     "media": "https://render-eu.worldofwarcraft.com/icons/56/trade_leatherworking.jpg",
     "skill_tiers": [
       {
-        "id": 2525,
-        "name": "Kul Tiran Leatherworking / Zandalari Leatherworking"
+        "name": "Kul Tiran Leatherworking / Zandalari Leatherworking",
+        "id": 2525
       },
-      { "id": 2526, "name": "Legion Leatherworking" },
-      { "id": 2527, "name": "Draenor Leatherworking" },
-      { "id": 2528, "name": "Pandaria Leatherworking" },
-      { "id": 2529, "name": "Cataclysm Leatherworking" },
-      { "id": 2530, "name": "Northrend Leatherworking" },
-      { "id": 2531, "name": "Outland Leatherworking" },
-      { "id": 2532, "name": "Leatherworking" },
-      { "id": 2758, "name": "Shadowlands Leatherworking" }
+      { "name": "Legion Leatherworking", "id": 2526 },
+      { "name": "Draenor Leatherworking", "id": 2527 },
+      { "name": "Pandaria Leatherworking", "id": 2528 },
+      { "name": "Cataclysm Leatherworking", "id": 2529 },
+      { "name": "Northrend Leatherworking", "id": 2530 },
+      { "name": "Outland Leatherworking", "id": 2531 },
+      { "name": "Leatherworking", "id": 2532 },
+      { "name": "Shadowlands Leatherworking", "id": 2758 }
     ],
     "slug": "leatherworking"
   },
@@ -50,15 +50,15 @@
     "type": { "type": "PRIMARY", "name": "Primary" },
     "media": "https://render-eu.worldofwarcraft.com/icons/56/trade_alchemy.jpg",
     "skill_tiers": [
-      { "id": 2478, "name": "Kul Tiran Alchemy / Zandalari Alchemy" },
-      { "id": 2479, "name": "Legion Alchemy" },
-      { "id": 2480, "name": "Draenor Alchemy" },
-      { "id": 2481, "name": "Pandaria Alchemy" },
-      { "id": 2482, "name": "Cataclysm Alchemy" },
-      { "id": 2483, "name": "Northrend Alchemy" },
-      { "id": 2484, "name": "Outland Alchemy" },
-      { "id": 2485, "name": "Alchemy" },
-      { "id": 2750, "name": "Shadowlands Alchemy" }
+      { "name": "Kul Tiran Alchemy / Zandalari Alchemy", "id": 2478 },
+      { "name": "Legion Alchemy", "id": 2479 },
+      { "name": "Draenor Alchemy", "id": 2480 },
+      { "name": "Pandaria Alchemy", "id": 2481 },
+      { "name": "Cataclysm Alchemy", "id": 2482 },
+      { "name": "Northrend Alchemy", "id": 2483 },
+      { "name": "Outland Alchemy", "id": 2484 },
+      { "name": "Alchemy", "id": 2485 },
+      { "name": "Shadowlands Alchemy", "id": 2750 }
     ],
     "slug": "alchemy"
   },
@@ -69,15 +69,15 @@
     "type": { "type": "SECONDARY", "name": "Secondary" },
     "media": "https://render-eu.worldofwarcraft.com/icons/56/inv_misc_food_15.jpg",
     "skill_tiers": [
-      { "id": 2541, "name": "Kul Tiran Cooking / Zandalari Cooking" },
-      { "id": 2542, "name": "Legion Cooking" },
-      { "id": 2543, "name": "Draenor Cooking" },
-      { "id": 2544, "name": "Pandaria Cooking" },
-      { "id": 2545, "name": "Cataclysm Cooking" },
-      { "id": 2546, "name": "Northrend Cooking" },
-      { "id": 2547, "name": "Outland Cooking" },
-      { "id": 2548, "name": "Cooking" },
-      { "id": 2752, "name": "Shadowlands Cooking" }
+      { "name": "Kul Tiran Cooking / Zandalari Cooking", "id": 2541 },
+      { "name": "Legion Cooking", "id": 2542 },
+      { "name": "Draenor Cooking", "id": 2543 },
+      { "name": "Pandaria Cooking", "id": 2544 },
+      { "name": "Cataclysm Cooking", "id": 2545 },
+      { "name": "Northrend Cooking", "id": 2546 },
+      { "name": "Outland Cooking", "id": 2547 },
+      { "name": "Cooking", "id": 2548 },
+      { "name": "Shadowlands Cooking", "id": 2752 }
     ],
     "slug": "cooking"
   },
@@ -88,15 +88,15 @@
     "type": { "type": "PRIMARY", "name": "Primary" },
     "media": "https://render-eu.worldofwarcraft.com/icons/56/inv_pick_02.jpg",
     "skill_tiers": [
-      { "id": 2565, "name": "Kul Tiran Mining / Zandalari Mining" },
-      { "id": 2566, "name": "Legion Mining" },
-      { "id": 2567, "name": "Draenor Mining" },
-      { "id": 2568, "name": "Pandaria Mining" },
-      { "id": 2569, "name": "Cataclysm Mining" },
-      { "id": 2570, "name": "Northrend Mining" },
-      { "id": 2571, "name": "Outland Mining" },
-      { "id": 2572, "name": "Mining" },
-      { "id": 2761, "name": "Shadowlands Mining" }
+      { "name": "Kul Tiran Mining / Zandalari Mining", "id": 2565 },
+      { "name": "Legion Mining", "id": 2566 },
+      { "name": "Draenor Mining", "id": 2567 },
+      { "name": "Pandaria Mining", "id": 2568 },
+      { "name": "Cataclysm Mining", "id": 2569 },
+      { "name": "Northrend Mining", "id": 2570 },
+      { "name": "Outland Mining", "id": 2571 },
+      { "name": "Mining", "id": 2572 },
+      { "name": "Shadowlands Mining", "id": 2761 }
     ],
     "slug": "mining"
   },
@@ -107,15 +107,15 @@
     "type": { "type": "PRIMARY", "name": "Primary" },
     "media": "https://render-eu.worldofwarcraft.com/icons/56/trade_tailoring.jpg",
     "skill_tiers": [
-      { "id": 2533, "name": "Kul Tiran Tailoring / Zandalari Tailoring" },
-      { "id": 2534, "name": "Legion Tailoring" },
-      { "id": 2535, "name": "Draenor Tailoring" },
-      { "id": 2536, "name": "Pandaria Tailoring" },
-      { "id": 2537, "name": "Cataclysm Tailoring" },
-      { "id": 2538, "name": "Northrend Tailoring" },
-      { "id": 2539, "name": "Outland Tailoring" },
-      { "id": 2540, "name": "Tailoring" },
-      { "id": 2759, "name": "Shadowlands Tailoring" }
+      { "name": "Kul Tiran Tailoring / Zandalari Tailoring", "id": 2533 },
+      { "name": "Legion Tailoring", "id": 2534 },
+      { "name": "Draenor Tailoring", "id": 2535 },
+      { "name": "Pandaria Tailoring", "id": 2536 },
+      { "name": "Cataclysm Tailoring", "id": 2537 },
+      { "name": "Northrend Tailoring", "id": 2538 },
+      { "name": "Outland Tailoring", "id": 2539 },
+      { "name": "Tailoring", "id": 2540 },
+      { "name": "Shadowlands Tailoring", "id": 2759 }
     ],
     "slug": "tailoring"
   },
@@ -126,15 +126,15 @@
     "type": { "type": "PRIMARY", "name": "Primary" },
     "media": "https://render-eu.worldofwarcraft.com/icons/56/trade_engineering.jpg",
     "skill_tiers": [
-      { "id": 2499, "name": "Kul Tiran Engineering / Zandalari Engineering" },
-      { "id": 2500, "name": "Legion Engineering" },
-      { "id": 2501, "name": "Draenor Engineering" },
-      { "id": 2502, "name": "Pandaria Engineering" },
-      { "id": 2503, "name": "Cataclysm Engineering" },
-      { "id": 2504, "name": "Northrend Engineering" },
-      { "id": 2505, "name": "Outland Engineering" },
-      { "id": 2506, "name": "Engineering" },
-      { "id": 2755, "name": "Shadowlands Engineering" }
+      { "name": "Kul Tiran Engineering / Zandalari Engineering", "id": 2499 },
+      { "name": "Legion Engineering", "id": 2500 },
+      { "name": "Draenor Engineering", "id": 2501 },
+      { "name": "Pandaria Engineering", "id": 2502 },
+      { "name": "Cataclysm Engineering", "id": 2503 },
+      { "name": "Northrend Engineering", "id": 2504 },
+      { "name": "Outland Engineering", "id": 2505 },
+      { "name": "Engineering", "id": 2506 },
+      { "name": "Shadowlands Engineering", "id": 2755 }
     ],
     "slug": "engineering"
   },
@@ -145,15 +145,15 @@
     "type": { "type": "PRIMARY", "name": "Primary" },
     "media": "https://render-eu.worldofwarcraft.com/icons/56/trade_engraving.jpg",
     "skill_tiers": [
-      { "id": 2486, "name": "Kul Tiran Enchanting / Zandalari Enchanting" },
-      { "id": 2487, "name": "Legion Enchanting" },
-      { "id": 2488, "name": "Draenor Enchanting" },
-      { "id": 2489, "name": "Pandaria Enchanting" },
-      { "id": 2491, "name": "Cataclysm Enchanting" },
-      { "id": 2492, "name": "Northrend Enchanting" },
-      { "id": 2493, "name": "Outland Enchanting" },
-      { "id": 2494, "name": "Enchanting" },
-      { "id": 2753, "name": "Shadowlands Enchanting" }
+      { "name": "Kul Tiran Enchanting / Zandalari Enchanting", "id": 2486 },
+      { "name": "Legion Enchanting", "id": 2487 },
+      { "name": "Draenor Enchanting", "id": 2488 },
+      { "name": "Pandaria Enchanting", "id": 2489 },
+      { "name": "Cataclysm Enchanting", "id": 2491 },
+      { "name": "Northrend Enchanting", "id": 2492 },
+      { "name": "Outland Enchanting", "id": 2493 },
+      { "name": "Enchanting", "id": 2494 },
+      { "name": "Shadowlands Enchanting", "id": 2753 }
     ],
     "slug": "enchanting"
   },
@@ -165,17 +165,17 @@
     "media": "https://render-eu.worldofwarcraft.com/icons/56/inv_misc_gem_01.jpg",
     "skill_tiers": [
       {
-        "id": 2517,
-        "name": "Kul Tiran Jewelcrafting / Zandalari Jewelcrafting"
+        "name": "Kul Tiran Jewelcrafting / Zandalari Jewelcrafting",
+        "id": 2517
       },
-      { "id": 2518, "name": "Legion Jewelcrafting" },
-      { "id": 2519, "name": "Draenor Jewelcrafting" },
-      { "id": 2520, "name": "Pandaria Jewelcrafting" },
-      { "id": 2521, "name": "Cataclysm Jewelcrafting" },
-      { "id": 2522, "name": "Northrend Jewelcrafting" },
-      { "id": 2523, "name": "Outland Jewelcrafting" },
-      { "id": 2524, "name": "Jewelcrafting" },
-      { "id": 2757, "name": "Shadowlands Jewelcrafting" }
+      { "name": "Legion Jewelcrafting", "id": 2518 },
+      { "name": "Draenor Jewelcrafting", "id": 2519 },
+      { "name": "Pandaria Jewelcrafting", "id": 2520 },
+      { "name": "Cataclysm Jewelcrafting", "id": 2521 },
+      { "name": "Northrend Jewelcrafting", "id": 2522 },
+      { "name": "Outland Jewelcrafting", "id": 2523 },
+      { "name": "Jewelcrafting", "id": 2524 },
+      { "name": "Shadowlands Jewelcrafting", "id": 2757 }
     ],
     "slug": "jewelcrafting"
   },
@@ -186,15 +186,15 @@
     "type": { "type": "PRIMARY", "name": "Primary" },
     "media": "https://render-eu.worldofwarcraft.com/icons/56/inv_inscription_tradeskill01.jpg",
     "skill_tiers": [
-      { "id": 2507, "name": "Kul Tiran Inscription / Zandalari Inscription" },
-      { "id": 2508, "name": "Legion Inscription" },
-      { "id": 2509, "name": "Draenor Inscription" },
-      { "id": 2510, "name": "Pandaria Inscription" },
-      { "id": 2511, "name": "Cataclysm Inscription" },
-      { "id": 2512, "name": "Northrend Inscription" },
-      { "id": 2513, "name": "Outland Inscription" },
-      { "id": 2514, "name": "Inscription" },
-      { "id": 2756, "name": "Shadowlands Inscription" }
+      { "name": "Kul Tiran Inscription / Zandalari Inscription", "id": 2507 },
+      { "name": "Legion Inscription", "id": 2508 },
+      { "name": "Draenor Inscription", "id": 2509 },
+      { "name": "Pandaria Inscription", "id": 2510 },
+      { "name": "Cataclysm Inscription", "id": 2511 },
+      { "name": "Northrend Inscription", "id": 2512 },
+      { "name": "Outland Inscription", "id": 2513 },
+      { "name": "Inscription", "id": 2514 },
+      { "name": "Shadowlands Inscription", "id": 2756 }
     ],
     "slug": "inscription"
   }
