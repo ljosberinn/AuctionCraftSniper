@@ -1,4 +1,8 @@
-import type { GetStaticPathsResult, GetStaticProps } from "next";
+import type {
+  GetStaticPathsResult,
+  GetStaticProps,
+  InferGetStaticPropsType,
+} from "next";
 import Head from "next/head";
 import Link from "next/link";
 
@@ -6,13 +10,11 @@ import allRealms from "../../../static/realms.json";
 import { regions } from "../../bnet/api";
 import type { BattleNetRegion } from "../../client/context/AuthContext/types";
 
-type RegionProps = {
-  region: BattleNetRegion;
-  realms: typeof allRealms;
-};
-
 // eslint-disable-next-line import/no-default-export
-export default function Region({ region, realms }: RegionProps): JSX.Element {
+export default function Region({
+  region,
+  realms,
+}: InferGetStaticPropsType<typeof getStaticProps>): JSX.Element {
   return (
     <>
       <Head>
@@ -33,7 +35,7 @@ export default function Region({ region, realms }: RegionProps): JSX.Element {
 }
 
 export const getStaticPaths = (): GetStaticPathsResult<{
-  region: string;
+  region: BattleNetRegion;
 }> => ({
   fallback: false,
   paths: regions.map((region) => ({
@@ -43,16 +45,30 @@ export const getStaticPaths = (): GetStaticPathsResult<{
   })),
 });
 
-export const getStaticProps: GetStaticProps<RegionProps> = async (context) => {
-  if (!context.params?.region || Array.isArray(context.params.region)) {
+type StaticProps = {
+  region: BattleNetRegion;
+  realms: Pick<typeof allRealms[number], "id" | "slug" | "name">[];
+};
+
+type ExpectedUrlParams = {
+  region: BattleNetRegion;
+};
+
+export const getStaticProps: GetStaticProps<
+  StaticProps,
+  ExpectedUrlParams
+> = async (context) => {
+  if (!context.params?.region) {
     throw new Error("missing region");
   }
 
-  const { region } = context.params as { region: BattleNetRegion };
+  const { region } = context.params;
 
   return {
     props: {
-      realms: allRealms.filter((realm) => realm.region.slug === region),
+      realms: allRealms
+        .filter((realm) => realm.region.slug === region)
+        .map(({ id, slug, name }) => ({ id, name, slug })),
       region: region.toUpperCase() as BattleNetRegion,
     },
   };

@@ -1,4 +1,8 @@
-import type { GetStaticPaths, GetStaticProps } from "next";
+import type {
+  GetStaticPaths,
+  GetStaticProps,
+  InferGetStaticPropsType,
+} from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -9,15 +13,9 @@ import allProfessions from "../../../../static/professions.json";
 import allRealms from "../../../../static/realms.json";
 import type { BattleNetRegion } from "../../../client/context/AuthContext/types";
 
-type RealmProps = {
-  region: BattleNetRegion;
-  realm: typeof allRealms[number];
-  professions: typeof allProfessions;
-};
-
 const getActiveProfessions = (
   { professions }: ParsedUrlQuery,
-  allProfessions: RealmProps["professions"]
+  allProfessions: StaticProps["professions"]
 ): string[] => {
   if (Array.isArray(professions)) {
     return professions;
@@ -35,7 +33,7 @@ export default function Realm({
   region,
   realm,
   professions,
-}: RealmProps): JSX.Element {
+}: InferGetStaticPropsType<typeof getStaticProps>): JSX.Element {
   const { query } = useRouter();
   const activeProfessions = getActiveProfessions(query, professions);
   const baseUrl = `/${region.toLowerCase()}/${realm.slug}`;
@@ -112,20 +110,26 @@ export const getStaticPaths: GetStaticPaths<{
   };
 };
 
-export const getStaticProps: GetStaticProps<RealmProps> = async (ctx) => {
-  if (
-    !ctx.params?.region ||
-    Array.isArray(ctx.params.region) ||
-    !ctx.params.realm ||
-    Array.isArray(ctx.params.realm)
-  ) {
+type StaticProps = {
+  region: BattleNetRegion;
+  realm: Pick<typeof allRealms[number], "id" | "name" | "slug">;
+  professions: typeof allProfessions;
+};
+
+type ExpectedUrlParams = {
+  region: BattleNetRegion;
+  realm: string;
+};
+
+export const getStaticProps: GetStaticProps<
+  StaticProps,
+  ExpectedUrlParams
+> = async (context) => {
+  if (!context.params?.region || !context.params.realm) {
     throw new Error("incorrect getStaticProps");
   }
 
-  const { region, realm } = ctx.params as {
-    region: BattleNetRegion;
-    realm: string;
-  };
+  const { region, realm } = context.params;
 
   const realmData = allRealms.find(
     (maybeRealm) =>
@@ -136,10 +140,12 @@ export const getStaticProps: GetStaticProps<RealmProps> = async (ctx) => {
     throw new Error(`unknown realm "${region}-${realm}"`);
   }
 
+  const { id, name, slug } = realmData;
+
   return {
     props: {
       professions: allProfessions,
-      realm: realmData,
+      realm: { id, name, slug },
       region: region.toUpperCase() as BattleNetRegion,
     },
   };
