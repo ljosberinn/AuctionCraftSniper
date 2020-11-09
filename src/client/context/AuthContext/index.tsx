@@ -1,4 +1,4 @@
-import { useRouter } from "next/router";
+import Router from "next/router";
 import type { SetStateAction, Dispatch } from "react";
 import {
   useState,
@@ -29,6 +29,7 @@ export function AuthContextProvider({
     redirectDestinationIfUnauthenticated,
     setUser,
     shouldAttemptReauthentication,
+    user,
   });
 
   const login = useCallback((region: BattleNetRegion) => {
@@ -59,17 +60,22 @@ type UseSSGReauthenticationArgs = Pick<
   "redirectDestinationIfUnauthenticated" | "shouldAttemptReauthentication"
 > & {
   setUser: Dispatch<SetStateAction<User | null>>;
+  user: User | null;
 };
 
 function useSSGReauthentication({
   shouldAttemptReauthentication,
   redirectDestinationIfUnauthenticated,
   setUser,
+  user,
 }: UseSSGReauthenticationArgs) {
-  const { push } = useRouter();
-
   useEffect(() => {
-    if (!shouldAttemptReauthentication) {
+    /**
+     * do not attempt to reauthenticate if
+     * - categorically ruled out
+     * - already authenticated
+     */
+    if (!shouldAttemptReauthentication || user) {
       return;
     }
 
@@ -79,7 +85,7 @@ function useSSGReauthentication({
       }
 
       try {
-        await push(redirectDestinationIfUnauthenticated);
+        await Router.push(redirectDestinationIfUnauthenticated);
       } catch {
         window.location.assign(redirectDestinationIfUnauthenticated);
       }
@@ -108,7 +114,7 @@ function useSSGReauthentication({
   }, [
     shouldAttemptReauthentication,
     redirectDestinationIfUnauthenticated,
-    push,
     setUser,
+    user,
   ]);
 }
