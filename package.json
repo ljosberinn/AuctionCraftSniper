@@ -43,7 +43,10 @@
     "jest-watch-typeahead": "0.6.1",
     "lint-staged": "10.5.1",
     "node-fetch": "2.6.1",
+    "postcss-flexbugs-fixes": "^5.0.1",
+    "postcss-preset-env": "^6.7.0",
     "prettier": "2.1.2",
+    "tailwindcss": "^1.9.6",
     "typescript": "4.0.5",
     "yarn-deduplicate": "3.1.0"
   },

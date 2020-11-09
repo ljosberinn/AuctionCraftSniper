@@ -2,6 +2,7 @@ import type { NextComponentType, NextPageContext } from "next";
 import type { NextRouter } from "next/router";
 
 import { AuthContextProvider } from "../client/context/AuthContext";
+import "../styles.css";
 
 export type AppRenderProps = {
   pageProps: Record<string, unknown>;
