@@ -140,3 +140,40 @@ export type MediaAssets = {
     value: string;
   }[];
 };
+
+export type OuterAuctionData = {
+  auctions: Auction[];
+  connected_realm: Self;
+  _links: Self;
+};
+
+export type Auction = {
+  id: number;
+  item: AuctionItem;
+  quantity: number;
+  unit_price: number;
+  time_left: "VERY_LONG" | "SHORT" | "MEDIUM" | "LONG";
+  buyout?: number;
+  bid?: number;
+};
+
+export type Modifier = {
+  type: number;
+  value: number;
+};
+
+export type AuctionItem = {
+  id: number;
+  context?: number;
+  bonus_lists: number[];
+  modifiers: Modifier[];
+  pet_breed_id?: number;
+  pet_level?: number;
+  pet_quality_id?: number;
+  pet_species_id?: number;
+};
+
+export type AuctionPartial = Pick<
+  Auction,
+  "item" | "bid" | "buyout" | "quantity" | "id"
+>;

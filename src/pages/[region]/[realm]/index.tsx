@@ -7,16 +7,18 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import type { ParsedUrlQuery } from "querystring";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
-import allProfessions from "../../../../static/professions.json";
+import { simpleProfessions } from "../../../../static/professions";
 import allRealms from "../../../../static/realms.json";
+import type { AuctionPartial } from "../../../bnet/recipes";
 import type { BattleNetRegion } from "../../../client/context/AuthContext/types";
 
-const getActiveProfessions = (
-  { professions }: ParsedUrlQuery,
-  allProfessions: StaticProps["professions"]
-): string[] => {
+const allProfessionSlugs = simpleProfessions.map(
+  (profession) => profession.slug
+);
+
+const getActiveProfessions = ({ professions }: ParsedUrlQuery): string[] => {
   if (Array.isArray(professions)) {
     return professions;
   }
@@ -25,72 +27,158 @@ const getActiveProfessions = (
     return professions.split(",");
   }
 
-  return allProfessions.map((profession) => profession.slug);
+  return allProfessionSlugs;
+};
+
+const useInitWowhead = (trigger: boolean) => {
+  useEffect(() => {
+    // @ts-expect-error loaded via script
+    if (trigger && window.$WowheadPower) {
+      // @ts-expect-error loaded via script
+      $WowheadPower.init();
+    }
+  }, [trigger]);
 };
 
 // eslint-disable-next-line import/no-default-export
 export default function Realm({
   region,
   realm,
-  professions,
 }: InferGetStaticPropsType<typeof getStaticProps>): JSX.Element {
   const { query } = useRouter();
-  const activeProfessions = getActiveProfessions(query, professions);
+  const activeProfessions = getActiveProfessions(query);
   const baseUrl = `/${region.toLowerCase()}/${realm.slug}`;
+  const [auctionData, setAuctionData] = useState<AuctionPartial[]>([]);
 
   const hasProfessions = query.professions
     ? query.professions.length > 0
     : false;
 
+  useEffect(() => {
+    const params =
+      activeProfessions === allProfessionSlugs
+        ? ""
+        : `?${activeProfessions
+            .map((slug) => `professions=${slug}`)
+            .join("&")}`;
+
+    if (auctionData.length === 0) {
+      fetch(`/api/auctions/${region.toLowerCase()}/${realm.slug}${params}`)
+        // eslint-disable-next-line promise/prefer-await-to-then
+        .then((response) => response.json())
+        // eslint-disable-next-line promise/prefer-await-to-then
+        .then(setAuctionData)
+        // eslint-disable-next-line no-console
+        .catch(console.error);
+    }
+  }, [realm.slug, region, activeProfessions, auctionData]);
+
+  useInitWowhead(auctionData.length > 0);
+
   return (
     <>
       <Head>
         <title>
-          {region}-{realm.name}
+          ACS \ {region}-{realm.name}
         </title>
       </Head>
       <h1>
         {region} - {realm.name}
       </h1>
-      <div>
-        {professions.map((profession) => {
-          const nextParams = (() => {
-            if (hasProfessions && activeProfessions.includes(profession.slug)) {
-              return activeProfessions.filter(
-                (slug) => slug !== profession.slug
-              );
-            }
+      <header>
+        <nav className="flex">
+          {simpleProfessions.map((profession) => {
+            const nextParams = (() => {
+              if (
+                hasProfessions &&
+                activeProfessions.includes(profession.slug)
+              ) {
+                return activeProfessions.filter(
+                  (slug) => slug !== profession.slug
+                );
+              }
 
-            return hasProfessions
-              ? [...activeProfessions, profession.slug]
-              : [profession.slug];
-          })();
+              return hasProfessions
+                ? [...activeProfessions, profession.slug]
+                : [profession.slug];
+            })();
 
-          const href = `${baseUrl}${
-            nextParams.length > 0 ? `?professions=${nextParams.join(",")}` : ""
-          }`;
+            const href = `${baseUrl}${
+              nextParams.length > 0
+                ? `?professions=${nextParams.join(",")}`
+                : ""
+            }`;
 
-          const style =
-            hasProfessions && href.includes(profession.slug)
-              ? {
-                  filter: "grayscale(1)",
-                  opacity: 0.7,
-                }
-              : {};
+            const isActive = hasProfessions && href.includes(profession.slug);
 
-          return (
-            <Link href={href} key={profession.id}>
-              <a>
-                <img
-                  src={profession.media}
-                  alt={profession.name}
-                  style={style}
-                />
-              </a>
-            </Link>
-          );
-        })}
-      </div>
+            const style =
+              hasProfessions && href.includes(profession.slug)
+                ? {
+                    filter: "grayscale(1)",
+                  }
+                : {};
+
+            return (
+              <Link href={href} key={profession.id}>
+                <a>
+                  <img
+                    src={profession.media}
+                    alt={profession.name}
+                    className={`${
+                      isActive
+                        ? "opacity-50 hover:opacity-75 transition duration-100 ease-in-out"
+                        : ""
+                    }`}
+                    style={style}
+                  />
+                </a>
+              </Link>
+            );
+          })}
+        </nav>
+      </header>
+      <hr />
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead>
+          <tr>
+            <th className="text-right px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+              item id
+            </th>
+            <th className="text-right px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+              quantity
+            </th>
+            <th className="text-right px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+              buyout
+            </th>
+            <th className="text-right px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+              bid
+            </th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {auctionData.map((dataset) => (
+            <tr key={dataset.id}>
+              <td className="px-6 py-4 whitespace-no-wrap text-right">
+                <a
+                  href={`https://wowhead.com/?item=${dataset.item.id}`}
+                  data-wowhead={`item-${dataset.item.id}`}
+                >
+                  {dataset.item.id}
+                </a>
+              </td>
+              <td className="px-6 py-4 whitespace-no-wrap text-right">
+                {dataset.quantity}
+              </td>
+              <td className="px-6 py-4 whitespace-no-wrap text-right">
+                {(dataset.buyout ?? 0).toLocaleString()}
+              </td>
+              <td className="px-6 py-4 whitespace-no-wrap text-right">
+                {(dataset.bid ?? 0).toLocaleString()}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </>
   );
 }
@@ -113,7 +201,6 @@ export const getStaticPaths: GetStaticPaths<{
 type StaticProps = {
   region: BattleNetRegion;
   realm: Pick<typeof allRealms[number], "id" | "name" | "slug">;
-  professions: typeof allProfessions;
 };
 
 type ExpectedUrlParams = {
@@ -144,7 +231,6 @@ export const getStaticProps: GetStaticProps<
 
   return {
     props: {
-      professions: allProfessions,
       realm: { id, name, slug },
       region: region.toUpperCase() as BattleNetRegion,
     },
