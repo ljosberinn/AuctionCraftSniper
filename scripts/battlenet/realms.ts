@@ -4,7 +4,7 @@ import { resolve } from "path";
 import { regions } from "../../src/bnet/api";
 import type { Realm, RealmIndex, RealmMeta } from "../../src/bnet/realms";
 import type { BattleNetRegion } from "../../src/client/context/AuthContext/types";
-import { staticFolder, retrieveToken, fetchWithRetry } from "./setup";
+import { staticFolder, retrieveToken, fetchWithRetry, locale } from "./setup";
 
 const getAllRealmsByRegion = async (
   region: BattleNetRegion,
@@ -12,7 +12,7 @@ const getAllRealmsByRegion = async (
 ): Promise<Omit<Realm, "key">[]> => {
   const params = new URLSearchParams({
     access_token,
-    locale: "en_US",
+    locale,
     namespace: `dynamic-${region}`,
   }).toString();
 
@@ -38,7 +38,7 @@ const getRealmDataByName = async (
 ): Promise<Omit<RealmMeta, "_links">> => {
   const params = new URLSearchParams({
     access_token,
-    locale: "en_US",
+    locale,
     namespace: `dynamic-${region}`,
   }).toString();
 
@@ -50,6 +50,8 @@ const getRealmDataByName = async (
 
   return rest;
 };
+
+const connectedRealmRegEx = /\d{1,4}/gu;
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async () => {
@@ -67,19 +69,40 @@ const getRealmDataByName = async (
         // eslint-disable-next-line no-console
         console.time(`${region}-${realm.slug}`);
 
-        const { region: regionMeta, ...rest } = await fetchWithRetry(() =>
+        const {
+          region: regionMeta,
+          is_tournament,
+          connected_realm,
+          ...rest
+        } = await fetchWithRetry(() =>
           getRealmDataByName(realm.slug, region, token)
         );
 
-        const { key, ...trimmedRegionMeta } = { ...regionMeta, slug: region };
+        const { key, id, ...trimmedRegionMeta } = {
+          ...regionMeta,
+          slug: region,
+        };
+
+        const connectedRealmMatch = connected_realm.href.match(
+          connectedRealmRegEx
+        );
+
+        if (!connectedRealmMatch || connectedRealmMatch.length === 0) {
+          throw new Error("no connected realm id found");
+        }
+
+        const connectedRealmId = Number.parseInt(connectedRealmMatch[0]);
 
         // eslint-disable-next-line no-console
         console.timeEnd(`${region}-${realm.slug}`);
 
-        return {
-          ...rest,
-          region: trimmedRegionMeta,
-        };
+        if (!is_tournament) {
+          return {
+            ...rest,
+            connectedRealmId,
+            region: trimmedRegionMeta,
+          };
+        }
       })
     );
 
