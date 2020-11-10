@@ -9,7 +9,7 @@ import type {
   SkillTier,
 } from "../../src/bnet/recipes";
 import allProfessions from "../../static/professions.json";
-import { retrieveToken, fetchWithRetry, staticFolder } from "./setup";
+import { retrieveToken, fetchWithRetry, staticFolder, locale } from "./setup";
 
 const getSkillTierDataByProfessionIdAndSkillTierId = async (
   professionId: number,
@@ -18,7 +18,7 @@ const getSkillTierDataByProfessionIdAndSkillTierId = async (
 ): Promise<SkillTier> => {
   const params = new URLSearchParams({
     access_token,
-    locale: "en_US",
+    locale,
     namespace: "static-eu",
     region: "eu",
   }).toString();
@@ -36,7 +36,7 @@ const getRecipeDataByIdAndLocale = async (
 ): Promise<Recipe> => {
   const params = new URLSearchParams({
     access_token,
-    locale: "en_US",
+    locale,
     namespace: "static-eu",
     region: "eu",
   }).toString();
@@ -54,7 +54,7 @@ const getRecipeMediaUrl = async (
 ): Promise<MediaAssets> => {
   const params = new URLSearchParams({
     access_token,
-    locale: "en_US",
+    locale,
     namespace: "static-eu",
     region: "eu",
   }).toString();
@@ -72,7 +72,7 @@ const getItemMediaUrl = async (
 ): Promise<MediaAssets> => {
   const params = new URLSearchParams({
     access_token,
-    locale: "en_US",
+    locale,
     namespace: "static-eu",
     region: "eu",
   }).toString();

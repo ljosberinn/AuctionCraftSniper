@@ -6,7 +6,7 @@ import type {
   ProfessionMeta,
   ProfessionOverview,
 } from "../../src/bnet/recipes";
-import { fetchWithRetry, retrieveToken, staticFolder } from "./setup";
+import { fetchWithRetry, locale, retrieveToken, staticFolder } from "./setup";
 
 const excludedProfessions = new Set([
   182, // Herbalism
@@ -21,8 +21,7 @@ const excludedProfessions = new Set([
 const omitIrrelevantProfessions = (professions: ProfessionMeta[]) =>
   professions.filter((profession) => !excludedProfessions.has(profession.id));
 
-const getAllProfessionsByLocale = async (
-  locale: string,
+const getAllProfessions = async (
   access_token: string
 ): Promise<ProfessionOverview> => {
   const params = new URLSearchParams({
@@ -46,7 +45,6 @@ const getAllProfessionsByLocale = async (
 
 const getProfessionDataByIdAndLocale = async (
   id: number,
-  locale: string,
   access_token: string
 ): Promise<Profession> => {
   const params = new URLSearchParams({
@@ -85,12 +83,12 @@ const getProfessionImage = async (
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async () => {
   const token = await retrieveToken();
-  const professionData = await getAllProfessionsByLocale("en_US", token);
+  const professionData = await getAllProfessions(token);
 
   const professions = await Promise.all(
     professionData.professions.map(async (profession) => {
       const { _links, skill_tiers = [], ...rest } = await fetchWithRetry(() =>
-        getProfessionDataByIdAndLocale(profession.id, "en_US", token)
+        getProfessionDataByIdAndLocale(profession.id, token)
       );
 
       const media = await fetchWithRetry(() =>

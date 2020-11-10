@@ -19,12 +19,14 @@ const handler: RequestHandler<User> = (req, res) => {
     if (session) {
       setExpires(res, expiration);
 
-      return res.json(session);
+      res.json(session);
+      return;
     }
 
-    return res.status(UNAUTHORIZED).end();
+    res.status(UNAUTHORIZED).end();
+    return;
   } catch {
-    return res.status(UNAUTHORIZED).end();
+    res.status(UNAUTHORIZED).end();
   }
 };
 
