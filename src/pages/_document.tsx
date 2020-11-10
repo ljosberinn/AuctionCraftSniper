@@ -7,10 +7,17 @@ export default function CustomDocument(): JSX.Element {
       <Head>
         <meta content="7 days" name="revisit-after" />
         <meta content="Gerrit Alex" name="author" />
+        <script src="https://wow.zamimg.com/widgets/power.js" />
       </Head>
       <body>
         <Main />
         <NextScript />
+        <script
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: `const whTooltips = {colorLinks: true, iconizeLinks: true, renameLinks: true};`,
+          }}
+        />
       </body>
     </Html>
   );

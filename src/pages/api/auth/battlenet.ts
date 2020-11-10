@@ -54,7 +54,8 @@ const handleCallback = async (
       console.error(error);
     }
 
-    return res.status(BAD_REQUEST).end();
+    res.status(BAD_REQUEST).end();
+    return;
   }
 
   const origin = getOrigin(req);
@@ -122,7 +123,8 @@ const handler: RequestHandler = async (req, res) => {
 
   if ("init" in req.query) {
     if (!region || Array.isArray(region) || !isValidRegion(region)) {
-      return res.status(BAD_REQUEST).end();
+      res.status(BAD_REQUEST).end();
+      return;
     }
 
     const upcomingState = `${region}-${Math.floor(
@@ -140,12 +142,13 @@ const handler: RequestHandler = async (req, res) => {
       state: upcomingState,
     });
 
-    return res.end();
+    res.end();
+    return;
   }
 
   await handleCallback(req, res, redirect_uri);
 
-  return res.end();
+  res.end();
 };
 
 // eslint-disable-next-line import/no-default-export

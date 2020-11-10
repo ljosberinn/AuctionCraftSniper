@@ -7,7 +7,13 @@ export default function Index(): JSX.Element {
   return (
     <>
       <button
-        onClick={isAuthenticated ? logout : () => login("eu")}
+        onClick={
+          isAuthenticated
+            ? logout
+            : () => {
+                login("eu");
+              }
+        }
         type="button"
       >
         {isAuthenticated ? "logout" : "login"}
