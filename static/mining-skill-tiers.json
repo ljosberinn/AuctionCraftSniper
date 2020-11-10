@@ -1,0 +1,56 @@
+[
+  {
+    "id": 2565,
+    "name": "Kul Tiran Mining / Zandalari Mining",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 175
+  },
+  {
+    "id": 2566,
+    "name": "Legion Mining",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  },
+  {
+    "id": 2567,
+    "name": "Draenor Mining",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  },
+  {
+    "id": 2568,
+    "name": "Pandaria Mining",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2569,
+    "name": "Cataclysm Mining",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2570,
+    "name": "Northrend Mining",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2571,
+    "name": "Outland Mining",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2572,
+    "name": "Mining",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 300
+  },
+  {
+    "id": 2761,
+    "name": "Shadowlands Mining",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 150
+  }
+]

@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+      "allowJs": false,
+      "esModuleInterop": true,
+      "forceConsistentCasingInFileNames": true,
+      "isolatedModules": true,
+      "jsx": "preserve",
+      "lib": ["dom", "esnext"],
+      "module": "commonjs",
+      "target": "esnext",
+      "moduleResolution": "node",
+      "noEmit": false,
+      "noFallthroughCasesInSwitch": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "resolveJsonModule": true,
+      "skipLibCheck": true,
+      "strict": true,
+      "allowSyntheticDefaultImports": true,
+      "outDir": "./build"
+    },
+    "exclude": ["node_modules"],
+    "include": ["scripts/battlenet/*.ts"]
+  }
+  

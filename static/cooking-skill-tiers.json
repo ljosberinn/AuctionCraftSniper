@@ -1,0 +1,56 @@
+[
+  {
+    "id": 2541,
+    "name": "Kul Tiran Cooking / Zandalari Cooking",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 175
+  },
+  {
+    "id": 2542,
+    "name": "Legion Cooking",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  },
+  {
+    "id": 2543,
+    "name": "Draenor Cooking",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  },
+  {
+    "id": 2544,
+    "name": "Pandaria Cooking",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2545,
+    "name": "Cataclysm Cooking",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2546,
+    "name": "Northrend Cooking",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2547,
+    "name": "Outland Cooking",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2548,
+    "name": "Cooking",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 300
+  },
+  {
+    "id": 2752,
+    "name": "Shadowlands Cooking",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  }
+]

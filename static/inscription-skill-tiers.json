@@ -1,0 +1,56 @@
+[
+  {
+    "id": 2507,
+    "name": "Kul Tiran Inscription / Zandalari Inscription",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 175
+  },
+  {
+    "id": 2508,
+    "name": "Legion Inscription",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  },
+  {
+    "id": 2509,
+    "name": "Draenor Inscription",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  },
+  {
+    "id": 2510,
+    "name": "Pandaria Inscription",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2511,
+    "name": "Cataclysm Inscription",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2512,
+    "name": "Northrend Inscription",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2513,
+    "name": "Outland Inscription",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2514,
+    "name": "Inscription",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 300
+  },
+  {
+    "id": 2756,
+    "name": "Shadowlands Inscription",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  }
+]

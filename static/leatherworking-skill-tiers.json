@@ -1,0 +1,56 @@
+[
+  {
+    "id": 2525,
+    "name": "Kul Tiran Leatherworking / Zandalari Leatherworking",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 175
+  },
+  {
+    "id": 2526,
+    "name": "Legion Leatherworking",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  },
+  {
+    "id": 2527,
+    "name": "Draenor Leatherworking",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  },
+  {
+    "id": 2528,
+    "name": "Pandaria Leatherworking",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2529,
+    "name": "Cataclysm Leatherworking",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2530,
+    "name": "Northrend Leatherworking",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2531,
+    "name": "Outland Leatherworking",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2532,
+    "name": "Leatherworking",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 300
+  },
+  {
+    "id": 2758,
+    "name": "Shadowlands Leatherworking",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  }
+]

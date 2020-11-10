@@ -1,0 +1,56 @@
+[
+  {
+    "id": 2499,
+    "name": "Kul Tiran Engineering / Zandalari Engineering",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 175
+  },
+  {
+    "id": 2500,
+    "name": "Legion Engineering",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  },
+  {
+    "id": 2501,
+    "name": "Draenor Engineering",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  },
+  {
+    "id": 2502,
+    "name": "Pandaria Engineering",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2503,
+    "name": "Cataclysm Engineering",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2504,
+    "name": "Northrend Engineering",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2505,
+    "name": "Outland Engineering",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2506,
+    "name": "Engineering",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 300
+  },
+  {
+    "id": 2755,
+    "name": "Shadowlands Engineering",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  }
+]

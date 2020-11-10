@@ -1,0 +1,56 @@
+[
+  {
+    "id": 2486,
+    "name": "Kul Tiran Enchanting / Zandalari Enchanting",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 175
+  },
+  {
+    "id": 2487,
+    "name": "Legion Enchanting",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  },
+  {
+    "id": 2488,
+    "name": "Draenor Enchanting",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 100
+  },
+  {
+    "id": 2489,
+    "name": "Pandaria Enchanting",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2491,
+    "name": "Cataclysm Enchanting",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2492,
+    "name": "Northrend Enchanting",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2493,
+    "name": "Outland Enchanting",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 75
+  },
+  {
+    "id": 2494,
+    "name": "Enchanting",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 300
+  },
+  {
+    "id": 2753,
+    "name": "Shadowlands Enchanting",
+    "minimum_skill_level": 1,
+    "maximum_skill_level": 115
+  }
+]
