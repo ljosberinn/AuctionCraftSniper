@@ -8,6 +8,7 @@ import inscriptionRecipes from "./inscription-recipes.json";
 // import jewelcraftingRecipes from "./jewelcrafting-recipes.json";
 import leatherworkingRecipes from "./leatherworking-recipes.json";
 // import miningRecipes from "./mining-recipes.json";
+import { professionMap } from "./professions";
 import tailoringRecipes from "./tailoring-recipes.json";
 
 export const allRecipes: CustomRecipe[] = [
@@ -23,9 +24,16 @@ export const allRecipes: CustomRecipe[] = [
   ...tailoringRecipes,
 ].sort((a, b) => (a.id > b.id ? 1 : -1));
 
-const unique = (arr: number[]) => [...new Set(arr)];
+export const recipeMap: Record<string, CustomRecipe[]> = {
+  [professionMap.blacksmithing]: blacksmithingRecipes,
+  [professionMap.enchanting]: enchantingRecipes,
+  [professionMap.engineering]: engineeringRecipes,
+  [professionMap.inscription]: inscriptionRecipes,
+  [professionMap.leatherworking]: leatherworkingRecipes,
+  [professionMap.tailoring]: tailoringRecipes,
+};
 
-export const allRecipeIds: number[] = allRecipes.map((recipe) => recipe.id);
+const unique = (arr: number[]) => [...new Set(arr)];
 
 export const allCraftedItemIds: number[] = unique(
   allRecipes.flatMap((recipe) => {
