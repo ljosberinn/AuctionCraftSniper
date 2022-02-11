@@ -27,7 +27,7 @@
     "@babel/core": "^7.1.2",
     "@babel/preset-env": "^7.1.0",
     "@sentry/webpack-plugin": "^1.6.2",
-    "node-sass": "^4.10.0",
+    "node-sass": "^7.0.0",
     "npx": "^10.2.0",
     "prettier": "^1.14.3",
     "stylelint": "^9.6.0",
